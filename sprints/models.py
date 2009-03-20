@@ -25,6 +25,7 @@ from time import *
 from datetime import datetime, date, timedelta
 
 from django.db import models
+from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
@@ -71,8 +72,26 @@ class Sprint(models.Model):
         """
         return (self.end_date - self.start_date).days
 
+    # TODO: Untested!
     def get_users_load(self):
-        pass
+        """
+        Returns a dict mapping a User to an array of their hour load.  Load is
+        the total remaining hours left in an iteration-day.
+        """
+        users_load = {}
+        for day, date in _date_range(self.start_date, self.end_date):
+            rows = TaskSnapshotCache.objects.filter(date__lte=date, date__gte=date,
+                                                    task_snapshot__task__sprints=self)
+                                            .values('task_snapshot__assigned_to')
+                                            .annotate(Sum('task_snapshot__remaining_hours'))
+            for row in rows:
+                user = User.objects.all(pk=int(row['task_snapshot__assigned_to']))
+                if not ret.has_key(user):
+                    users_load[user] = zeroes(self.get_iteration_days())
+
+                users_load[user][day] = int(row['task_snapshot__remaining_hours__sum'])
+
+        return users_load
 
 class Task(models.Model):
     """
@@ -181,7 +200,8 @@ def _update_task_snapshot_cache(sender, instance, created, **kwargs):
     if not created: return
 
     day = instance.date.date()
-    snaps_for_day = TaskSnapshotCache.objects.filter(date=day)
+    snaps_for_day = TaskSnapshotCache.objects.filter(date=day,
+                                                     task_snapshot__task=instance.task)
     for c in snaps_for_day:
         if c.task_snapshot.date > instance.date:
             return # There's already a newer snapshot in the db
