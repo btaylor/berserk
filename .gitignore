@@ -1,0 +1,3 @@
+*.pyc
+berserk2.db
+local_settings.py
