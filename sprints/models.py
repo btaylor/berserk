@@ -35,14 +35,22 @@ class BugTracker(models.Model):
     """
     A Bugzilla bug tracker.
     """
-    product = models.CharField(max_length=128)
-    base_url = models.CharField(max_length=256)
-    backend = models.CharField(max_length=32)
+    product = models.CharField(max_length=128,
+        verbose_name='Product Name',
+        help_text=_('The Bugzilla product name to monitor.'))
+    base_url = models.CharField(max_length=256,
+        verbose_name='Bugzilla Base URL',
+        help_text=_("Example: 'https://bugzilla.mozilla.org'.  Make sure to omit trailing slashes."))
+    backend = models.CharField(max_length=32,
+        help_text=_('The name of the class under berserk2.bugzilla.backends to use for accessing your Bugzilla instance.'))
     username = models.CharField(max_length=32)
     password = models.CharField(max_length=32)
 
     def __unicode__(self):
-        return str(product_id)
+        return str(self.product)
+
+    def get_remote_task_url(self, task):
+        return '%s/show_bug.cgi?id=%s' % (self.base_url, task.remote_tracker_id)
 
 class Sprint(models.Model):
     """
@@ -51,7 +59,12 @@ class Sprint(models.Model):
     """
     start_date = models.DateField()
     end_date = models.DateField()
-    velocity = models.IntegerField(default=6)
+    velocity = models.IntegerField(default=6,
+        help_text=_('The number of expected work-hours in a day'))
+
+    class Meta:
+        get_latest_by = 'end_date'
+        ordering = ['-end_date']
 
     def __unicode__(self):
         return _("%s - %s") % (self.start_date.strftime("%b. %e"),
@@ -72,22 +85,30 @@ class Sprint(models.Model):
         """
         return (self.end_date - self.start_date).days
 
-    # TODO: Untested!
-    def get_users_load(self):
+    def get_sprint_load_by_user(self):
         """
-        Returns a dict mapping a User to an array of their hour load.  Load is
-        the total remaining hours left in an iteration-day.
+        Returns a dict mapping a User to an array of their load for every day
+        in the Sprint.  Load is the total remaining hours left in an
+        Sprint-day.
         """
         users_load = {}
         for day, date in _date_range(self.start_date, self.end_date):
             rows = TaskSnapshotCache.objects.filter(date__lte=date, date__gte=date,
-                                                    task_snapshot__task__sprints=self)
-                                            .values('task_snapshot__assigned_to')
+                                                    task_snapshot__task__sprints=self) \
+                                            .values('task_snapshot__assigned_to') \
                                             .annotate(Sum('task_snapshot__remaining_hours'))
             for row in rows:
-                user = User.objects.all(pk=int(row['task_snapshot__assigned_to']))
-                if not ret.has_key(user):
-                    users_load[user] = zeroes(self.get_iteration_days())
+                assigned_to = row['task_snapshot__assigned_to']
+                if assigned_to == None:
+                    continue
+                
+                try:
+                    user = User.objects.get(pk=int(assigned_to))
+                except ObjectDoesNotExist:
+                    continue
+
+                if not users_load.has_key(user):
+                    users_load[user] = [0]*self.get_iteration_days()
 
                 users_load[user][day] = int(row['task_snapshot__remaining_hours__sum'])
 
@@ -104,14 +125,17 @@ class Task(models.Model):
     def __unicode__(self):
         return _("Issue #%s") % (self.remote_tracker_id)
 
+    def get_absolute_url(self):
+        return self.bug_tracker.get_remote_task_url(self)
+
     def get_latest_snapshot(self):
         """
         Returns the most recent snapshot of the Task.  If no snapshots found,
         returns None.
         """
         try:
-            return TaskSnapshot.objects.filter(task=self).order_by("-date")[0]
-        except IndexError:
+            return TaskSnapshot.objects.filter(task=self).latest('date')
+        except DoesNotExist:
             return None
 
     def snapshot(self):
@@ -144,12 +168,6 @@ class Task(models.Model):
                                            actual_hours=int(bug.actual_time),
                                            remaining_hours=int(bug.remaining_time))
 
-    def get_remote_tracker_url(self):
-        """
-        Returns a remote URL to the Task.
-        """
-        return bug_tracker.user_url_format % self.remote_tracker_id
-
 import logging
 from berserk2.bugzilla import *
 
@@ -178,6 +196,9 @@ class TaskSnapshot(models.Model):
     estimated_hours = models.IntegerField()
     actual_hours = models.IntegerField()
     remaining_hours = models.IntegerField()
+
+    class Meta:
+        get_latest_by = 'date'
     
     def __unicode__(self):
         return _("Snapshot of task %d at %s") % (self.task.id, self.date)
@@ -222,6 +243,9 @@ class TaskSnapshotCache(models.Model):
 
     def __unicode__(self):
         return _("%s - #%d") % (self.date, self.task_snapshot.id)
+
+
+
 
 def _date_range(start, end):
     date = start

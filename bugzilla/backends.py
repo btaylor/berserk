@@ -58,7 +58,7 @@ class NovellBugzillaBackend(BugzillaBackend):
     """
     def login(self, user, password):
         def loggedin():
-            return re.match(r'^https://bugzilla.novell.com/', self.browser.get_url())
+            return re.match(r"^Welcome to Novell's Bugzilla$", self.browser.get_title().strip())
 
         commands.go('https://bugzilla.novell.com/ICSLogin/?"https://bugzilla.novell.com/ichainlogin.cgi?target=index.cgi?GoAheadAndLogIn%3D1"')
         if loggedin():

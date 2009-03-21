@@ -32,27 +32,44 @@ class BugzillaClient:
     """
     def __init__(self, base_url, backend_name):
         self.base_url = base_url
-        
-        import backends
-        klass = getattr(backends, backend_name)
+        klass = BugzillaClient.__get_backend(backend_name)
         self.backend = klass(self.base_url)
+
+    @staticmethod
+    def __get_backend(backend_name):
+        import backends
+        return getattr(backends, backend_name)
+
+    @staticmethod
+    def validate_backend(backend_name):
+        """
+        Returns True if the backend specified by backend_name exists under
+        berserk2.bugzilla.backends and can be instantiated. False otherwise.
+        """
+        try:
+            BugzillaClient.__get_backend(backend_name)
+        except AttributeError:
+            return False
+        else:
+            return True
 
     def login(self, user, password):
         """
         Authenticates the user against the remote Bugzilla instance.  Returns
         True if successful, False otherwise.
         """
-        #try:
-        self.backend.login(user, password)
-        #except Exception, e:
-        #    logging.debug('Exception while logging in:\n%s' % e)
-        #    return False
-        return True
+        try:
+            self.backend.login(user, password)
+        except AssertionError, e:
+            logging.error('Exception while logging in:\n%s' % e)
+            return False
+        else:
+            return True
 
     def get_bug(self, bug_id):
         """
-        Returns a BugzillaBug instance or None if the bug could not be found or
-        the Server could not be reached.
+        Returns a BugzillaBug instance or a blank instance if bug_id could not
+        be found or the Server could not be reached.
         """
         assert int(bug_id) > 0
         return BugzillaBug(self.backend, bug_id)
