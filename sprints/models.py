@@ -31,6 +31,8 @@ from django.db.models.signals import post_save
 
 from django.utils.translation import ugettext as _
 
+from berserk2.sprints.managers import SprintManager
+
 class BugTracker(models.Model):
     """
     A Bugzilla bug tracker.
@@ -61,6 +63,7 @@ class Sprint(models.Model):
     end_date = models.DateField()
     velocity = models.IntegerField(default=6,
         help_text=_('The number of expected work-hours in a day'))
+    objects = SprintManager()
 
     class Meta:
         get_latest_by = 'end_date'

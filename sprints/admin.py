@@ -1,4 +1,28 @@
+#
+# Copyright (c) 2008-2009 Brad Taylor <brad@getcoded.net>
+#
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# "Software"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions: 
+#  
+# The above copyright notice and this permission notice shall be 
+# included in all copies or substantial portions of the Software. 
+#  
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+#
+
 from django import forms
+from django.db.models import Q
 from django.contrib import admin
 from django.forms.util import ErrorList
 from berserk2.bugzilla import BugzillaClient
@@ -45,8 +69,29 @@ class BugTrackerAdmin(admin.ModelAdmin):
         }),
     )
 
+class SprintAdminForm(forms.ModelForm):
+    class Meta:
+        model = Sprint
+
+    def clean(self):
+        start_date = self.cleaned_data['start_date']
+        end_date = self.cleaned_data['end_date']
+        
+        sprints = Sprint.objects.filter(
+            (Q(start_date__lte=start_date) & Q(end_date__gte=start_date))
+            | (Q(start_date__gte=start_date) & Q(start_date__lte=end_date))
+        )
+
+        if sprints.count() > 0:
+            del self.cleaned_data['start_date']
+            del self.cleaned_data['end_date']
+            raise forms.ValidationError(_('The start or end dates overlap the sprint from %s.') % sprints[0])
+
+        return self.cleaned_data
+
 class SprintAdmin(admin.ModelAdmin):
     list_display = ('id', 'start_date', 'end_date', 'velocity')
+    form = SprintAdminForm
 
 class TaskAdmin(admin.ModelAdmin):
     list_display = ('remote_tracker_id', 'bug_tracker')
