@@ -84,14 +84,14 @@ class Sprint(models.Model):
         return date.today() >= self.start_date \
                and date.today() <= self.end_date
 
-    def get_iteration_days(self):
+    def iteration_days(self):
         """
         Returns the number of absolute days between the start and end dates of
         the Sprint.
         """
         return (self.end_date - self.start_date).days
 
-    def get_sprint_load_by_user(self):
+    def load_by_user(self):
         """
         Returns a dict mapping a User to an array of their load for every day
         in the Sprint.  Load is the total remaining hours left in an
@@ -114,7 +114,7 @@ class Sprint(models.Model):
                     continue
 
                 if not users_load.has_key(user):
-                    users_load[user] = [0]*self.get_iteration_days()
+                    users_load[user] = [0]*self.iteration_days()
 
                 users_load[user][day] = int(row['task_snapshot__remaining_hours__sum'])
 

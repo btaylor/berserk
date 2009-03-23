@@ -21,37 +21,9 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 #
 
-from django.template import RequestContext
-from django.utils.translation import ugettext as _
-from django.shortcuts import render_to_response, get_object_or_404
+from django.conf.urls.defaults import *
 
-from berserk2.sprints.models import *
-
-def sprint_detail(request, sprint_id=None,
-                  template_name='sprints/sprint_detail.html'):
-    if sprint_id == None:
-        sprint = Sprint.objects.current()
-    else:
-        sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-
-    if sprint == None:
-        raise Http404(_('No sprints have been defined yet.  Visit the Admin page to get started.'))
-
-    return render_to_response(template_name,
-                              {'sprint': sprint},
-                              context_instance=RequestContext(request))
-
-import simplejson
-
-from django.http import HttpResponse
-from django.core import serializers
-
-def sprint_load_json(request, sprint_id):
-    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-    load_values = sprint.load_by_user()
-
-    data = []
-    for user, load in load_values.iteritems():
-        data.append([user.username] + load)
-
-    return HttpResponse(simplejson.dumps(data))
+urlpatterns = patterns('',
+    (r'^(?P<sprint_id>\d+)/$', 'sprints.views.sprint_detail'),
+    (r'^(?P<sprint_id>\d+)/load/json/$', 'sprints.views.sprint_load_json'),
+)
