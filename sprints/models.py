@@ -48,6 +48,9 @@ class BugTracker(models.Model):
     username = models.CharField(max_length=32)
     password = models.CharField(max_length=32)
 
+    class Meta:
+        unique_together = ('base_url', 'product', 'backend')
+
     def __unicode__(self):
         return str(self.product)
 
@@ -121,9 +124,12 @@ class Task(models.Model):
     """
     A work task associated with zero or more sprints.
     """
-    remote_tracker_id = models.CharField(max_length=32, unique=True)
+    remote_tracker_id = models.CharField(max_length=32)
     sprints = models.ManyToManyField(Sprint, blank=True)
     bug_tracker = models.ForeignKey(BugTracker)
+
+    class Meta:
+        unique_together = ('remote_tracker_id', 'bug_tracker')
 
     def __unicode__(self):
         return _("Issue #%s") % (self.remote_tracker_id)
