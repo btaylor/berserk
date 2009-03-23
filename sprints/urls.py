@@ -25,5 +25,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     (r'^(?P<sprint_id>\d+)/$', 'sprints.views.sprint_detail'),
-    (r'^(?P<sprint_id>\d+)/load/json/$', 'sprints.views.sprint_load_json'),
+    (r'^(?P<sprint_id>\d+)/load_effort/json/$', 'sprints.views.sprint_load_effort_json'),
+    (r'^(?P<sprint_id>\d+)/tasks/json/$', 'sprints.views.sprint_tasks_json'),
+    (r'^(?P<sprint_id>\d+)/burndown/json/$', 'sprints.views.sprint_burndown_json'),
 )

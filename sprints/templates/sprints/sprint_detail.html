@@ -1,5 +1,80 @@
 {% extends "base.html" %}
 
+{% load i18n %}
+
 {% block body %}
-{{ sprint.start_date }} - {{ sprint.end_date }}
+<div id="sprint-burndown-chart" style="width: 500px; height: 300px;"></div>
+<script type="text/javascript">
+$.getJSON('{% url sprints.views.sprint_burndown_json sprint.id %}',
+    function(data) {
+        $.plot($("#sprint-burndown-chart"), [data]);
+    }
+);
+</script>
+
+
+<table id="sprint-tasks-table" style="display: none"></table>
+<table id="sprint-effort-table" style="display: none"></table>
+<table id="sprint-load-table" style="display: none"></table>
+<script type="text/javascript">
+$("#sprint-tasks-table").flexigrid({
+    url: '{% url sprints.views.sprint_tasks_json sprint.id %}',
+    dataType: 'json',
+    colModel: [
+        { display: 'Id', name: 'id', width: 45, align: 'left' },
+        { display: 'Title', name: 'title', width: 320, align: 'left' },
+        { display: 'Assigned To', name: 'assigned_to', width: 60, align: 'center' },
+        { display: 'Submitted By', name: 'submitted_by', width: 60, align: 'center' },
+        { display: 'Status', name: 'status', width: 60, align: 'left' },
+        { display: 'Est', name: 'estimated_hours', width: 15, align: 'left' },
+{% for day in iteration_days %}
+        { display: '{{ day }}', name: 'day_{{ day }}', width: 15, align: 'center' },
+{% endfor %}
+    ],
+    sortname: 'status',
+    sortorder: 'asc',
+    usepager: false,
+    width: "100%",
+    height: 900
+});
+
+$("#sprint-effort-table").flexigrid({
+    dataType: 'json',
+    colModel: [
+        { display: 'Team Member', name: 'team_member', width: 80, align: 'left' },
+{% for day in iteration_days %}
+        { display: '{{ day }}', name: 'day_{{ day }}', width: 15, align: 'center' },
+{% endfor %}
+    ],
+    sortname: 'team_member',
+    sortorder: 'asc',
+    usepager: false,
+    title: '{% trans "Team Member Effort (hours of effort remaining)" %}',
+    width: 800,
+    height: 200
+});
+
+$("#sprint-load-table").flexigrid({
+    dataType: 'json',
+    colModel: [
+        { display: '{% trans "Team Member" %}', name: 'team_member', width: 80, align: 'left' },
+{% for day in iteration_days %}
+        { display: '{{ day }}', name: 'day_{{ day }}', width: 15, align: 'center' },
+{% endfor %}
+    ],
+    sortname: 'team_member',
+    sortorder: 'asc',
+    usepager: false,
+    title: '{% blocktrans with sprint.velocity as v and sprint.velocity|pluralize as p %}Team Member Load (percent based on {{ v }} hour{{ p }} per day){% endblocktrans %}',
+    width: 800,
+    height: 200
+});
+
+$.getJSON('{% url sprints.views.sprint_load_effort_json sprint.id %}',
+    function(data) {
+        $("#sprint-load-table").flexAddData(data.load);
+        $("#sprint-effort-table").flexAddData(data.effort);
+    }
+);
+</script>
 {% endblock %}

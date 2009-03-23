@@ -31,6 +31,7 @@ from django.db.models.signals import post_save
 
 from django.utils.translation import ugettext as _
 
+from berserk2.sprints.utils import date_range
 from berserk2.sprints.managers import SprintManager
 
 class BugTracker(models.Model):
@@ -91,14 +92,29 @@ class Sprint(models.Model):
         """
         return (self.end_date - self.start_date).days
 
-    def load_by_user(self):
+    def iteration_workdays(self):
         """
-        Returns a dict mapping a User to an array of their load for every day
-        in the Sprint.  Load is the total remaining hours left in an
-        Sprint-day.
+        Returns the number of work days (M-F) between the start and end dates of the
+        Sprint.
+        """
+        return _workday_diff(self.start_date, self.end_date)
+
+    def load_and_effort_by_user(self):
+        """
+        Returns a dict containing two child dicts.
+
+         - "effort" is a dict mapping a User to an array of their effort for every day
+           in the Sprint.  Effort is the total remaining hours left in an
+           Sprint-day.
+
+         - "load" is a dict mapping a User to an array of their load for every day
+            in the Sprint.  Load is calculated by:
+                (total_hours / (weekdays * velocity) * 100.
         """
         users_load = {}
-        for day, date in _date_range(self.start_date, self.end_date):
+        users_effort = {}
+        for day, date in date_range(self.start_date, self.end_date):
+            print "%d - %s" % (day, date)
             rows = TaskSnapshotCache.objects.filter(date__lte=date, date__gte=date,
                                                     task_snapshot__task__sprints=self) \
                                             .values('task_snapshot__assigned_to') \
@@ -114,11 +130,16 @@ class Sprint(models.Model):
                     continue
 
                 if not users_load.has_key(user):
-                    users_load[user] = [0]*self.iteration_days()
+                    users_load[user] = [0]*(self.iteration_days() + 1)
+                    users_effort[user] = [0]*(self.iteration_days() + 1)
 
-                users_load[user][day] = int(row['task_snapshot__remaining_hours__sum'])
+                users_effort[user][day] = int(row['task_snapshot__remaining_hours__sum'])
+                users_load[user][day] = _calc_load(users_effort[user][day],
+                                                   _workday_diff(self.start_date, date),
+                                                   self.iteration_workdays(),
+                                                   self.velocity)
 
-        return users_load
+        return {'load': users_load, 'effort': users_effort}
 
 class Task(models.Model):
     """
@@ -256,11 +277,11 @@ class TaskSnapshotCache(models.Model):
 
 
 
-def _date_range(start, end):
-    date = start
-    while date <= end:
-        yield ((date - start).days, date)
-        date = date + timedelta(1)
-
-def _weekday_diff(start, end):
+def _workday_diff(start, end):
     return len([d for dy, d in date_range(start, end) if d.isoweekday() <= 5])
+
+def _calc_load(rem, day, total_days, velocity):
+    days_left = total_days - day
+    hours_left = days_left * velocity
+    return (float(rem) / float(hours_left)) * 100 \
+        if hours_left > 0 else 0
