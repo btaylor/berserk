@@ -54,29 +54,27 @@ from django.core import serializers
 def sprint_load_effort_json(request, sprint_id):
     """
     Returns a list of users and their load and effort values for each of the
-    days in the Sprint in Flexigrid format.
+    days in the Sprint.
     """
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
     data = sprint.load_and_effort_by_user()
 
     effort_rows = []
     for user, load in data['effort'].iteritems():
-        effort_rows.append({'id': user.id, 'cell': [user.username] + load})
+        effort_rows.append([user.username] + load)
 
     load_rows = []
     for user, load in data['load'].iteritems():
-        load_rows.append({'id': user.id,
-                          'cell': [user.username] + ['%.0f' % l for l in load]})
+        load_rows.append([user.username] + ['%.0f' % l for l in load])
 
     return HttpResponse(simplejson.dumps({
-        'load': {'page': 1, 'total': len(load_rows), 'rows': load_rows},
-        'effort': {'page': 1, 'total': len(effort_rows), 'rows': effort_rows},
+        'load': load_rows, 'effort': effort_rows,
     }))
 
 def sprint_tasks_json(request, sprint_id):
     """
     Returns a list of tasks and the effort values for each of the days in the
-    Sprint in Flexgrid format.
+    Sprint.
     """
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
     tasks = Task.objects.filter(sprints=sprint)
@@ -95,19 +93,14 @@ def sprint_tasks_json(request, sprint_id):
         if latest_snap == None:
             continue
 
-        tasks_data.append({
-            'id': latest_snap.id,
-            'cell': [
+        tasks_data.append([
                 '<a href="%s">#%s</a>' % (task.get_absolute_url(), task.remote_tracker_id),
-                latest_snap.title, unicode(latest_snap.assigned_to),
-                unicode(latest_snap.submitted_by),
+                latest_snap.title, latest_snap.component,
+                unicode(latest_snap.assigned_to), unicode(latest_snap.submitted_by),
                 latest_snap.status, latest_snap.estimated_hours
-            ] + task_rem,
-        })
+        ])
     
-    return HttpResponse(simplejson.dumps({
-        'page': 1, 'total': len(tasks_data), 'rows': tasks_data,
-    }))
+    return HttpResponse(simplejson.dumps(tasks_data))
 
 def sprint_burndown_json(request, sprint_id):
     """

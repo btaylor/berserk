@@ -1,0 +1,146 @@
+html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #182433;
+    font: 10pt Verdana, Arial, Helvetica, sans-serif;
+}
+
+a img {
+    border: 0px;
+}
+
+a:link, a {
+    color: #3ca2a2;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:link {
+    color: #215a5a;
+}
+
+h2 {
+    font: bold 1.4em Arial, Helvetica, sans-serif;
+    text-transform: lowercase;
+}
+
+ul.errorlist {
+    margin: 0;
+    padding: 0 0 0 5px;
+    background: #FCE398;
+}
+
+ul.errorlist li {
+    margin: 0;
+    padding: 5px;
+
+    color: #520520;
+
+    background: url('../images/error.png') center left no-repeat;
+    padding-left: 19px;
+    list-style: none;
+}
+
+#content-container {
+    width: 80%;
+    min-width: 600px;
+    margin: 0 auto;
+    display: table;
+}
+
+.content-row {
+    display: table-row;
+}
+
+.left-shadow {
+    display: table-cell;
+    width: 47px;
+    height: 100%;
+    background: url('../images/left-shadow.png') top right repeat-y;
+}
+
+.right-shadow {
+    display: table-cell;
+    width: 47px;
+    height: 100%;
+    background: url('../images/right-shadow.png') top left repeat-y;
+}
+
+.middle, #content {
+    display: table-cell;
+}
+
+.middle {
+    color: #ffffff;
+    text-align: right;
+    background: #3ca2a2;
+    padding-right: 10px;
+    border-top: 2px solid #ffffff;
+    border-top: 2px solid #dfecf6;
+}
+
+.middle p {
+    margin: 2px;
+}
+
+.middle a:link, .middle a {
+    color: #215a5a;
+}
+
+#content {
+    background: #2d2d29;
+}
+
+#header {
+    border-bottom: 8px solid #215a6d;
+}
+
+#logo {
+    padding: 10px;
+    padding-bottom: 5px;
+    float: left;
+}
+
+#navigation {
+    font: bold 1.4em Arial, Helvetica, sans-serif;
+    margin-bottom: 5px; 
+    text-transform: lowercase;
+    text-align: right;
+}
+
+.nav-item {
+    padding-right: 15px;
+}
+
+#body {
+    background: #dfecf6;
+    padding: 10px;
+}
+
+div#sprint-tasks-table, div#sprint-effort-table, div#sprint-load-table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+    padding: 10px;
+}
+
+#footer {
+    border-top: 1px solid #ffffff;
+    border-bottom: 6px solid #0e0e0e;
+    background-color: #215a6d;
+    color: #dfecf6;
+    font-size: 0.8em;
+}
+
+#footer-left {
+    padding: 20px;
+    float: left;
+}
+
+#footer-right {
+    padding: 5px;
+    float: right;
+}

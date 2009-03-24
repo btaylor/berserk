@@ -1,21 +1,73 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
-
 <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>berserk:: {% block title %}home{% endblock %}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>berserk:: {% block title %}home{% endblock %}</title>
 
-        <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}flexigrid/css/screen.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}berserk/css/screen.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}berserk/css/screen.css" media="screen">
 
-	<script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.js" charset="utf-8"></script>
-	<script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.flot.js" charset="utf-8"></script>
-	<script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/excanvas.js" charset="utf-8"></script>
-	<script type="text/javascript" src="{{ MEDIA_URL }}flexigrid/js/flexigrid.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.js" defer="defer" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.flot.js" defer="defer" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/ext-jquery-adapter.js" defer="defer" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/ext-all.js" defer="defer" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/summary.js" defer="defer" charset="utf-8"></script>
+{% block extra_head %}
+{% endblock %}
 </head>
 
 <body>
+    <div id="content-container">
+        <div class="content-row">
+            <div class="left-shadow"></div>
+            <div class="middle">
+{% if user.is_authenticated %}
+                <p>welcome back, {{ user.first_name }}.  &nbsp;[change password / log out]</p>
+{% else %}
+                <p>hello stranger.  care to <a href="{% url django.contrib.auth.views.login %}">log in</a>?
+{% endif %}
+            </div>
+            <div class="right-shadow"></div>
+        </div>
+        <div class="content-row">
+            <div class="left-shadow"></div>
+            <div id="content">
+                <div id="header">
+                    <div id="logo">
+                        <a href="/"><img src="{{ MEDIA_URL }}images/berserk-logo.gif" width="145" height="38" alt="Berserk Logo" /></a>
+                    </div>
+                    <div style="clear: both;"></div>
+{% block header %}
+{% endblock %}
+                </div>
+                <div id="body">
+{% block navigation %}
+{% endblock %}
 {% block body %}
 {% endblock %}
+                </div>
+                <div id="footer">
+                    <div id="footer-left">
+Copyright &copy; 2008 Brad Taylor.<br />
+Berserk is committed to sparkle motion.<br />
+Berserk is also free software.
+                    </div>
+                    <div id="footer-right">
+                        <a href="http://djangopony.com/"><img
+                           src="{{ MEDIA_URL }}images/pony-powered.png" width="210" height="65"
+                           alt="Berserk is Pony Powered!" /></a>
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+            <div class="right-shadow"></div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+            </div>
 </body>
 </html>

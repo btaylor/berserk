@@ -67,6 +67,7 @@ class Sprint(models.Model):
     end_date = models.DateField()
     velocity = models.IntegerField(default=6,
         help_text=_('The number of expected work-hours in a day'))
+    default_bug_tracker = models.ForeignKey(BugTracker, null=True)
     objects = SprintManager()
 
     class Meta:
@@ -114,7 +115,6 @@ class Sprint(models.Model):
         users_load = {}
         users_effort = {}
         for day, date in date_range(self.start_date, self.end_date):
-            print "%d - %s" % (day, date)
             rows = TaskSnapshotCache.objects.filter(date__lte=date, date__gte=date,
                                                     task_snapshot__task__sprints=self) \
                                             .values('task_snapshot__assigned_to') \
@@ -191,7 +191,7 @@ class Task(models.Model):
 
         bug = client.get_bug(self.remote_tracker_id)
         return TaskSnapshot.objects.create(task=self, title=bug.summary,
-                                           status=bug.status,
+                                           component=bug.component, status=bug.status,
                                            submitted_by=lookup_user(bug.submitted_by),
                                            assigned_to=lookup_user(bug.assigned_to),
                                            estimated_hours=int(bug.estimated_time),
@@ -220,6 +220,7 @@ class TaskSnapshot(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     task = models.ForeignKey(Task)
     title = models.CharField(max_length=128)
+    component = models.CharField(max_length=128)
     assigned_to = models.ForeignKey(User, related_name='assigned_to', null=True)
     submitted_by = models.ForeignKey(User, related_name='submitted_by', null=True)
     status = models.CharField(max_length=32)
