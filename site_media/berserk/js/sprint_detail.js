@@ -61,7 +61,7 @@ function createTasksGrid(target_id, url, iteration_days) {
             groupField: 'component',
         }),
         columns: columns, stripeRows: true,
-        width: 800, autoHeight: true,
+        autoWidth: true, height: 500,
         loadMask: true,
         view: new Ext.grid.GroupingView({
             showGroupName: true, hideGroupedColumn: true
@@ -93,11 +93,11 @@ function createTeamMemberGrid(target_id, iteration_days) {
     var grid = new Ext.grid.GridPanel({
         store: new Ext.data.SimpleStore({ fields: fields }),
         columns: columns, stripeRows: true,
-        width: 800, autoHeight: true,
+        autoWidth: true, autoHeight: true,
         loadMask: true,
     });
 
     grid.getColumnModel().defaultSortable = true;
-    grid.render('sprint-effort-table');
+    grid.render(target_id);
     return grid;
 }

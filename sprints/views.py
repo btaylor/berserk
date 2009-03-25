@@ -41,9 +41,15 @@ def sprint_detail(request, sprint_id=None,
 
     iteration_days = xrange(1, sprint.iteration_days()+2)
 
+    weekends = []
+    for day, date in date_range(sprint.start_date, sprint.end_date):
+        if date.isoweekday() == 7:
+            weekends.append({'start': day - 2, 'end': day})
+
     return render_to_response(template_name,
                               {'sprint': sprint,
-                               'iteration_days': iteration_days},
+                               'iteration_days': iteration_days,
+                               'weekends': weekends},
                               context_instance=RequestContext(request))
 
 import simplejson

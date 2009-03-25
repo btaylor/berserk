@@ -3,7 +3,6 @@
 {% load i18n %}
 
 {% block extra_head %}
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/xtheme-slate.css" media="screen">
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/core.css" media="screen">
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/grid.css" media="screen">
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/summary.css" media="screen">
@@ -12,13 +11,23 @@
 {% endblock %}
 
 {% block header %}
-<div id="sprint-burndown-chart" style="width: 500px; height: 300px;"></div>
+<div id="sprint-burndown-chart" style="width: 800px; height: 400px; margin: 10px auto;"></div>
 {% endblock %}
 
 {% block body %}
-<div id="sprint-tasks-table"></div>
+<style type="text/css">
+         .x-grid3-header-offset {width:auto !important;}
+</style>
+
+<div id="sprint-tasks-table" style="overflow: auto"></div>
+
+<h3>{% trans "Developer Effort <small>(hours of effort remaining)</small>" %}</h3>
 <div id="sprint-effort-table"></div>
+
+<h3>{% blocktrans with sprint.velocity as v and sprint.velocity|pluralize as p%}Developer Load <small>(percent based on {{ v }} hour{{ p }} per day)</small>{% endblocktrans %}</h3>
 <div id="sprint-load-table"></div>
+</div>
+
 <script type="text/javascript">
 Ext.onReady(function() {
     var iterationDays = {{ sprint.iteration_days }};
@@ -38,7 +47,21 @@ Ext.onReady(function() {
 
     $.getJSON('{% url sprints.views.sprint_burndown_json sprint.id %}',
         function(data) {
-            $.plot($("#sprint-burndown-chart"), [data]);
+            var options = {
+                lines: { show: true, lineWidth: 10, },
+                points: { show: true, radius: 6 },
+                xaxis: { tickSize: 1, },
+                grid: {
+                    color: "#FFFFFF", tickColor: "#000000",
+                    markings: [ 
+{% for weekend in weekends %}
+                        { xaxis: { from: {{ weekend.start }}, to: {{ weekend.end }}}, color: "#808080" },
+{% endfor %}
+                    ],
+                },
+            };
+            
+            $.plot($("#sprint-burndown-chart"), [data], options);
         }
     );
 });
