@@ -148,18 +148,20 @@ def sprint_my_tasks_json(request, sprint_id):
         return HttpResponse(simplejson.dumps([]))
 
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-    tasks = Task.objects.filter(sprints=sprint, tasksnapshot__assigned_to=request.user)
+    cached_snaps = TaskSnapshotCache.objects.filter(task_snapshot__assigned_to=request.user)
+    if sprint.is_active():
+        cached_snaps = cached_snaps.filter(date=date.today())
+    else:
+        cached_snaps = cached_snaps.filter(date=sprint.end_date)
+    
     tasks_data = []
-    for task in tasks:
-        snap = task.get_latest_snapshot()
-        if snap == None:
-            continue
-        
+    for cached_snap in cached_snaps:
+        snap = cached_snap.task_snapshot
         tasks_data.append([
-            '<a href="%s">#%s</a>' % (task.get_absolute_url(), task.remote_tracker_id),
+            '<a href="%s">#%s</a>' % (snap.task.get_absolute_url(), snap.task.remote_tracker_id),
             snap.title, snap.component, snap.status,
             snap.estimated_hours, snap.remaining_hours,
-            task.id,
+            snap.task.id,
         ])
     return HttpResponse(simplejson.dumps(tasks_data))
 
