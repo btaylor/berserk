@@ -2,21 +2,14 @@
 
 {% load i18n %}
 
-{% block extra_head %}
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/core.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/grid.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/summary.css" media="screen">
-
-    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/summary.js" defer="defer" charset="utf-8"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/sprint_detail.js" defer="defer" charset="utf-8"></script>
-{% endblock %}
-
 {% block nav-your-tasks %} selected{% endblock %}
 
 {% block body %}
 {% if err %}
 <div class="err">{{ err }}</div>
-<script type="text/javascript">$('.err').hide(); $('.err').fadeIn('slow');</script>
+<script type="text/javascript">$('.err').fadeIn('slow');</script>
+{% else %}
+<div class="err"></div>
 {% endif %}
 <div id="sprint-tasks-table"></div>
 <div id="add-task-row">

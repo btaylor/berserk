@@ -2,6 +2,16 @@
 
 {% load i18n %}
 
+{% block extra_head %}
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/core.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/grid.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/menu.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/summary.css" media="screen">
+
+    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/summary.js" defer="defer" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/sprint_detail.js" defer="defer" charset="utf-8"></script>
+{% endblock %}
+
 {% block navigation %}
 <span class="navigation-item{% block nav-team-tasks %}{% endblock %}">
 <a href="{% url sprints.views.sprint_detail sprint.id %}">{% trans "Team Tasks" %}</a>

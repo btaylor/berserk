@@ -159,6 +159,7 @@ def sprint_my_tasks_json(request, sprint_id):
             '<a href="%s">#%s</a>' % (task.get_absolute_url(), task.remote_tracker_id),
             snap.title, snap.component, snap.status,
             snap.estimated_hours, snap.remaining_hours,
+            task.id,
         ])
     return HttpResponse(simplejson.dumps(tasks_data))
 

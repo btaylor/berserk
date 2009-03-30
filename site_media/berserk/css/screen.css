@@ -107,6 +107,7 @@ img a {
     margin: 5px 0;
     padding: 6px;
     background-color: #e1df66;
+    display: none;
 }
 
 #footer {
@@ -160,6 +161,6 @@ img a {
 }
 
 #add-task-row {
-    padding: 2px;
+    padding: 4px;
     background-color: #9fb87a;
 }

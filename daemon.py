@@ -23,15 +23,15 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 #
 
-# Init the django environment
-import settings
+# TODO: Figure out how to put this in scripts/
+
 from django.core.management import setup_environ
+import settings
 setup_environ(settings)
 
-import sys
-from datetime import datetime
 
-from sprints.models import Sprint, Task
+from datetime import datetime
+from berserk2.sprints.models import Sprint, Task
 
 def log(msg):
     print '[%s]: %s' % (datetime.now(), msg)
@@ -45,5 +45,5 @@ if sprint == None:
 
 tasks = Task.objects.filter(sprints=sprint)
 for task in tasks:
-    log('   Creating new snapshot of %d' % task.id)
+    log('   Creating new snapshot of %d (#%s)' % (task.id, task.remote_tracker_id))
     task.snapshot()
