@@ -23,7 +23,7 @@
 
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('sprints.views',
+urlpatterns = patterns('berserk2.sprints.views',
     url(r'^$', 'sprint_index'),
     url(r'^(?P<sprint_id>\d+)/$', 'sprint_detail', name="sprint_detail"),
     url(r'^(?P<sprint_id>\d+)/edit/$', 'sprint_edit'),

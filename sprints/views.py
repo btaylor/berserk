@@ -25,8 +25,8 @@ from django.db.models import Sum
 from django.db import transaction
 from django.db import IntegrityError
 from django.template import RequestContext
-from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
+from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 
@@ -81,7 +81,6 @@ def sprint_edit(request, sprint_id,
             err = e.args[0]
             transaction.rollback()
         else:
-            task.sprints.add(sprint)
             transaction.commit()
 
     return render_to_response(template_name,

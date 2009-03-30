@@ -77,7 +77,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'sprints',
+    'berserk2.sprints',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

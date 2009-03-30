@@ -76,16 +76,23 @@ class SprintAdminForm(forms.ModelForm):
     def clean(self):
         start_date = self.cleaned_data['start_date']
         end_date = self.cleaned_data['end_date']
-        
-        sprints = Sprint.objects.filter(
-            (Q(start_date__lte=start_date) & Q(end_date__gte=start_date))
-            | (Q(start_date__gte=start_date) & Q(start_date__lte=end_date))
-        )
 
-        if sprints.count() > 0:
+        if start_date >= end_date:
+            self.errors['start_date'] = ErrorList([
+                _('The start date must be less than the end date.')
+            ])
             del self.cleaned_data['start_date']
-            del self.cleaned_data['end_date']
-            raise forms.ValidationError(_('The start or end dates overlap the sprint from %s.') % sprints[0])
+        
+        # TODO: We need to exclude the id of the sprint if we're editing
+        #sprints = Sprint.objects.filter(
+        #    (Q(start_date__lte=start_date) & Q(end_date__gte=start_date))
+        #    | (Q(start_date__gte=start_date) & Q(start_date__lte=end_date))
+        #).exclude(pk=
+
+        #if sprints.count() > 0:
+        #    del self.cleaned_data['start_date']
+        #    del self.cleaned_data['end_date']
+        #    raise forms.ValidationError(_('The start or end dates overlap the sprint from %s.') % sprints[0])
 
         return self.cleaned_data
 
