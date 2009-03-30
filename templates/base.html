@@ -24,9 +24,10 @@
         </div>
         <div id="user-details">
 {% if user.is_authenticated %}
-{% blocktrans with user.first_name as f %}Welcome, {{ f }}.{% endblocktrans %}  [<a href="{% url django.contrib.auth.views.logout %}">{% trans "Log out" %}</a>]
+{% blocktrans with user.first_name as f %}Welcome, {{ f }}.{% endblocktrans %}<br>
+<a href="{% url django.contrib.auth.views.password_change %}">Change Password</a> / <a href="{% url django.contrib.auth.views.logout %}">{% trans "Log out" %}</a>
 {% else %}
-            {% trans "Hello stranger, care to " %}<a href="{% url django.contrib.auth.views.login %}">{% trans "log in" %}</a>?
+{% trans "Hello stranger, care to " %}<a href="{% url django.contrib.auth.views.login %}">{% trans "log in" %}</a>?
 {% endif %}
         </div>
         <div class="clear"></div>

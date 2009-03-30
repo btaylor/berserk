@@ -37,7 +37,9 @@ urlpatterns = patterns('',
 
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     (r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
-    (r'^accounts/password_change/$', 'django.contrib.auth.views.password_change'),
+    (r'^accounts/password_change/$', 'django.contrib.auth.views.password_change',
+     {'template_name': 'registration/password_change.html'}),
+    (r'^accounts/password_change_done/$', 'django.contrib.auth.views.password_change_done'),
 
     # Uncomment the next line to enable the admin:
     (r'^admin/', include(admin.site.urls)),

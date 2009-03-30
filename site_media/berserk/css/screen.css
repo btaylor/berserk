@@ -44,8 +44,9 @@ img a {
 }
 
 #user-details {
-    margin: 5px 15px;
+    padding: 0 15px 5px 15px;
     float: right;
+    text-align: right;
     color: #fff6d9;
     text-transform: lowercase;
 }
