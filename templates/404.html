@@ -1,0 +1,17 @@
+{% extends "site_base.html" %}
+
+{% load i18n %}
+
+{% block banner-container %}
+{% endblock %}
+
+{% block body %}
+<h3>{%trans "Page Not Found" %}</h3>
+
+{% blocktrans %}
+Looks like you followed a bad link.  If you think it's our fault, please let us know.
+
+Here's a link to the <a href="/">homepage</a>.  You know, just in case.
+{% endblocktrans %}
+{% endblock %}
+
