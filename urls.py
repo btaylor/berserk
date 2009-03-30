@@ -29,10 +29,15 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^sprints/', include('berserk2.sprints.urls')),
+    (r'^$', 'django.views.generic.simple.redirect_to', {'url': '/sprints/'}),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+    (r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
+    (r'^accounts/password_change/$', 'django.contrib.auth.views.password_change'),
 
     # Uncomment the next line to enable the admin:
     (r'^admin/', include(admin.site.urls)),

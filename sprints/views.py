@@ -22,34 +22,70 @@
 #
 
 from django.db.models import Sum
+from django.db import transaction
+from django.db import IntegrityError
 from django.template import RequestContext
+from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 
 from berserk2.sprints.models import *
 from berserk2.sprints.utils import date_range
 
-def sprint_detail(request, sprint_id=None,
-                  template_name='sprints/sprint_detail.html'):
-    if sprint_id == None:
-        sprint = Sprint.objects.current()
-    else:
-        sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-
+def sprint_index(request):
+    sprint = Sprint.objects.current()
     if sprint == None:
         raise Http404(_('No sprints have been defined yet.  Visit the Admin page to get started.'))
+    return HttpResponseRedirect(sprint.get_absolute_url())
 
+def sprint_detail(request, sprint_id,
+                  template_name='sprints/sprint_detail.html'):
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
     iteration_days = xrange(1, sprint.iteration_days()+2)
-
-    weekends = []
-    for day, date in date_range(sprint.start_date, sprint.end_date):
-        if date.isoweekday() == 7:
-            weekends.append({'start': day - 2, 'end': day})
 
     return render_to_response(template_name,
                               {'sprint': sprint,
-                               'iteration_days': iteration_days,
-                               'weekends': weekends},
+                               'iteration_days': iteration_days},
+                              context_instance=RequestContext(request))
+
+@login_required
+@transaction.commit_manually
+def sprint_edit(request, sprint_id,
+                template_name='sprints/sprint_edit.html'):
+    err = ''
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+
+    if request.method == 'POST':
+        remote_tracker_id = request.POST['remote_tracker_id']
+        default_bug_tracker = sprint.default_bug_tracker
+        try:
+            task = Task.objects.create(bug_tracker=default_bug_tracker,
+                                       remote_tracker_id=remote_tracker_id)
+            snapshot = task.get_latest_snapshot()
+            if snapshot == None:
+                raise Exception(_('Invalid task id, or unable to contact the Bug Tracker to fetch Task information.'))
+            elif snapshot.assigned_to != request.user:
+                raise Exception(_('Please assign this bug to yourself before adding it to your sprint.'))
+            elif snapshot.remaining_hours == 0:
+                raise Exception(_('No time remains on this bug. Please add additional hours before adding it to your sprint.'))
+
+            task.sprints.add(sprint)
+        except ValueError:
+            err = _('You must enter a valid bug number.')
+            transaction.rollback()
+        except IntegrityError:
+            err = _('This task has already been added to the sprint.')
+            transaction.rollback()
+        except Exception as e:
+            err = e.args[0]
+            transaction.rollback()
+        else:
+            task.sprints.add(sprint)
+            transaction.commit()
+
+    return render_to_response(template_name,
+                              {'sprint': sprint, 'err': err},
                               context_instance=RequestContext(request))
 
 import simplejson
@@ -105,7 +141,25 @@ def sprint_tasks_json(request, sprint_id):
                 unicode(latest_snap.assigned_to), unicode(latest_snap.submitted_by),
                 latest_snap.status, latest_snap.estimated_hours
         ])
-    
+    return HttpResponse(simplejson.dumps(tasks_data))
+
+def sprint_my_tasks_json(request, sprint_id):
+    if not request.user.is_authenticated():
+        return HttpResponse(simplejson.dumps([]))
+
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+    tasks = Task.objects.filter(sprints=sprint, tasksnapshot__assigned_to=request.user)
+    tasks_data = []
+    for task in tasks:
+        snap = task.get_latest_snapshot()
+        if snap == None:
+            continue
+        
+        tasks_data.append([
+            '<a href="%s">#%s</a>' % (task.get_absolute_url(), task.remote_tracker_id),
+            snap.title, snap.component, snap.status,
+            snap.estimated_hours, snap.remaining_hours,
+        ])
     return HttpResponse(simplejson.dumps(tasks_data))
 
 def sprint_burndown_json(request, sprint_id):
@@ -118,8 +172,24 @@ def sprint_burndown_json(request, sprint_id):
     remaining_hours = []
     for day, date in date_range(sprint.start_date, sprint.end_date):
         data = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
-                                             date=date) \
+                                                date=date) \
                                         .aggregate(rem=Sum('task_snapshot__remaining_hours'))
-        remaining_hours.append([day, data['rem'] if data['rem'] else 0])
+        remaining_hours.append([day, data['rem'] if data['rem'] else 'null'])
 
-    return HttpResponse(simplejson.dumps(remaining_hours))
+    user_remaining_hours = []
+    if request.user.is_authenticated():
+        for day, date in date_range(sprint.start_date, sprint.end_date):
+            data = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
+                                                    date=date, task_snapshot__assigned_to=request.user) \
+                                            .aggregate(rem=Sum('task_snapshot__remaining_hours'))
+            user_remaining_hours.append([day, data['rem'] if data['rem'] else 'null'])
+
+    weekends = []
+    for day, date in date_range(sprint.start_date, sprint.end_date):
+        if date.isoweekday() == 7:
+            weekends.append({'start': day - 2, 'end': day})
+
+    return HttpResponse(simplejson.dumps({
+        'data': [remaining_hours, user_remaining_hours],
+        'weekends': weekends,
+    }))

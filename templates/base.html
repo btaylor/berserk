@@ -1,3 +1,5 @@
+{% load i18n %}
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
 <head>
@@ -10,48 +12,59 @@
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.flot.js" defer="defer" charset="utf-8"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/ext-jquery-adapter.js" defer="defer" charset="utf-8"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/ext-all.js" defer="defer" charset="utf-8"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/summary.js" defer="defer" charset="utf-8"></script>
 {% block extra_head %}
 {% endblock %}
 </head>
 
 <body>
-<div id="content-container">
-    <div id="user-details">
-{% if user.is_authenticated %}
-{% endif %}
-    </div>
-    <div id="content">
-        <div id="header">
-            <div id="logo">
-                <a href="/"><img src="{{ MEDIA_URL }}images/berserk-logo.gif" width="145" height="38" alt="Berserk Logo" /></a>
-            </div>
-{% block header %}
-{% endblock %}
+<div id="content">
+    <div id="header">
+        <div id="logo">
+            <a href="/"><img src="{{ MEDIA_URL }}/berserk/images/berserk_logo.gif" width="114" height="33" alt="{% trans "Berserk Logo" %}" /></a>
         </div>
-        <div id="body">
+        <div id="user-details">
+{% if user.is_authenticated %}
+{% blocktrans with user.first_name as f %}Welcome, {{ f }}.{% endblocktrans %}  [<a href="{% url django.contrib.auth.views.logout %}">{% trans "Log out" %}</a>]
+{% else %}
+            {% trans "Hello stranger, care to " %}<a href="{% url django.contrib.auth.views.login %}">{% trans "log in" %}</a>?
+{% endif %}
+        </div>
+        <div class="clear"></div>
+    </div>
+{% block banner-container %}
+    <div id="banner">
+{% block banner %}
+{% endblock %}
+    </div>
+{% endblock %}
+    <div id="navigation">
 {% block navigation %}
 {% endblock %}
+    </div>
+    <div id="body">
 {% block body %}
 {% endblock %}
-        </div>
-        <div id="footer">
-            <table cellspacing="0" cellpadding="0">
-                <tr>
-                    <td>
-Copyright &copy; 2008 Brad Taylor.<br />
+    </div>
+    <div id="footer">
+        <table>
+            <tr>
+                <td>
+{% blocktrans %}
+Berserk is better than sliced bread.<br />
 Berserk is committed to sparkle motion.<br />
-Berserk is also free software.
-                    </td>
-                    <td>
+Berserk is also <a href="http://gitorious.org/projects/berserk">free software</a>.
+{% endblocktrans %}
+                </td>
+                <td id="pony-power">
 <a href="http://djangopony.com/"><img
-   src="{{ MEDIA_URL }}images/pony-powered.png" width="210" height="65"
-   alt="Berserk is Pony Powered!" /></a>
-                    </td>
-                </tr>
-            </table>
-        </div>
+   src="{{ MEDIA_URL }}berserk/images/pony-powered.png" width="210" height="65"
+   alt="{% trans "Berserk is Pony Powered!" %}" /></a>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
+{% block extra_body %}
+{% endblock %}
 </body>
 </html>

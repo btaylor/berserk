@@ -27,6 +27,7 @@
 .x-grid3-viewport{
 	overflow:hidden;
 }
+
 .x-grid3-hd-row td, .x-grid3-row td, .x-grid3-summary-row td{
 	font:normal 11px arial, tahoma, helvetica, sans-serif;
     -moz-outline: none;

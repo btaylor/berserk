@@ -1,0 +1,73 @@
+{% extends "sprints/base.html" %}
+
+{% load i18n %}
+
+{% block extra_head %}
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/core.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/grid.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/summary.css" media="screen">
+
+    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/summary.js" defer="defer" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/sprint_detail.js" defer="defer" charset="utf-8"></script>
+{% endblock %}
+
+{% block nav-your-tasks %} selected{% endblock %}
+
+{% block body %}
+{% if err %}
+<div class="err">{{ err }}</div>
+<script type="text/javascript">$('.err').hide(); $('.err').fadeIn('slow');</script>
+{% endif %}
+<div id="sprint-tasks-table"></div>
+<div id="add-task-row">
+    <form action="." method="post">
+        <input type="text" size="8" name="remote_tracker_id" id="add-task-entry" />
+        <input type="submit" value="{% trans "Add Task" %}" id="add-task-button" />
+    </form>
+</div>
+{% endblock %}
+
+{% block js_onReady %}
+    $('#add-task-entry').focus();
+    var grid = new Ext.grid.GridPanel({
+        store: new Ext.data.GroupingStore({
+            url: '{% url sprints.views.sprint_my_tasks_json sprint.id %}',
+            autoLoad: true,
+            sortInfo: { field: 'status', direction: 'asc' },
+            groupField: 'component',
+            reader: new Ext.data.ArrayReader({}, [
+                { name: 'id', type: 'string' },
+                { name: 'title', type: 'string' },
+                { name: 'component', type: 'string' },
+                { name: 'status', type: 'string' },
+                { name: 'estimated_hours', type: 'int' },
+                { name: 'remaining_hours', type: 'int' },
+            ]),
+        }),
+        columns: [
+            { header: "Id", width: 65, dataIndex: 'id',
+              summaryRenderer: function(v, params, data) {
+                  return 'Total:';
+              },
+            },
+            { header: "Title", width: 500, dataIndex: 'title', summaryType: 'count',
+              summaryRenderer: function(v, params, data) {
+                  return ((v === 0 || v > 1) ? v + ' Tasks' : '1 Task');
+              },
+            },
+            { header: "Component", width: 90, dataIndex: 'component' },
+            { header: "Status", width: 70, dataIndex: 'status' },
+            { header: "Est", width: 35, dataIndex: 'estimated_hours', summaryType: 'sum' },
+            { header: "Rem", width: 35, dataIndex: 'remaining_hours', summaryType: 'sum' },
+        ],
+        stripeRows: true,
+        width: "100%", height: 300,
+        loadMask: true,
+        view: new Ext.grid.GroupingView({
+            showGroupName: true, hideGroupedColumn: true
+        }),
+        plugins: new Ext.grid.GroupSummary(),
+    });
+    grid.getColumnModel().defaultSortable = true;
+    grid.render('sprint-tasks-table');
+{% endblock %}

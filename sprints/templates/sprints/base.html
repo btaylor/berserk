@@ -1,1 +1,55 @@
 {% extends "site_base.html" %}
+
+{% load i18n %}
+
+{% block navigation %}
+<span class="navigation-item{% block nav-team-tasks %}{% endblock %}">
+<a href="{% url sprints.views.sprint_detail sprint.id %}">{% trans "Team Tasks" %}</a>
+</span>
+<span class="navigation-item{% block nav-your-tasks %}{% endblock %}">
+<a href="{% url sprints.views.sprint_edit sprint.id %}">{% trans "Your Tasks" %}</a>
+</span>
+{% endblock %}
+
+{% block banner %}
+<table id="sprint-nav">
+    <tr>
+        <td id="sprint-nav-prev">&lt;</td>
+        <td>
+            <h3>{{ sprint.start_date|date:"F j" }} - {{ sprint.end_date|date:"F j, Y" }}</h3>
+            <div id="sprint-burndown-chart"></div>
+        </td>
+        <td id="sprint-nav-next">&gt;</td>
+    </tr>
+</table>
+{% endblock %}
+
+{% block extra_body %}
+<script type="text/javascript">
+Ext.onReady(function() {
+    $.getJSON('{% url sprints.views.sprint_burndown_json sprint.id %}',
+        function(json) {
+            var markings = [];
+            for (var i = 0; i < json.weekends.length; i++) {
+                var w = json.weekends[i];
+                markings.push({
+                    xaxis: {
+                        from: w.start,
+                        to: w.end,
+                    },
+                    color: "#fff6d9",
+                });
+            }
+            $.plot($("#sprint-burndown-chart"), json.data, {
+                lines: { show: true, lineWidth: 10, },
+                points: { show: true, radius: 6 },
+                xaxis: { tickSize: 1, },
+                grid: { markings: markings, },
+            });
+        }
+    );
+    {% block js_onReady %}
+    {% endblock %}
+});
+</script>
+{% endblock %}

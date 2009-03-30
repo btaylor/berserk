@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "sprints/base.html" %}
 
 {% load i18n %}
 
@@ -7,29 +7,36 @@
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/grid.css" media="screen">
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/summary.css" media="screen">
 
+    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/summary.js" defer="defer" charset="utf-8"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/sprint_detail.js" defer="defer" charset="utf-8"></script>
 {% endblock %}
 
-{% block header %}
-<div id="sprint-burndown-chart" style="width: 800px; height: 400px; margin: 10px auto;"></div>
+{% block banner %}
+<table id="sprint-nav">
+    <tr>
+        <td id="sprint-nav-prev">&lt;</td>
+        <td>
+            <h3>{{ sprint.start_date|date:"F j" }} - {{ sprint.end_date|date:"F j, Y" }}</h3>
+            <div id="sprint-burndown-chart"></div>
+        </td>
+        <td id="sprint-nav-next">&gt;</td>
+    </tr>
+</table>
 {% endblock %}
 
-{% block body %}
-<style type="text/css">
-         .x-grid3-header-offset {width:auto !important;}
-</style>
+{% block nav-team-tasks %} selected{% endblock %}
 
-<div id="sprint-tasks-table" style="overflow: auto"></div>
+{% block body %}
+<div id="sprint-tasks-table"></div>
 
 <h3>{% trans "Developer Effort <small>(hours of effort remaining)</small>" %}</h3>
 <div id="sprint-effort-table"></div>
 
 <h3>{% blocktrans with sprint.velocity as v and sprint.velocity|pluralize as p%}Developer Load <small>(percent based on {{ v }} hour{{ p }} per day)</small>{% endblocktrans %}</h3>
 <div id="sprint-load-table"></div>
-</div>
+{% endblock %}
 
-<script type="text/javascript">
-Ext.onReady(function() {
+{% block js_onReady %}
     var iterationDays = {{ sprint.iteration_days }};
 
     var tasksGrid = createTasksGrid('sprint-tasks-table', 
@@ -44,26 +51,4 @@ Ext.onReady(function() {
             loadGrid.store.loadData(data.load);
         }
     );
-
-    $.getJSON('{% url sprints.views.sprint_burndown_json sprint.id %}',
-        function(data) {
-            var options = {
-                lines: { show: true, lineWidth: 10, },
-                points: { show: true, radius: 6 },
-                xaxis: { tickSize: 1, },
-                grid: {
-                    color: "#FFFFFF", tickColor: "#000000",
-                    markings: [ 
-{% for weekend in weekends %}
-                        { xaxis: { from: {{ weekend.start }}, to: {{ weekend.end }}}, color: "#808080" },
-{% endfor %}
-                    ],
-                },
-            };
-            
-            $.plot($("#sprint-burndown-chart"), [data], options);
-        }
-    );
-});
-</script>
 {% endblock %}

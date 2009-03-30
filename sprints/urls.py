@@ -23,9 +23,14 @@
 
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('',
-    (r'^(?P<sprint_id>\d+)/$', 'sprints.views.sprint_detail'),
-    (r'^(?P<sprint_id>\d+)/load_effort/json/$', 'sprints.views.sprint_load_effort_json'),
-    (r'^(?P<sprint_id>\d+)/tasks/json/$', 'sprints.views.sprint_tasks_json'),
-    (r'^(?P<sprint_id>\d+)/burndown/json/$', 'sprints.views.sprint_burndown_json'),
+urlpatterns = patterns('sprints.views',
+    url(r'^$', 'sprint_index'),
+    url(r'^(?P<sprint_id>\d+)/$', 'sprint_detail', name="sprint_detail"),
+    url(r'^(?P<sprint_id>\d+)/edit/$', 'sprint_edit'),
+
+    # JSON query methods
+    url(r'^(?P<sprint_id>\d+)/load_effort/json/$', 'sprint_load_effort_json'),
+    url(r'^(?P<sprint_id>\d+)/tasks/json/$', 'sprint_tasks_json'),
+    url(r'^(?P<sprint_id>\d+)/my-tasks/json/$', 'sprint_my_tasks_json'),
+    url(r'^(?P<sprint_id>\d+)/burndown/json/$', 'sprint_burndown_json'),
 )

@@ -33,11 +33,15 @@ function createTasksGrid(target_id, url, iteration_days) {
     }
 
     var columns = [
-        { header: "Id", width: 65, dataIndex: 'id' },
+        { header: "Id", width: 65, dataIndex: 'id', 
+          summaryRenderer: function(v, params, data) {
+                return 'Total:';
+          },
+        },
         { header: "Title", width: 500, dataIndex: 'title', summaryType: 'count',
-            summaryRenderer: function(v, params, data) {
-                return ((v === 0 || v > 1) ? '(' + v +' Tasks)' : '(1 Task)');
-            },
+          summaryRenderer: function(v, params, data) {
+                return ((v === 0 || v > 1) ? v + ' Tasks' : '1 Task');
+          },
         },
         { header: "Component", width: 70, dataIndex: 'component' },
         { header: "Assigned To", width: 75, dataIndex: 'assigned_to' },
@@ -61,7 +65,7 @@ function createTasksGrid(target_id, url, iteration_days) {
             groupField: 'component',
         }),
         columns: columns, stripeRows: true,
-        autoWidth: true, height: 500,
+        width: "100%", height: 500,
         loadMask: true,
         view: new Ext.grid.GroupingView({
             showGroupName: true, hideGroupedColumn: true

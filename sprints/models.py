@@ -78,6 +78,10 @@ class Sprint(models.Model):
         return _("%s - %s") % (self.start_date.strftime("%b. %e"),
                                self.end_date.strftime("%b. %e %Y"))
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('sprint_detail', (), {'sprint_id': self.id})
+
     def is_active(self):
         """
         Returns true if the current date is between the start and end dates of
