@@ -2,19 +2,6 @@
 
 {% load i18n %}
 
-{% block banner %}
-<table id="sprint-nav">
-    <tr>
-        <td id="sprint-nav-prev">&lt;</td>
-        <td>
-            <h3>{{ sprint.start_date|date:"F j" }} - {{ sprint.end_date|date:"F j, Y" }}</h3>
-            <div id="sprint-burndown-chart"></div>
-        </td>
-        <td id="sprint-nav-next">&gt;</td>
-    </tr>
-</table>
-{% endblock %}
-
 {% block nav-team-tasks %} selected{% endblock %}
 
 {% block body %}

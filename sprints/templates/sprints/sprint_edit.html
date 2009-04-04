@@ -14,8 +14,8 @@
 <div id="sprint-tasks-table"></div>
 <div id="add-task-row">
     <form action="." method="post">
-        <input type="text" size="8" name="remote_tracker_id" id="add-task-entry" />
-        <input type="submit" value="{% trans "Add Task" %}" id="add-task-button" />
+        <input type="text" size="8" name="remote_tracker_id" id="add-task-entry" {% if not sprint.is_active %}disabled="true"{% endif %}/>
+        <input type="submit" value="{% trans "Add Task" %}" id="add-task-button" {% if not sprint.is_active %}disabled="true"{% endif %}/>
     </form>
 </div>
 {% endblock %}

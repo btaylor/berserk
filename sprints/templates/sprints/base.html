@@ -26,6 +26,9 @@
     <tr>
         <td id="sprint-nav-prev">&lt;</td>
         <td>
+{% if not sprint.is_active %}
+            <div id="old-sprint-notice">{% trans "You are viewing a Sprint that is not active.  You will not be able to alter its data." %}</div>
+{% endif %}
             <h3>{{ sprint.start_date|date:"F j" }} - {{ sprint.end_date|date:"F j, Y" }}</h3>
             <div id="sprint-burndown-chart"></div>
         </td>
@@ -67,6 +70,8 @@ Ext.onReady(function() {
             });
         }
     );
+
+    $('#old-sprint-notice').fadeIn('slow');
 });
 </script>
 {% endblock %}

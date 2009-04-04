@@ -55,11 +55,13 @@ def sprint_edit(request, sprint_id,
                 template_name='sprints/sprint_edit.html'):
     err = ''
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-
     if request.method == 'POST':
         remote_tracker_id = request.POST['remote_tracker_id']
         default_bug_tracker = sprint.default_bug_tracker
         try:
+            if not sprint.is_active():
+                raise Exception(_('You cannot edit an inactive sprint.'))
+
             task = Task.objects.create(bug_tracker=default_bug_tracker,
                                        remote_tracker_id=remote_tracker_id)
             snapshot = task.get_latest_snapshot()
