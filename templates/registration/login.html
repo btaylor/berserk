@@ -7,7 +7,8 @@
 
 {% block body %}
 {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
+<span class="err">{% trans "Your username and password didn't match. Please try again." %}</span>
+<script type="text/javascript">$('.err').fadeIn('slow');</script>
 {% endif %}
 <h3>{% trans "Log in" %}</h3>
 
