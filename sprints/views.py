@@ -119,7 +119,7 @@ def sprint_tasks_json(request, sprint_id):
     Sprint.
     """
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-    iteration_days = [0] * sprint.iteration_days()
+    iteration_days = [''] * sprint.iteration_days()
 
     # While this is an entirely roundabout way of getting the data, it should
     # reduce queries by about an order of magnitude (in my small dataset from
