@@ -49,14 +49,20 @@ Ext.onReady(function() {
                         from: w.start,
                         to: w.end,
                     },
-                    yaxis: { from: 0 },
                     color: "#fff6d9",
                 });
             }
-            $.plot($("#sprint-burndown-chart"), json.data, {
+
+            var data = [ { label: "{% trans "Team Hours" %}", data: json.data[0] }, ];
+            if (json.data[1].length > 0)
+                data.push({ label: "{% trans "Your Hours" %}", data: json.data[1] });
+
+            $.plot($("#sprint-burndown-chart"), data, {
                 lines: { show: true, lineWidth: 10, },
                 points: { show: true, radius: 6 },
                 xaxis: { tickSize: 1, },
+                yaxis: { min: 0 },
+                legend: { show: true },
                 grid: { markings: markings, },
             });
         }
