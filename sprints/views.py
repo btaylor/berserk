@@ -77,7 +77,8 @@ def sprint_edit(request, sprint_id,
         except IntegrityError:
             err = _('This task has already been added to the sprint.')
             transaction.rollback()
-        except Exception as e:
+        #except Exception as e:
+        except Exception, e:
             err = e.args[0]
             transaction.rollback()
         else:
@@ -118,28 +119,31 @@ def sprint_tasks_json(request, sprint_id):
     Sprint.
     """
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-    tasks = Task.objects.filter(sprints=sprint)
+    iteration_days = [0] * sprint.iteration_days()
 
+    # While this is an entirely roundabout way of getting the data, it should
+    # reduce queries by about an order of magnitude (in my small dataset from
+    # >1300 to ~200)
+    csnaps = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint) \
+                                      .exclude(date__lt=sprint.start_date,
+                                               date__gt=sprint.end_date) \
+                                      .order_by('task_snapshot__task', '-date')
     tasks_data = []
-    for task in tasks:
-        task_rem = []
-        latest_snap = None
-        for day, date in date_range(sprint.start_date, sprint.end_date):
-            snaps = TaskSnapshotCache.objects.filter(task_snapshot__task=task,
-                                                     date=date)
-            if snaps.count() > 0:
-                latest_snap = snaps[0].task_snapshot
-            task_rem.append(latest_snap.remaining_hours if latest_snap else 0)
+    task_data = latest_snap = None
+    for csnap in csnaps:
+        s = csnap.task_snapshot
+        if latest_snap == None or s.task != latest_snap.task:
+            task_data = [
+                '<a href="%s">#%s</a>' % (s.task.get_absolute_url(), s.task.remote_tracker_id),
+                s.title, s.component, s.get_assigned_to_display(), s.get_submitted_by_display(),
+                s.status, s.estimated_hours,
+            ]
+            task_data.extend(iteration_days)
+            tasks_data.append(task_data)
 
-        if latest_snap == None:
-            continue
+        task_data[(csnap.date - sprint.end_date).days] = s.remaining_hours
+        latest_snap = s
 
-        tasks_data.append([
-                '<a href="%s">#%s</a>' % (task.get_absolute_url(), task.remote_tracker_id),
-                latest_snap.title, latest_snap.component,
-                unicode(latest_snap.assigned_to), unicode(latest_snap.submitted_by),
-                latest_snap.status, latest_snap.estimated_hours
-        ])
     return HttpResponse(simplejson.dumps(tasks_data))
 
 def sprint_my_tasks_json(request, sprint_id):

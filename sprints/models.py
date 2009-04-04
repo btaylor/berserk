@@ -221,11 +221,12 @@ class TaskSnapshot(models.Model):
     """
     A snapshot of the working data for a task.
     """
-    date = models.DateTimeField(auto_now_add=True)
-    task = models.ForeignKey(Task)
+    date = models.DateTimeField(auto_now_add=True, db_index=True)
+    task = models.ForeignKey(Task, db_index=True)
     title = models.CharField(max_length=128)
     component = models.CharField(max_length=128)
-    assigned_to = models.ForeignKey(User, related_name='assigned_to', null=True)
+    assigned_to = models.ForeignKey(User, related_name='assigned_to',
+                                    null=True, db_index=True)
     submitted_by = models.ForeignKey(User, related_name='submitted_by', null=True)
     status = models.CharField(max_length=32)
     estimated_hours = models.IntegerField()
@@ -237,6 +238,18 @@ class TaskSnapshot(models.Model):
     
     def __unicode__(self):
         return _("Snapshot of task %d at %s") % (self.task.id, self.date)
+    
+    def get_submitted_by_display(self):
+        if self.submitted_by == None:
+            return unicode(None)
+        else:
+            return self.submitted_by.first_name
+    
+    def get_assigned_to_display(self):
+        if self.assigned_to == None:
+            return unicode(None)
+        else:
+            return self.assigned_to.first_name
 
     def is_closed(self):
         """
@@ -273,8 +286,8 @@ class TaskSnapshotCache(models.Model):
     """
     A cache of the last TaskSnapshot of the day for a given Task.
     """
-    date = models.DateField()
-    task_snapshot = models.ForeignKey(TaskSnapshot)
+    date = models.DateField(db_index=True)
+    task_snapshot = models.ForeignKey(TaskSnapshot, db_index=True)
 
     def __unicode__(self):
         return _("%s - #%d") % (self.date, self.task_snapshot.id)
