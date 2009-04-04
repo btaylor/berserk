@@ -83,16 +83,18 @@ class SprintAdminForm(forms.ModelForm):
             ])
             del self.cleaned_data['start_date']
         
-        # TODO: We need to exclude the id of the sprint if we're editing
-        #sprints = Sprint.objects.filter(
-        #    (Q(start_date__lte=start_date) & Q(end_date__gte=start_date))
-        #    | (Q(start_date__gte=start_date) & Q(start_date__lte=end_date))
-        #).exclude(pk=
+        sprints = Sprint.objects.filter(
+            (Q(start_date__lte=start_date) & Q(end_date__gte=start_date))
+            | (Q(start_date__gte=start_date) & Q(start_date__lte=end_date))
+        )
+        
+        if self.initial.has_key('id'):
+            sprints = sprints.exclude(pk=self.initial['id'])
 
-        #if sprints.count() > 0:
-        #    del self.cleaned_data['start_date']
-        #    del self.cleaned_data['end_date']
-        #    raise forms.ValidationError(_('The start or end dates overlap the sprint from %s.') % sprints[0])
+        if sprints.count() > 0:
+            del self.cleaned_data['start_date']
+            del self.cleaned_data['end_date']
+            raise forms.ValidationError(_('The start or end dates overlap Sprint #%d from %s.') % (sprints[0].id, sprints[0]))
 
         return self.cleaned_data
 

@@ -2,7 +2,6 @@ Features:
 - Port email daemon
 - Add Delete support to sprints_edit page
 - Titles
-- Detect and prevent sprint overlap
 - Navigation: next/prev sprint
 - Inactive Sprint warning
 - Bookmarklet
