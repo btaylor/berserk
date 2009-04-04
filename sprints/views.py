@@ -98,16 +98,19 @@ def sprint_load_effort_json(request, sprint_id):
     Returns a list of users and their load and effort values for each of the
     days in the Sprint.
     """
+    def get_username_for_display(u):
+        return u.first_name if u != None else 'None'
+
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-    data = sprint.load_and_effort_by_user()
+    load, effort = sprint.load_and_effort_by_user()
 
     effort_rows = []
-    for user, load in data['effort'].iteritems():
-        effort_rows.append([user.username] + load)
+    for u, e in effort.iteritems():
+        effort_rows.append([get_username_for_display(u)] + e)
 
     load_rows = []
-    for user, load in data['load'].iteritems():
-        load_rows.append([user.username] + ['%.0f' % l for l in load])
+    for u, l in load.iteritems():
+        load_rows.append([get_username_for_display(u)] + ['%.0f' % i for i in l])
 
     return HttpResponse(simplejson.dumps({
         'load': load_rows, 'effort': effort_rows,

@@ -106,14 +106,14 @@ class Sprint(models.Model):
 
     def load_and_effort_by_user(self):
         """
-        Returns a dict containing two child dicts.
+        Returns a tuple containing two child dicts.
 
-         - "effort" is a dict mapping a User to an array of their effort for every day
+         - The first dict mas a User to an array of their effort for every day
            in the Sprint.  Effort is the total remaining hours left in an
            Sprint-day.
 
-         - "load" is a dict mapping a User to an array of their load for every day
-            in the Sprint.  Load is calculated by:
+         - The second dict maps a User to an array of their load for every day
+           in the Sprint.  Load is calculated by:
                 (total_hours / (weekdays * velocity) * 100.
         """
         users_load = {}
@@ -143,7 +143,7 @@ class Sprint(models.Model):
                                                    self.iteration_workdays(),
                                                    self.velocity)
 
-        return {'load': users_load, 'effort': users_effort}
+        return (users_load, users_effort)
 
 class Task(models.Model):
     """
