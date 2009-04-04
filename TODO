@@ -1,6 +1,3 @@
-Bugs:
-- Fix remaining hours on the Grid
-
 Features:
 - Port email daemon
 - Add Delete support to sprints_edit page
@@ -8,5 +5,4 @@ Features:
 - Detect and prevent sprint overlap
 - Navigation: next/prev sprint
 - Inactive Sprint warning
-- Bookmarket
-- Grid: Assigned to -> First Name / Last Name (usernames are irrelevant)
+- Bookmarklet
