@@ -44,8 +44,8 @@ function createTasksGrid(target_id, url, iteration_days) {
           },
         },
         { header: "Component", width: 70, dataIndex: 'component' },
-        { header: "Assigned To", width: 75, dataIndex: 'assigned_to' },
-        { header: "Submitted By", width: 75, dataIndex: 'submitted_by', hidden: true },
+        { header: "Assigned To", width: 90, dataIndex: 'assigned_to' },
+        { header: "Submitted By", width: 90, dataIndex: 'submitted_by', hidden: true },
         { header: "Status", width: 70, dataIndex: 'status' },
         { header: "Est", width: 25, dataIndex: 'estimated_hours', summaryType: 'sum' },
     ];
@@ -86,10 +86,10 @@ function createTeamMemberGrid(target_id, iteration_days) {
         fields.push({ name: 'day_' + i.toString(), type: 'string' });
     }
 
-    columns.push({ header: 'Team Member', width: 80, dataIndex: 'team_member' });
+    columns.push({ header: 'Team Member', width: 90, dataIndex: 'team_member' });
     for (var i = 1; i < iteration_days + 1; i++) {
         columns.push({
-		header: i.toString(), width: 25, dataIndex: ("day_" + i),
+		header: i.toString(), width: 35, dataIndex: ("day_" + i),
 		resizable: false, hideable: false,
 	});
     }
