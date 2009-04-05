@@ -1,0 +1,14 @@
+Built with http://extjs.com/products/extjs/build/index.php?ver=2.2.1&lib=jQuery
+ * Ext Core
+ * Core - Components
+ * Core - Utilities
+ * Core - Drag and Drop
+ * Button Widget
+ * SplitButton Widget
+ * Menu Widget
+ * Loading Mask Widget
+ * MessageBox
+ * Data - Core
+ * Data - Simple Store
+ * Grid - Core
+ * Grid - Editing Support
