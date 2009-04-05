@@ -36,7 +36,14 @@ from berserk2.sprints.utils import date_range
 def sprint_index(request):
     sprint = Sprint.objects.current()
     if sprint == None:
+        try:
+            sprint = Sprint.objects.latest()
+        except:
+            pass
+
+    if sprint == None:
         raise Http404(_('No sprints have been defined yet.  Visit the Admin page to get started.'))
+    
     return HttpResponseRedirect(sprint.get_absolute_url())
 
 def sprint_detail(request, sprint_id,

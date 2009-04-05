@@ -142,8 +142,27 @@ class Sprint(models.Model):
                                                    _workday_diff(self.start_date, date),
                                                    self.iteration_workdays(),
                                                    self.velocity)
-
         return (users_load, users_effort)
+    
+    def get_previous_or_none(self):
+        """
+        Returns the previous Sprint by end_date, or None if none were found.
+        """
+        try:
+            return self.get_previous_by_end_date()
+        except models.DoesNotExist:
+            pass
+        return None
+    
+    def get_next_or_none(self):
+        """
+        Returns the next Sprint by end_date, or None if none were found.
+        """
+        try:
+            return self.get_next_by_end_date()
+        except models.DoesNotExist:
+            pass
+        return None
 
 class Task(models.Model):
     """

@@ -26,7 +26,13 @@
 {% block banner %}
 <table id="sprint-nav">
     <tr>
-        <td id="sprint-nav-prev">&lt;</td>
+{% with sprint.get_previous_or_none as s %}
+{% if s %}
+        <td id="sprint-nav-prev"><a href="{{ s.get_absolute_url }}" title="{{ s }}">&lt;</a></td>
+{% else %}
+        <td id="sprint-nav-prev" class="sprint-nav-inactive">&lt;</td>
+{% endif %}
+{% endwith %}
         <td>
 {% if not sprint.is_active %}
             <div id="old-sprint-notice">{% trans "You are viewing a Sprint that is not active.  You will not be able to alter its data." %}</div>
@@ -34,7 +40,13 @@
             <h3>{{ sprint.start_date|date:"F j" }} - {{ sprint.end_date|date:"F j, Y" }}</h3>
             <div id="sprint-burndown-chart"></div>
         </td>
-        <td id="sprint-nav-next">&gt;</td>
+{% with sprint.get_next_or_none as s %}
+{% if s %}
+        <td id="sprint-nav-next"><a href="{{ s.get_absolute_url }}" title="{{ s }}">&gt;</a></td>
+{% else %}
+        <td id="sprint-nav-next" class="sprint-nav-inactive">&gt;</td>
+{% endif %}
+{% endwith %}
     </tr>
 </table>
 {% endblock %}

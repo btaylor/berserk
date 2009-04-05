@@ -155,16 +155,15 @@ img a {
 
 #sprint-nav-prev, #sprint-nav-next {
     font: bold 4em Veranda, Arial, Helvetica, sans-serif;
+}
+
+.sprint-nav-inactive {
     opacity: .4;
 }
 
 #sprint-nav-prev a, #sprint-nav-next a {
     text-decoration: none;
     color: #d2af77;
-}
-
-#sprint-nav-prev:hover, #sprint-nav-next:hover {
-    opacity: 1;
 }
 
 .x-grid3-header-offset {
