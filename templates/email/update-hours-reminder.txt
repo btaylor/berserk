@@ -1,0 +1,25 @@
+Hello {{ user.first_name }},
+
+This is a friendly reminder that you haven't updated the remaining hours on the
+tasks you have assigned in the last {{ remind_days }} day{{ remind_days|pluralize }}.
+
+You're probably on vacation, or were working on something else, but if not,
+please make sure to update your hours.  Just to let you know, I'll keep bugging
+you periodically until you do because I want to make sure that I have the best
+data to share with your team.
+
+For your convenience, I've provided the list of the tasks you've told me you're
+working on below.  If you're working on a task that I don't mention, kindly let
+me know on my website.
+
+    Your Tasks for {{ sprint }}:
+    ---------------------------------------------------------------------
+{% for c in task_snapshot_cache %}
+      * #{{ c.task_snapshot.task.remote_tracker_id }}: {{ c.task_snapshot.title }}
+        {{ c.task_snapshot.task.get_absolute_url }}
+{% endfor %}
+Thanks in advance!
+
+Your pal,
+
+-Berserk

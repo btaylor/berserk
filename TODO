@@ -1,4 +1,4 @@
 Features:
-- Port email daemon
 - Add Delete support to sprints_edit page
 - Bookmarklet
+- Make bugzilla smarter.  Check cookies and don't try to log in again if we have them.
