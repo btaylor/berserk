@@ -88,6 +88,6 @@ for user in User.objects.all():
     t = loader.get_template('email/update-hours-reminder.txt')
     body = t.render(c)
     
-    email = EmailMessage (subject, body, EMAIL_FROM,
-                          to=[user.email], bcc=["%s <%s>" % i for i in MANAGERS])
+    email = EmailMessage (subject, body, settings.EMAIL_FROM,
+                          to=[user.email], bcc=["%s <%s>" % i for i in settings.MANAGERS])
     email.send(fail_silently=False)
