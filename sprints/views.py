@@ -153,7 +153,7 @@ def sprint_tasks_json(request, sprint_id):
             task_data.extend(iteration_days)
             tasks_data.append(task_data)
 
-        task_data[(csnap.date - sprint.end_date).days] = s.remaining_hours
+        task_data[(csnap.date - sprint.start_date).days + 7] = s.remaining_hours
         latest_snap = s
 
     return HttpResponse(simplejson.dumps(tasks_data))
