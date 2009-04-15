@@ -68,9 +68,9 @@ def sprint_edit(request, sprint_id,
         try:
             if not sprint.is_active():
                 raise Exception(_('You cannot edit an inactive sprint.'))
-
-            task = Task.objects.create(bug_tracker=default_bug_tracker,
-                                       remote_tracker_id=remote_tracker_id)
+            
+            task, created = Task.objects.get_or_create(bug_tracker=default_bug_tracker,
+                                                       remote_tracker_id=remote_tracker_id)
             snapshot = task.get_latest_snapshot()
             if snapshot == None:
                 raise Exception(_('Invalid task id, or unable to contact the Bug Tracker to fetch Task information.'))
@@ -78,15 +78,15 @@ def sprint_edit(request, sprint_id,
                 raise Exception(_('Please assign this bug to yourself before adding it to your sprint.'))
             elif snapshot.remaining_hours == 0:
                 raise Exception(_('No time remains on this bug. Please add additional hours before adding it to your sprint.'))
+            
+            if task.sprints.filter(pk=sprint.pk):
+                raise Exception(_('This task has already been added to the sprint.'))
 
             task.sprints.add(sprint)
+            task.save()
         except ValueError:
             err = _('You must enter a valid bug number.')
             transaction.rollback()
-        except IntegrityError:
-            err = _('This task has already been added to the sprint.')
-            transaction.rollback()
-        #except Exception as e:
         except Exception, e:
             err = e.args[0]
             transaction.rollback()
