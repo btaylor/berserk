@@ -21,6 +21,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 #
 
+from datetime import timedelta
+
 from django.db.models import Sum
 from django.db import transaction
 from django.db import IntegrityError
@@ -133,12 +135,12 @@ def sprint_tasks_json(request, sprint_id):
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
     iteration_days = [''] * (sprint.iteration_days() + 1)
 
-    # While this is an entirely roundabout way of getting the data, it should
-    # reduce queries by about an order of magnitude (in my small dataset from
-    # >1300 to ~200)
-    csnaps = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint) \
-                                      .exclude(date__lt=sprint.start_date,
-                                               date__gt=sprint.end_date) \
+    # This code is finely tuned to reduce the number of queries.  Please test
+    # performance numbers before modifying
+    tasks = Task.objects.filter(sprints=sprint).values('id')
+    csnaps = TaskSnapshotCache.objects.filter(task_snapshot__task__in=tasks) \
+                                      .filter(date__gte=sprint.start_date,
+                                              date__lt=sprint.end_date + timedelta(1)) \
                                       .order_by('task_snapshot__task', '-date')
     tasks_data = []
     task_data = latest_snap = None
