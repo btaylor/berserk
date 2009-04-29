@@ -73,7 +73,11 @@ def sprint_edit(request, sprint_id,
             
             task, created = Task.objects.get_or_create(bug_tracker=default_bug_tracker,
                                                        remote_tracker_id=remote_tracker_id)
-            snapshot = task.get_latest_snapshot()
+            if created:
+                snapshot = task.get_latest_snapshot()
+            else:
+                snapshot = task.snapshot()
+
             if snapshot == None:
                 raise Exception(_('Invalid task id, or unable to contact the Bug Tracker to fetch Task information.'))
             elif snapshot.assigned_to != request.user:
