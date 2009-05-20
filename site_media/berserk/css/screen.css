@@ -104,11 +104,14 @@ img a {
     color: #4d593c;
 }
 
+.invisible {
+    display: none;
+}
+
 .err {
     margin: 8px 0;
     padding: 6px;
     background-color: #e1df66;
-    display: none;
     color: #000000;
 }
 
@@ -173,4 +176,8 @@ img a {
 #add-task-row {
     padding: 4px;
     background-color: #9fb87a;
+}
+
+#add-task-row img#spinner {
+    vertical-align: middle;
 }

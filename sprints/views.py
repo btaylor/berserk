@@ -59,48 +59,11 @@ def sprint_detail(request, sprint_id,
                               context_instance=RequestContext(request))
 
 @login_required
-@transaction.commit_manually
 def sprint_edit(request, sprint_id,
                 template_name='sprints/sprint_edit.html'):
-    err = ''
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-    if request.method == 'POST':
-        remote_tracker_id = request.POST['remote_tracker_id']
-        default_bug_tracker = sprint.default_bug_tracker
-        try:
-            if not sprint.is_active():
-                raise Exception(_('You cannot edit an inactive sprint.'))
-            
-            task, created = Task.objects.get_or_create(bug_tracker=default_bug_tracker,
-                                                       remote_tracker_id=remote_tracker_id)
-            if created:
-                snapshot = task.get_latest_snapshot()
-            else:
-                snapshot = task.snapshot()
-
-            if snapshot == None:
-                raise Exception(_('Invalid task id, or unable to contact the Bug Tracker to fetch Task information.'))
-            elif snapshot.assigned_to != request.user:
-                raise Exception(_('Please assign this bug to yourself before adding it to your sprint.'))
-            elif snapshot.remaining_hours == 0:
-                raise Exception(_('No time remains on this bug. Please add additional hours before adding it to your sprint.'))
-            
-            if task.sprints.filter(pk=sprint.pk):
-                raise Exception(_('This task has already been added to the sprint.'))
-
-            task.sprints.add(sprint)
-            task.save()
-        except ValueError:
-            err = _('You must enter a valid bug number.')
-            transaction.rollback()
-        except Exception, e:
-            err = e.args[0]
-            transaction.rollback()
-        else:
-            transaction.commit()
-
     return render_to_response(template_name,
-                              {'sprint': sprint, 'err': err},
+                              {'sprint': sprint},
                               context_instance=RequestContext(request))
 
 import simplejson
@@ -216,4 +179,53 @@ def sprint_burndown_json(request, sprint_id):
     return HttpResponse(simplejson.dumps({
         'data': [remaining_hours, user_remaining_hours],
         'weekends': weekends,
+    }))
+
+@transaction.commit_manually
+def sprint_add_json(request, sprint_id):
+    if not request.user.is_authenticated():
+        return HttpResponse(simplejson.dumps([]))
+
+    err = None
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+
+    if request.method != 'POST':
+        return HttpResponseRedirect(sprint.get_absolute_url())
+
+    remote_tracker_id = request.POST['remote_tracker_id']
+    default_bug_tracker = sprint.default_bug_tracker
+    try:
+        if not sprint.is_active():
+            raise Exception(_('You cannot edit an inactive sprint.'))
+        
+        task, created = Task.objects.get_or_create(bug_tracker=default_bug_tracker,
+                                                   remote_tracker_id=remote_tracker_id)
+        if created:
+            snapshot = task.get_latest_snapshot()
+        else:
+            snapshot = task.snapshot()
+
+        if snapshot == None:
+            raise Exception(_('Invalid task id, or unable to contact the Bug Tracker to fetch Task information.'))
+        elif snapshot.assigned_to != request.user:
+            raise Exception(_('Please assign this bug to yourself before adding it to your sprint.'))
+        elif snapshot.remaining_hours == 0:
+            raise Exception(_('No time remains on this bug. Please add additional hours before adding it to your sprint.'))
+        
+        if task.sprints.filter(pk=sprint.pk):
+            raise Exception(_('This task has already been added to the sprint.'))
+
+        task.sprints.add(sprint)
+        task.save()
+    except ValueError:
+        err = _('You must enter a valid bug number.')
+        transaction.rollback()
+    except Exception, e:
+        err = e.args[0]
+        transaction.rollback()
+    else:
+        transaction.commit()
+
+    return HttpResponse(simplejson.dumps({
+        'success': err == None, 'err': err,
     }))

@@ -7,23 +7,18 @@
 {% block nav-your-tasks %} selected{% endblock %}
 
 {% block body %}
-{% if err %}
-<div class="err">{{ err }}</div>
-<script type="text/javascript">$('.err').fadeIn('slow');</script>
-{% else %}
-<div class="err"></div>
-{% endif %}
+<div id="err" class="err invisible"></div>
 <div id="sprint-tasks-table"></div>
 <div id="add-task-row">
-    <form action="." method="post">
-        <input type="text" size="8" name="remote_tracker_id" id="add-task-entry" {% if not sprint.is_active %}disabled="true"{% endif %}/>
-        <input type="submit" value="{% trans "Add Task" %}" id="add-task-button" {% if not sprint.is_active %}disabled="true"{% endif %}/>
-    </form>
+    <input type="text" size="8" name="remote_tracker_id" id="add-task-entry" {% if not sprint.is_active %}disabled="true"{% endif %}/>
+    <input type="submit" value="{% trans "Add Task" %}" id="add-task-button" {% if not sprint.is_active %}disabled="true"{% endif %}/>
+    <img src="{{ MEDIA_URL }}berserk/images/spinner.gif" class="invisible" id="spinner" width="16" height="16" alt="Loading" />
 </div>
 {% endblock %}
 
 {% block js_onReady %}
     $('#add-task-entry').focus();
+
     var grid = new Ext.grid.GridPanel({
         store: new Ext.data.GroupingStore({
             url: '{% url sprints.views.sprint_my_tasks_json sprint.id %}',
@@ -65,4 +60,23 @@
     });
     grid.getColumnModel().defaultSortable = true;
     grid.render('sprint-tasks-table');
+
+    $('#add-task-button').click(function() {
+        $("#err").fadeOut();
+        $("#spinner").show();
+
+        $.post('{% url sprints.views.sprint_add_json sprint.id %}',
+               { remote_tracker_id: $('#add-task-entry').val() }, 
+               function(data) {
+                   $("#spinner").hide();
+                   if (data.success) {
+                       grid.getStore().reload();
+                       $('#add-task-entry').val('').focus();
+                   } else {
+                       $("#err").html(data.err).fadeIn("slow");
+                       $('#add-task-entry').focus();
+                   }
+               }, 'json'
+        );
+    });
 {% endblock %}
