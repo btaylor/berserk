@@ -24,14 +24,25 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('berserk2.sprints.views',
-    url(r'^$', 'sprint_index'),
+    url(r'^$', 'sprint_index', name="sprint_index"),
     url(r'^(?P<sprint_id>\d+)/$', 'sprint_detail', name="sprint_detail"),
-    url(r'^(?P<sprint_id>\d+)/edit/$', 'sprint_edit'),
+    url(r'^(?P<sprint_id>\d+)/edit/$', 'sprint_edit', name="sprint_edit"),
+    url(r'^current/bookmarklet/$', 'sprint_current_bookmarklet', name='sprint_current_bookmarklet'),
 
     # JSON query methods
     url(r'^(?P<sprint_id>\d+)/load_effort/json/$', 'sprint_load_effort_json'),
     url(r'^(?P<sprint_id>\d+)/tasks/json/$', 'sprint_tasks_json'),
     url(r'^(?P<sprint_id>\d+)/my-tasks/json/$', 'sprint_my_tasks_json'),
     url(r'^(?P<sprint_id>\d+)/burndown/json/$', 'sprint_burndown_json'),
-    url(r'^(?P<sprint_id>\d+)/add/json/$', 'sprint_add_json'),
+    url(r'^(?P<sprint_id>\d+)/new/json/$', 'sprint_new_json'),
 )
+
+def reverse_full_url(name, args=(), kwargs={}):
+    from django.contrib.sites.models import Site
+    from django.core.urlresolvers import reverse
+    from urlparse import urlunparse
+
+    return urlunparse([
+        'http', Site.objects.get_current().domain,
+        reverse(name, args=args, kwargs=kwargs), '', '', ''
+    ])

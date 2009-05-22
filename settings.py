@@ -24,6 +24,8 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 # simply ignoring the emails.
 UPDATE_HOURS_REMINDER_DAYS = 3
 
+NEW_TASK_BOOKMARKLET_URL = "javascript:(function(){location.href='%s?url=' + encodeURIComponent(window.location.href)})()"
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -70,6 +72,15 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
+    'djangoflash.middleware.FlashMiddleware',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'djangoflash.context_processors.flash',
 )
 
 ROOT_URLCONF = 'berserk2.urls'
@@ -81,13 +92,25 @@ TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, "templates"),
 )
 
+# Add the lib/ directory to the path for external apps
+EXTERNAL_APPS_PATH = os.path.join(PROJECT_ROOT, "lib")
+
+import sys
+sys.path.append(EXTERNAL_APPS_PATH)
+
 INSTALLED_APPS = (
-    'berserk2.sprints',
+    # System Apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    
+    # External Apps
+    'djangoflash',
+
+    # Local Apps
+    'berserk2.sprints',
 )
 
 # local_settings.py can be used to override environment-specific settings

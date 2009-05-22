@@ -7,17 +7,48 @@
 {% block nav-your-tasks %} selected{% endblock %}
 
 {% block body %}
-<div id="err" class="err invisible"></div>
+{% with flash.error as e %}
+<div id="error" class="error {{ e|yesno:"fadein,invisible" }}"
+     role="alert" aria-live="assertive">
+    {{ e }}
+</div>
+{% endwith %}
+{% with flash.notice as n %}
+<div id="notice" class="notice {{ n|yesno:"fadein,invisible" }}"
+     role="status" aria-live="polite">
+    {{ n }}
+</div>
+{% endwith %}
 <div id="sprint-tasks-table"></div>
 <div id="add-task-row">
     <input type="text" size="8" name="remote_tracker_id" id="add-task-entry" {% if not sprint.is_active %}disabled="true"{% endif %}/>
     <input type="submit" value="{% trans "Add Task" %}" id="add-task-button" {% if not sprint.is_active %}disabled="true"{% endif %}/>
-    <img src="{{ MEDIA_URL }}berserk/images/spinner.gif" class="invisible" id="spinner" width="16" height="16" alt="Loading" />
+    <img src="{{ MEDIA_URL }}berserk/images/spinner.gif" class="invisible"
+         id="spinner" width="16" height="16" alt="{% trans "Loading" %}" role="status" />
+</div>
+<div id="sprint-tools">
+    <h3>Handy Tools</h3>
+    <div class="bookmarklet">
+        <a href="{{ bookmarklet_url }}" id="bookmark-link"
+           title="{% trans "Add this task to your Sprint" %}">
+            {% trans "Add Task Bookmarklet" %}
+        </a>
+{% blocktrans %}
+        <small>Drag this link to your bookmarks bar.  Clicking on this bookmark
+        when visiting a bug will add the bug to the currently active
+        sprint.</small>
+{% endblocktrans %}
+    </div>
+    </a>
 </div>
 {% endblock %}
 
 {% block js_onReady %}
     $('#add-task-entry').focus();
+
+    $(document).ready(function() {
+        $('.fadein').fadeIn("slow");
+    });
 
     var grid = new Ext.grid.GridPanel({
         store: new Ext.data.GroupingStore({
@@ -61,22 +92,36 @@
     grid.getColumnModel().defaultSortable = true;
     grid.render('sprint-tasks-table');
 
-    $('#add-task-button').click(function() {
-        $("#err").fadeOut();
+    var newTask = function() {
+        $("#error").fadeOut();
+        $("#notice").fadeOut();
         $("#spinner").show();
 
-        $.post('{% url sprints.views.sprint_add_json sprint.id %}',
+        $.post('{% url sprints.views.sprint_new_json sprint.id %}',
                { remote_tracker_id: $('#add-task-entry').val() }, 
                function(data) {
                    $("#spinner").hide();
-                   if (data.success) {
-                       grid.getStore().reload();
-                       $('#add-task-entry').val('').focus();
-                   } else {
-                       $("#err").html(data.err).fadeIn("slow");
+                   if (data.error) {
+                       $("#error").html(data.error).fadeIn("slow");
                        $('#add-task-entry').focus();
+                       return;
                    }
+                   
+                   if (data.notice) {
+                       $("#notice").html(data.notice).fadeIn("slow");
+                   }
+                   
+                   grid.getStore().reload();
+                   $('#add-task-entry').val('').focus();
                }, 'json'
         );
+    };
+
+    $('#add-task-button').click(newTask);
+    $('#add-task-entry').keyup(function(e) {
+        // enter key
+        if (e.keyCode == 13) {
+            $('#add-task-button').click();
+        }
     });
 {% endblock %}

@@ -104,15 +104,22 @@ img a {
     color: #4d593c;
 }
 
-.invisible {
+.fadein, .invisible {
     display: none;
 }
 
-.err {
+.error, .notice {
     margin: 8px 0;
     padding: 6px;
-    background-color: #e1df66;
     color: #000000;
+}
+
+.error {
+    background-color: #e1df66;
+}
+
+.notice {
+    background-color: #c3daf9;
 }
 
 #footer {
@@ -180,4 +187,39 @@ img a {
 
 #add-task-row img#spinner {
     vertical-align: middle;
+}
+
+.bookmarklet {
+    display: block;
+    width: 20em;
+    padding: 15px 15px 15px 70px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    background: #4d593c url('/site_media/berserk/images/bookmark-new.png') top left no-repeat;
+}
+
+.bookmarklet a#bookmark-link {
+    display: block;
+    font-size: 1.3em;
+    font-weight: bold;
+    text-transform: lowercase;
+    color: #ffffff;
+    margin: 0 0 0.2em 0;
+    text-decoration: none;
+}
+
+.bookmarklet small {
+    color: #b8d58e;
+}
+
+.bookmarklet:hover {
+    background-color: #76895b;
+}
+
+.bookmarklet:hover small {
+    color: #000000;
+}
+
+#sprint-tools {
+    margin-top: 60px;
 }

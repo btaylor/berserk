@@ -27,13 +27,16 @@ from django.db.models import Sum
 from django.db import transaction
 from django.db import IntegrityError
 from django.template import RequestContext
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 
+from berserk2 import settings
 from berserk2.sprints.models import *
 from berserk2.sprints.utils import date_range
+from berserk2.sprints.urls import reverse_full_url
 
 def sprint_index(request):
     sprint = Sprint.objects.current()
@@ -62,9 +65,53 @@ def sprint_detail(request, sprint_id,
 def sprint_edit(request, sprint_id,
                 template_name='sprints/sprint_edit.html'):
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+    bookmarklet_url = settings.NEW_TASK_BOOKMARKLET_URL \
+                          % reverse_full_url('sprint_current_bookmarklet')
     return render_to_response(template_name,
-                              {'sprint': sprint},
+                              {'sprint': sprint,
+                               'bookmarklet_url': bookmarklet_url},
                               context_instance=RequestContext(request))
+
+import urllib, cgi
+
+@login_required
+def sprint_current_bookmarklet(request):
+    sprint = Sprint.objects.current()
+    if sprint == None or request.method != 'GET':
+        return HttpResponseRedirect(reverse('sprint_index'))
+
+    remote_tracker_id = None
+
+    # e.g.: https://bugzilla.mozilla.org/show_bug.cgi?id=490130
+    url = urllib.unquote(request.GET['url'])
+
+    path, query = urllib.splitquery(url)
+    if not path.startswith(sprint.default_bug_tracker.base_url):
+        request.flash['error'] = _('Hmm, this doesn\'t look like my default bug tracker URL.');
+        return HttpResponseRedirect(reverse('sprint_edit',
+                                            kwargs={'sprint_id': sprint.id}))
+
+    data = cgi.parse_qsl(query)
+    for item in data:
+        key, value = item
+        if key == 'id':
+            remote_tracker_id = value
+
+    if not remote_tracker_id:
+        request.flash['error'] = _('Hmm, I\'ve never seen this type of URL before.  Fancy!')
+        return HttpResponseRedirect(reverse('sprint_edit',
+                                            kwargs={'sprint_id': sprint.id}))
+
+    result = _add_task(request, sprint, sprint.default_bug_tracker,
+                       remote_tracker_id)
+    if 'error' in result:
+        request.flash['error'] = result['error']
+    elif 'notice' in result:
+        request.flash['notice'] = result['notice']
+
+    return HttpResponseRedirect(reverse('sprint_edit',
+                                        kwargs={'sprint_id': sprint.id}))
+
 
 import simplejson
 
@@ -182,18 +229,23 @@ def sprint_burndown_json(request, sprint_id):
     }))
 
 @transaction.commit_manually
-def sprint_add_json(request, sprint_id):
+def sprint_new_json(request, sprint_id):
     if not request.user.is_authenticated():
         return HttpResponse(simplejson.dumps([]))
 
-    err = None
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
 
     if request.method != 'POST':
         return HttpResponseRedirect(sprint.get_absolute_url())
 
-    remote_tracker_id = request.POST['remote_tracker_id']
-    default_bug_tracker = sprint.default_bug_tracker
+    result = _add_task(request, sprint,
+                       sprint.default_bug_tracker,
+                       request.POST['remote_tracker_id'])
+
+    return HttpResponse(simplejson.dumps(result))
+
+def _add_task(request, sprint, default_bug_tracker, remote_tracker_id):
+    err, task = None, None
     try:
         if not sprint.is_active():
             raise Exception(_('You cannot edit an inactive sprint.'))
@@ -218,14 +270,12 @@ def sprint_add_json(request, sprint_id):
         task.sprints.add(sprint)
         task.save()
     except ValueError:
-        err = _('You must enter a valid bug number.')
         transaction.rollback()
+        return {'error': _('You must enter a valid bug number.')}
     except Exception, e:
-        err = e.args[0]
         transaction.rollback()
+        return {'error': e.message}
     else:
         transaction.commit()
 
-    return HttpResponse(simplejson.dumps({
-        'success': err == None, 'err': err,
-    }))
+    return {'notice': _('Task #%s has been added to your sprint.') % task.remote_tracker_id}
