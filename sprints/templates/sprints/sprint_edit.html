@@ -62,24 +62,24 @@
                 { name: 'component', type: 'string' },
                 { name: 'status', type: 'string' },
                 { name: 'estimated_hours', type: 'int' },
-                { name: 'remaining_hours', type: 'int' },
-            ]),
+                { name: 'remaining_hours', type: 'int' }
+            ])
         }),
         columns: [
             { header: "Id", width: 65, dataIndex: 'id',
               summaryRenderer: function(v, params, data) {
                   return 'Total:';
-              },
+              }
             },
             { header: "Title", width: 500, dataIndex: 'title', summaryType: 'count',
               summaryRenderer: function(v, params, data) {
                   return ((v === 0 || v > 1) ? v + ' Tasks' : '1 Task');
-              },
+              }
             },
             { header: "Component", width: 90, dataIndex: 'component' },
             { header: "Status", width: 70, dataIndex: 'status' },
             { header: "Est", width: 35, dataIndex: 'estimated_hours', summaryType: 'sum' },
-            { header: "Rem", width: 35, dataIndex: 'remaining_hours', summaryType: 'sum' },
+            { header: "Rem", width: 35, dataIndex: 'remaining_hours', summaryType: 'sum' }
         ],
         stripeRows: true,
         width: "100%", height: 500,
@@ -87,7 +87,7 @@
         view: new Ext.grid.GroupingView({
             showGroupName: true, hideGroupedColumn: true
         }),
-        plugins: new Ext.grid.GroupSummary(),
+        plugins: new Ext.grid.GroupSummary()
     });
     grid.getColumnModel().defaultSortable = true;
     grid.render('sprint-tasks-table');

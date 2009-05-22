@@ -8,8 +8,8 @@
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/menu.css" media="screen">
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}ext/css/summary.css" media="screen">
 
-    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/summary.js" defer="defer" charset="utf-8"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/sprint_detail.js" defer="defer" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}ext/js/summary.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/sprint_detail.js" charset="utf-8"></script>
 {% endblock %}
 
 {% block title %}viewing sprint {{ sprint }}{% endblock %}
@@ -64,23 +64,23 @@ Ext.onReady(function() {
                 markings.push({
                     xaxis: {
                         from: w.start,
-                        to: w.end,
+                        to: w.end
                     },
-                    color: "#fff6d9",
+                    color: "#fff6d9"
                 });
             }
 
-            var data = [ { label: "{% trans "Team Hours" %}", data: json.data[0] }, ];
+            var data = [ { label: "{% trans "Team Hours" %}", data: json.data[0] } ];
             if (json.data[1].length > 0)
                 data.push({ label: "{% trans "Your Hours" %}", data: json.data[1] });
 
             $.plot($("#sprint-burndown-chart"), data, {
-                lines: { show: true, lineWidth: 10, },
-                points: { show: true, radius: 6 },
-                xaxis: { tickSize: 1, },
+                lines: { show: true, lineWidth: 4 },
+                points: { show: true, radius: 8 },
+                xaxis: { tickSize: 1 },
                 yaxis: { min: 0 },
                 legend: { show: true },
-                grid: { markings: markings, },
+                grid: { markings: markings }
             });
         }
     );
