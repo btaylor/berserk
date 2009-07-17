@@ -86,7 +86,10 @@ for user in User.objects.all():
         'user': user, 'sprint': sprint,
         'task_snapshot_cache': todays_tasks
     })
-    subject = t.render(c)
+
+    # Make sure to strip out any trailing newlines as they will cause sendmail
+    # to reject the email
+    subject = t.render(c).rstrip()
 
     t = loader.get_template('email/update-hours-reminder.txt')
     body = t.render(c)
