@@ -7,9 +7,11 @@
 
 {% block body %}
 <h3>{{ title }}</h3>
-<p>{% blocktrans %}You have been successfully logged out.  You're coming back, right?{% endblocktrans %}</p>
+<p>{% trans "You have been successfully logged out.  You're coming back, right?" %}</p>
 <p>
-<a href="{% url django.contrib.auth.views.login %}">{% trans "Log in again" %}</a>
+<div class="bubble button">
+  <h3><a href="{% url django.contrib.auth.views.login %}" id="button-link">↶  &nbsp;{% trans "Log in again" %}</a></h3>
+</div>
 </p>
 {% endblock %}
 

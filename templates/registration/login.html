@@ -7,12 +7,12 @@
 
 {% block body %}
 {% if form.errors %}
-<span class="err">{% trans "Your username and password didn't match. Please try again." %}</span>
-<script type="text/javascript">$('.err').fadeIn('slow');</script>
+<div id="error" class="error fadein">{% trans "Your username and password didn't match. Please try again." %}</div>
+<script type="text/javascript">$('.fadein').fadeIn('slow');</script>
 {% endif %}
 <h3>{% trans "Log in" %}</h3>
 
-<form method="post" action=".">
+<form name="loginform" method="post" action=".">
 <table>
 <tr>
     <td>{{ form.username.label_tag }}</td>
@@ -24,7 +24,9 @@
 </tr>
 </table>
 
-<input type="submit" value="login" />
+<div class="bubble button">
+    <h3><a href="javascript:document.loginform.submit();">↪ &nbsp;{% trans "Log in" %}</a></h3>
+</div>
 {% if next %}
 <input type="hidden" name="next" value="{{ next }}" />
 {% else %}
