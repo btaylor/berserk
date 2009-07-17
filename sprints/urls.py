@@ -35,6 +35,7 @@ urlpatterns = patterns('berserk2.sprints.views',
     url(r'^(?P<sprint_id>\d+)/my-tasks/json/$', 'sprint_my_tasks_json'),
     url(r'^(?P<sprint_id>\d+)/burndown/json/$', 'sprint_burndown_json'),
     url(r'^(?P<sprint_id>\d+)/new/json/$', 'sprint_new_json'),
+    url(r'^(?P<sprint_id>\d+)/statistics/partial/$', 'sprint_statistics_partial'),
 )
 
 def reverse_full_url(name, args=(), kwargs={}):

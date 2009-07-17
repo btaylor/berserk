@@ -1,0 +1,2 @@
+{% load i18n %}
+{% blocktrans count hours as h %}{{ h }} hour remaining{% plural %}{{ h }} hours remaining{% endblocktrans %}{% if load %}{% blocktrans with load|floatformat as l %}, {{ l }}% load{% endblocktrans %}{% endif %}

@@ -37,6 +37,7 @@ from berserk2 import settings
 from berserk2.sprints.models import *
 from berserk2.sprints.utils import date_range
 from berserk2.sprints.urls import reverse_full_url
+from berserk2.sprints.models import _workday_diff, _calc_load
 
 def sprint_index(request):
     sprint = Sprint.objects.current()
@@ -227,6 +228,30 @@ def sprint_burndown_json(request, sprint_id):
         'data': [remaining_hours, user_remaining_hours],
         'weekends': weekends,
     }))
+
+def sprint_statistics_partial(request, sprint_id,
+                              template_name='sprints/sprint_statistics_partial.html'):
+    if not request.user.is_authenticated():
+        return HttpResponse('')
+
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+    cached_snaps = TaskSnapshotCache.objects.filter(task_snapshot__assigned_to=request.user)
+    if sprint.is_active():
+        cached_snaps = cached_snaps.filter(date=date.today())
+    else:
+        cached_snaps = cached_snaps.filter(date=sprint.end_date)
+
+    sum = cached_snaps.aggregate(value=Sum('task_snapshot__remaining_hours'))
+    hours = sum['value'] if sum['value'] != None else 0
+ 
+    load = None
+    if sprint.is_active():
+        load = _calc_load(hours, _workday_diff(date.today(), sprint.end_date),
+                          sprint.iteration_workdays(), sprint.velocity)
+
+    return render_to_response(template_name,
+                              {'hours': hours, 'load': load },
+                              context_instance=RequestContext(request))
 
 @transaction.commit_manually
 def sprint_new_json(request, sprint_id):

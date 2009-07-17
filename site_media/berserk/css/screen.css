@@ -185,8 +185,16 @@ img a {
     background-color: #9fb87a;
 }
 
-#add-task-row img#spinner {
+#add-task-row table {
     vertical-align: middle;
+}
+
+#add-task-row td {
+    padding: 0 0 0 5px;
+}
+
+#sprint-statistics {
+    color: #ffffff;
 }
 
 .bubble, .bookmarklet {

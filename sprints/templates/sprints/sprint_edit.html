@@ -21,10 +21,19 @@
 {% endwith %}
 <div id="sprint-tasks-table"></div>
 <div id="add-task-row">
-    <input type="text" size="8" name="remote_tracker_id" id="add-task-entry" {% if not sprint.is_active %}disabled="true"{% endif %}/>
-    <input type="submit" value="{% trans "Add Task" %}" id="add-task-button" {% if not sprint.is_active %}disabled="true"{% endif %}/>
-    <img src="{{ MEDIA_URL }}berserk/images/spinner.gif" class="invisible"
-         id="spinner" width="16" height="16" alt="{% trans "Loading" %}" role="status" />
+    <table cellspacing="0" cellpadding="0">
+        <tr>
+            <td>
+                <input type="text" size="8" name="remote_tracker_id" id="add-task-entry" {% if not sprint.is_active %}disabled="true"{% endif %}/>
+                <input type="submit" value="{% trans "Add Task" %}" id="add-task-button" {% if not sprint.is_active %}disabled="true"{% endif %}/>
+            </td>
+            <td width="16">
+                <img src="{{ MEDIA_URL }}berserk/images/spinner.gif" class="invisible"
+                     id="spinner" width="16" height="16" alt="{% trans "Loading" %}" role="status" />
+            </td>
+            <td id="sprint-statistics"></td>
+        </tr>
+    </table>
 </div>
 <div id="sprint-tools">
     <h3>Handy Tools</h3>
@@ -92,7 +101,12 @@
     grid.getColumnModel().defaultSortable = true;
     grid.render('sprint-tasks-table');
 
-    var newTask = function() {
+    updateStatistics = function() {
+        $('#sprint-statistics').load('{% url sprints.views.sprint_statistics_partial sprint.id %}');
+    };
+    updateStatistics();
+
+    $('#add-task-button').click(function() {
         $("#error").fadeOut();
         $("#notice").fadeOut();
         $("#spinner").show();
@@ -113,11 +127,11 @@
                    
                    grid.getStore().reload();
                    $('#add-task-entry').val('').focus();
+                   updateStatistics();
                }, 'json'
         );
-    };
+    });
 
-    $('#add-task-button').click(newTask);
     $('#add-task-entry').keyup(function(e) {
         // enter key
         if (e.keyCode == 13) {
