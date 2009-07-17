@@ -71,6 +71,11 @@ Ext.onReady(function() {
             }
 
             var data = [ { label: "{% trans "Team Hours" %}", data: json.data[0] } ];
+            if (json.data[2].length > 0)
+                data.push({
+                    label: "{% trans "Open Tasks" %}", data: json.data[2],
+                    points: { show: false }, lines: { show: true, fill: true }
+                });
             if (json.data[1].length > 0)
                 data.push({ label: "{% trans "Your Hours" %}", data: json.data[1] });
 

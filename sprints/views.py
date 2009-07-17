@@ -23,9 +23,9 @@
 
 from datetime import timedelta
 
-from django.db.models import Sum
 from django.db import transaction
 from django.db import IntegrityError
+from django.db.models import Count, Sum, Q
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
@@ -205,19 +205,26 @@ def sprint_burndown_json(request, sprint_id):
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
     
     remaining_hours = []
+    user_remaining_hours = []
+    open_tasks = []
     for day, date in date_range(sprint.start_date, sprint.end_date):
-        data = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
-                                                date=date) \
-                                        .aggregate(rem=Sum('task_snapshot__remaining_hours'))
+        cache = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
+                                                 date=date)
+        data = cache.aggregate(rem=Sum('task_snapshot__remaining_hours'))
         remaining_hours.append([day, data['rem'] if data['rem'] else 'null'])
 
-    user_remaining_hours = []
-    if request.user.is_authenticated():
-        for day, date in date_range(sprint.start_date, sprint.end_date):
-            data = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
-                                                    date=date, task_snapshot__assigned_to=request.user) \
-                                            .aggregate(rem=Sum('task_snapshot__remaining_hours'))
-            user_remaining_hours.append([day, data['rem'] if data['rem'] else 'null'])
+        data = cache.exclude(Q(task_snapshot__status='RESOLVED') \
+                             | Q(task_snapshot__status='CLOSED') \
+                             | Q(task_snapshot__status='VERIFIED')) \
+                    .aggregate(count=Count('task_snapshot'))
+        open_tasks.append([day, data['count']])
+
+        if not request.user.is_authenticated():
+            continue
+
+        data = cache.filter(task_snapshot__assigned_to=request.user) \
+                            .aggregate(rem=Sum('task_snapshot__remaining_hours'))
+        user_remaining_hours.append([day, data['rem'] if data['rem'] else 'null'])
 
     weekends = []
     for day, date in date_range(sprint.start_date, sprint.end_date):
@@ -225,7 +232,7 @@ def sprint_burndown_json(request, sprint_id):
             weekends.append({'start': day - 2, 'end': day})
 
     return HttpResponse(simplejson.dumps({
-        'data': [remaining_hours, user_remaining_hours],
+        'data': [remaining_hours, user_remaining_hours, open_tasks],
         'weekends': weekends,
     }))
 
