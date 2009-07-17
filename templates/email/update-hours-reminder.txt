@@ -1,4 +1,4 @@
-Hello {{ user.first_name }},
+Hello {{ user.first_name|safe }},
 
 This is a friendly reminder that you haven't updated the remaining hours on the
 tasks you have assigned in the last {{ remind_days }} day{{ remind_days|pluralize }}.
@@ -15,7 +15,7 @@ me know on my website.
     Your Tasks for {{ sprint }}:
     ---------------------------------------------------------------------
 {% for c in task_snapshot_cache %}
-      * #{{ c.task_snapshot.task.remote_tracker_id }}: {{ c.task_snapshot.title }}
+      * #{{ c.task_snapshot.task.remote_tracker_id }}: {{ c.task_snapshot.title|safe }}
         {{ c.task_snapshot.task.get_absolute_url }}
 {% endfor %}
 Thanks in advance!
