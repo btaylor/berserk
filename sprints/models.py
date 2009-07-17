@@ -108,7 +108,7 @@ class Sprint(models.Model):
         """
         Returns a tuple containing two child dicts.
 
-         - The first dict mas a User to an array of their effort for every day
+         - The first dict maps a User to an array of their effort for every day
            in the Sprint.  Effort is the total remaining hours left in an
            Sprint-day.
 
