@@ -33,7 +33,7 @@ setup_environ(settings)
 from datetime import date, datetime, timedelta
 
 from django.contrib.auth.models import User
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 
 from berserk2.sprints.models import *
 
@@ -50,7 +50,10 @@ if sprint == None:
 for user in User.objects.all():
     log('   Examining user %s...' % user)
     if TaskSnapshot.objects.filter(task__sprints=sprint,
-                                   assigned_to=user).count () == 0:
+                                   assigned_to=user) \
+                           .exclude(Q(status='RESOLVED') | Q(status='CLOSED') \
+                                    | Q(status='VERIFIED')) \
+                           .count() == 0:
         log('   - User has no tasks assigned this sprint.')
         continue
 
