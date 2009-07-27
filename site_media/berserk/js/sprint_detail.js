@@ -74,7 +74,9 @@ function createTasksGrid(target_id, url, iteration_days) {
     });
 
     var sparkify = function() {
-        $('.sparkline:hidden').sparkline();
+        $('.sparkline:hidden').sparkline('html', {
+            lineColor: '#555555', fillColor: '#dddddd', chartRangeMin: 0
+        });
         $('.sparkline').removeClass('invisible');
         $.sparkline_display_visible();
     };
