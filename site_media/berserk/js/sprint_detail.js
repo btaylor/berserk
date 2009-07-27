@@ -87,6 +87,7 @@ function createTasksGrid(target_id, url, iteration_days) {
         sparkify.defer(500);
         sparkify.defer(2000);
         sparkify.defer(3500);
+        sparkify.defer(5000);
     });
         
     grid.getColumnModel().defaultSortable = true;
