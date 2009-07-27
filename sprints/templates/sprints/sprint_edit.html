@@ -50,6 +50,38 @@
     </div>
     </a>
 </div>
+<script type="text/javascript">
+function deleteTask(task_id) {
+    if (!confirm('{% trans "Are you sure you want to remove this task from the selected sprint?" %}'))
+        return false;
+
+    updateTasksAfterPost('{% url sprints.views.sprint_delete_task_json sprint.id %}',
+                         { task_id: task_id });
+};
+
+function updateTasksAfterPost(url, args) {
+    $("#error").fadeOut();
+    $("#notice").fadeOut();
+    $("#spinner").show();
+
+    $.post(url, args, function(data) {
+        $("#spinner").hide();
+        if (data.error) {
+            $("#error").html(data.error).fadeIn("slow");
+            $('#add-task-entry').focus();
+            return;
+        }
+        
+        if (data.notice) {
+            $("#notice").html(data.notice).fadeIn("slow");
+        }
+        
+        grid.getStore().reload();
+        $('#add-task-entry').val('').focus();
+        $('#sprint-statistics').load('{% url sprints.views.sprint_statistics_partial sprint.id %}');
+    }, 'json');
+}
+</script>
 {% endblock %}
 
 {% block js_onReady %}
@@ -71,11 +103,13 @@
                 { name: 'component', type: 'string' },
                 { name: 'status', type: 'string' },
                 { name: 'estimated_hours', type: 'int' },
-                { name: 'remaining_hours', type: 'int' }
+                { name: 'remaining_hours', type: 'int' },
+                { name: 'actions', type: 'string' }
             ])
         }),
         columns: [
-            { header: "Id", width: 65, dataIndex: 'id',
+            { header: "", width: 35, dataIndex: 'actions' },
+            { header: "Id", width: 55, dataIndex: 'id',
               summaryRenderer: function(v, params, data) {
                   return 'Total:';
               }
@@ -101,35 +135,11 @@
     grid.getColumnModel().defaultSortable = true;
     grid.render('sprint-tasks-table');
 
-    updateStatistics = function() {
-        $('#sprint-statistics').load('{% url sprints.views.sprint_statistics_partial sprint.id %}');
-    };
-    updateStatistics();
+    $('#sprint-statistics').load('{% url sprints.views.sprint_statistics_partial sprint.id %}');
 
     $('#add-task-button').click(function() {
-        $("#error").fadeOut();
-        $("#notice").fadeOut();
-        $("#spinner").show();
-
-        $.post('{% url sprints.views.sprint_new_json sprint.id %}',
-               { remote_tracker_id: $('#add-task-entry').val() }, 
-               function(data) {
-                   $("#spinner").hide();
-                   if (data.error) {
-                       $("#error").html(data.error).fadeIn("slow");
-                       $('#add-task-entry').focus();
-                       return;
-                   }
-                   
-                   if (data.notice) {
-                       $("#notice").html(data.notice).fadeIn("slow");
-                   }
-                   
-                   grid.getStore().reload();
-                   $('#add-task-entry').val('').focus();
-                   updateStatistics();
-               }, 'json'
-        );
+        updateTasksAfterPost('{% url sprints.views.sprint_new_json sprint.id %}',
+                             { remote_tracker_id: $('#add-task-entry').val() });
     });
 
     $('#add-task-entry').keyup(function(e) {

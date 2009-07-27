@@ -32,9 +32,10 @@ urlpatterns = patterns('berserk2.sprints.views',
     # JSON query methods
     url(r'^(?P<sprint_id>\d+)/load_effort/json/$', 'sprint_load_effort_json'),
     url(r'^(?P<sprint_id>\d+)/tasks/json/$', 'sprint_tasks_json'),
-    url(r'^(?P<sprint_id>\d+)/my-tasks/json/$', 'sprint_my_tasks_json'),
+    url(r'^(?P<sprint_id>\d+)/my_tasks/json/$', 'sprint_my_tasks_json'),
     url(r'^(?P<sprint_id>\d+)/burndown/json/$', 'sprint_burndown_json'),
     url(r'^(?P<sprint_id>\d+)/new/json/$', 'sprint_new_json'),
+    url(r'^(?P<sprint_id>\d+)/delete_task/json/$', 'sprint_delete_task_json'),
     url(r'^(?P<sprint_id>\d+)/statistics/partial/$', 'sprint_statistics_partial'),
 )
 

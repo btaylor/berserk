@@ -185,7 +185,8 @@ def sprint_my_tasks_json(request, sprint_id):
         return HttpResponse(simplejson.dumps([]))
 
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-    cached_snaps = TaskSnapshotCache.objects.filter(task_snapshot__assigned_to=request.user)
+    cached_snaps = TaskSnapshotCache.objects.filter(task_snapshot__assigned_to=request.user,
+                                                    task_snapshot__task__sprints=sprint)
     if sprint.is_active():
         cached_snaps = cached_snaps.filter(date=date.today())
     else:
@@ -198,7 +199,8 @@ def sprint_my_tasks_json(request, sprint_id):
             '<a href="%s">#%s</a>' % (snap.task.get_absolute_url(), snap.task.remote_tracker_id),
             snap.title, snap.component, snap.status,
             snap.estimated_hours, snap.remaining_hours,
-            snap.task.id,
+            '<a href="javascript:deleteTask(%s);"><img id="%s" src="/site_media/berserk/images/edit-delete.png" width="16" height="16"/></a>' \
+                % (snap.task.id, snap.task.id)
         ])
     return HttpResponse(simplejson.dumps(tasks_data))
 
@@ -264,6 +266,25 @@ def sprint_statistics_partial(request, sprint_id,
     return render_to_response(template_name,
                               {'hours': hours, 'load': load },
                               context_instance=RequestContext(request))
+
+def sprint_delete_task_json(request, sprint_id):
+    if not request.user.is_authenticated():
+        return HttpResponse(simplejson.dumps(result))
+
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+
+    if 'task_id' not in request.POST:
+        return HttpResponseRedirect(sprint.get_absolute_url())
+
+    task = get_object_or_404(Task, pk=int(request.POST['task_id']))
+    try:
+        task.sprints.remove(sprint)
+    except Exception, e:
+        return HttpResponse(simplejson.dumps({'error': e.message}))
+    finally:
+        return HttpResponse(simplejson.dumps({
+            'notice': _('Task #%s has been removed from this sprint.') % task.remote_tracker_id
+        }))
 
 @transaction.commit_manually
 def sprint_new_json(request, sprint_id):
