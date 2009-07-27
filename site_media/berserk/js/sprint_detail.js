@@ -35,12 +35,12 @@ function createTasksGrid(target_id, url, iteration_days) {
     var columns = [
         { header: "Id", width: 65, dataIndex: 'id', 
           summaryRenderer: function(v, params, data) {
-                return 'Total:';
+              return 'Total:';
           }
         },
         { header: "Title", width: 500, dataIndex: 'title', summaryType: 'count',
           summaryRenderer: function(v, params, data) {
-                return ((v === 0 || v > 1) ? v + ' Tasks' : '1 Task');
+              return ((v === 0 || v > 1) ? v + ' Tasks' : '1 Task');
           }
         },
         { header: "Component", width: 70, dataIndex: 'component' },
@@ -72,6 +72,23 @@ function createTasksGrid(target_id, url, iteration_days) {
         }),
         plugins: new Ext.grid.GroupSummary()
     });
+
+    var sparkify = function() {
+        $('.sparkline:hidden').sparkline();
+        $('.sparkline').removeClass('invisible');
+        $.sparkline_display_visible();
+    };
+
+    grid.on('render', function(component) {
+        // This behavior is lame.  For some reason, render is giving us the
+        // event after only the parent has rendered, not after all of the
+        // children have.  Of course, with network delays, it is possible that
+        // you won't see sparklines at all.
+        sparkify.defer(500);
+        sparkify.defer(2000);
+        sparkify.defer(3500);
+    });
+        
     grid.getColumnModel().defaultSortable = true;
     grid.render(target_id);
     return grid;
@@ -86,12 +103,12 @@ function createTeamMemberGrid(target_id, iteration_days) {
         fields.push({ name: 'day_' + i.toString(), type: 'string' });
     }
 
-    columns.push({ header: 'Team Member', width: 90, dataIndex: 'team_member' });
+    columns.push({ header: 'Team Member', width: 95, dataIndex: 'team_member' });
     for (i = 1; i < iteration_days + 1; i++) {
         columns.push({
-		header: i.toString(), width: 35, dataIndex: ("day_" + i),
-		resizable: false, hideable: false
-	});
+                header: i.toString(), width: 35, dataIndex: ("day_" + i),
+                resizable: false, hideable: false
+        });
     }
 
     var grid = new Ext.grid.GridPanel({

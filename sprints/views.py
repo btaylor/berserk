@@ -132,7 +132,8 @@ def sprint_load_effort_json(request, sprint_id):
 
     effort_rows = []
     for u, e in effort.iteritems():
-        effort_rows.append([get_username_for_display(u)] + e)
+        effort_rows.append(['%s <span class="sparkline invisible">%s</span>' % \
+            (get_username_for_display(u), ','.join([str(v) for v in e]))] + e)
 
     load_rows = []
     for u, l in load.iteritems():
@@ -165,13 +166,17 @@ def sprint_tasks_json(request, sprint_id):
             task_data = [
                 '<a href="%s">#%s</a>' % (s.task.get_absolute_url(), s.task.remote_tracker_id),
                 s.title, s.component, s.get_assigned_to_display(), s.get_submitted_by_display(),
-                s.status, s.estimated_hours,
+                s.status, s.estimated_hours
             ]
             task_data.extend(iteration_days)
             tasks_data.append(task_data)
 
         task_data[(csnap.date - sprint.start_date).days + 7] = s.remaining_hours
         latest_snap = s
+    
+    for task in tasks_data:
+        task[1] = task[1] + '&nbsp;<span class="sparkline invisible">%s</span>' % \
+            ','.join([str(i) for i in task[6:]])
 
     return HttpResponse(simplejson.dumps(tasks_data))
 
