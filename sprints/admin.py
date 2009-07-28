@@ -105,7 +105,7 @@ class SprintAdmin(admin.ModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     list_display = ('remote_tracker_id', 'bug_tracker')
     search_fields = (
-        'tasksnapshot__title', 'tasksnapshot__status',
+        'remote_tracker_id', 'tasksnapshot__title', 'tasksnapshot__status',
         'tasksnapshot__assigned_to__first_name', 'tasksnapshot__assigned_to__last_name',
         'tasksnapshot__submitted_by__first_name', 'tasksnapshot__submitted_by__last_name',
     )
