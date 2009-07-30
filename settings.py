@@ -115,7 +115,7 @@ INSTALLED_APPS = (
 
     # Local Apps
     'berserk2.sprints',
-    'core',
+    'berserk2.core',
 )
 
 # local_settings.py can be used to override environment-specific settings
