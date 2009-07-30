@@ -288,7 +288,7 @@ def sprint_statistics_partial(request, sprint_id,
  
     load = None
     if sprint.is_active():
-        load = _calc_load(hours, _workday_diff(date.today(), sprint.end_date),
+        load = _calc_load(hours, _workday_diff(sprint.start_date, date.today()),
                           sprint.iteration_workdays(), sprint.velocity)
 
     return render_to_response(template_name,
