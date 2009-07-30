@@ -1,0 +1,15 @@
+#
+# Sample crontab file for running berserk's scheduled commands.
+#
+
+BERSERK_PATH = "/path/to/berserk2/"
+
+# Send out reminder emails to users who haven't updated their remaining hours
+# in UPDATE_HOURS_REMINDER_DAYS at 4am on Tuesdays and Thursdays
+0 16 * * 2,4	(cd $BERSERK_PATH && python manage updatehoursemail)
+
+# Gather milestone statistics every three hours
+0 */3 * * *	(cd $BERSERK_PATH && python manage snapshotmilestones)
+
+# Snapshot tasks for the active sprint every hour
+@hourly	(cd $BERSERK_PATH && python manage snapshotmilestones)

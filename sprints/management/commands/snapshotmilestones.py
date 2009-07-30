@@ -23,26 +23,27 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 #
 
-# TODO: Figure out how to put this in scripts/
-
-from django.core.management import setup_environ
-import settings
-setup_environ(settings)
-
-
 from datetime import datetime
 from berserk2.sprints.models import Sprint, Task
 
-def log(msg):
-    print '[%s]: %s' % (datetime.now(), msg)
+from django.core.management.base import NoArgsCommand
 
-log('Starting up')
+class Command(NoArgsCommand):
+    help = "Snapshots statistics about the current sprint's milestone"
 
-sprint = Sprint.objects.current()
-if sprint == None:
-    log('   No active sprints found.  Exiting.')
-    sys.exit()
+    def handle_noargs(self, **options):
+        def log(msg):
+            print '[%s]: %s' % (datetime.now(), msg)
 
-if sprint.milestone:
-    log('   Fetching statistics for milestone %s' % sprint.milestone.name)
-    sprint.milestone.snapshot_statistics()
+        log('Starting up')
+
+        sprint = Sprint.objects.current()
+        if sprint == None:
+            log('   No active sprints found.  Exiting.')
+            sys.exit()
+
+        if sprint.milestone:
+            log('   Fetching statistics for milestone %s' % sprint.milestone.name)
+            sprint.milestone.snapshot_statistics()
+        else:
+            log('   Current sprint has no milestone set.  Exiting.')
