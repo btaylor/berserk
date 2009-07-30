@@ -1,0 +1,19 @@
+{% load i18n %}{% load humanize %}{% load truncate %}
+Hello {{ user.first_name|safe }},
+
+Sprint {{ sprint.id }} (from {{ sprint.start_date|naturalday }} to {{ sprint.end_date|naturalday }}) is now complete.  I've created 
+a report for you about the accuracy of the estimates you made in this sprint
+and I've included it for you below.  Please use this as a way to empower future
+estimates and improve your estimating skills.
+
+Completed tasks:
+
+ID     | Title                                   | Est | Act | Rem | Accuracy
+-------------------------------------------------------------------------------{% for t in completed %}
+{{ t.task.remote_tracker_id|safe }} | {{ t.title|truncatechars:39|ljust:39|safe }} | {{ t.estimated_hours|rjust:3 }} | {{ t.actual_hours|rjust:3 }} | {{ t.remaining_hours|rjust:3 }} | {{ t.percent_accuracy|floatformat:-2 }}% {% ifnotequal t.percent_accuracy 100 %}{% if t.is_estimate_high %}(+){% else %}(-){% endif %}{% endifnotequal %}{% endfor %}
+
+Hope this helps!
+
+Your pal,
+
+-Berserk

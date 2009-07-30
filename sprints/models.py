@@ -341,6 +341,28 @@ class TaskSnapshot(models.Model):
                 or self.status == "CLOSED" \
                 or self.status == "VERIFIED")
 
+    def percent_accuracy(self):
+        """
+        Returns the percent accuracy of the estimate as a float, or None if no
+        hours were reported.
+        """
+        if self.actual_hours == 0:
+            return None
+
+        if self.estimated_hours >= self.actual_hours:
+            return (float(self.actual_hours) / float(self.estimated_hours)) * 100
+        else:
+            return (float(self.estimated_hours) / float(self.actual_hours)) * 100
+
+    def is_estimate_high(self):
+        """
+        Returns True if the estimate was more than the actual hours, false
+        otherwise.
+
+        This is used in templates that cannot do a simple greater-than test.
+        """
+        return self.estimated_hours > self.actual_hours
+
 def _update_task_snapshot_cache(sender, instance, created, **kwargs):
     """
     Called by TaskSnapshot's post_save signal.

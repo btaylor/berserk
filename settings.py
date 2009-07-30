@@ -107,6 +107,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.humanize',
     
     # External Apps
     'djangoflash',
@@ -114,6 +115,7 @@ INSTALLED_APPS = (
 
     # Local Apps
     'berserk2.sprints',
+    'core',
 )
 
 # local_settings.py can be used to override environment-specific settings
