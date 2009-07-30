@@ -28,7 +28,9 @@ from datetime import date, datetime, timedelta
 from berserk2.sprints.models import *
 
 from django.conf import settings
+from django.core.mail import EmailMessage
 from django.db.models import Count, Sum, Q
+from django.template import loader, Context
 from django.contrib.auth.models import User
 from django.core.management.base import NoArgsCommand
 
@@ -44,10 +46,15 @@ class Command(NoArgsCommand):
         sprint = Sprint.objects.current()
         if sprint == None:
             log('   No active sprints found.  Exiting.')
-            sys.exit()
+            return
 
         for user in User.objects.all():
             log('   Examining user %s...' % user)
+
+            if user.email == "":
+                log('   - User has no email address.  Aborting.')
+                continue
+
             if TaskSnapshot.objects.filter(task__sprints=sprint,
                                            assigned_to=user) \
                                    .exclude(Q(status='RESOLVED') | Q(status='CLOSED') \
@@ -71,13 +78,6 @@ class Command(NoArgsCommand):
                 continue
                 
             log('   - User has not updated their hours!')
-
-            if user.email == "":
-                log('   - User has no email address.  Aborting.')
-                continue
-            
-            from django.core.mail import EmailMessage
-            from django.template import loader, Context
 
             t = loader.get_template('email/update-hours-reminder-subject.txt')
             c = Context({
