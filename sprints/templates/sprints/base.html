@@ -40,7 +40,21 @@
             <div id="old-sprint-notice">{% trans "You are viewing a Sprint that is not active.  You will not be able to alter its data." %}</div>
 {% endif %}
             <h3>{{ sprint.start_date|date:"F j" }} - {{ sprint.end_date|date:"F j, Y" }}</h3>
-            <div id="sprint-burndown-chart"></div>
+            <table id="sprint-chart-area">
+                <tr>
+                    <td>
+                        <div id="sprint-burndown-chart"></div>
+                    </td>
+{% if sprint.milestone %}
+                    <td>
+                        <div id="sprint-milestone-label">
+                            {% blocktrans with sprint.milestone.name as n %}{{ n }} Milestone{% endblocktrans %}
+                        </div>
+                        <div id="sprint-milestone-chart"></div>
+                    </td>
+{% endif %}
+                </tr>
+            </table>
         </td>
 {% with sprint.get_next_or_none as s %}
 {% if s %}
@@ -91,6 +105,31 @@ Ext.onReady(function() {
             });
         }
     );
+
+{% if sprint.milestone %}
+    $.getJSON('{% url sprints.views.sprint_milestone_graph_json sprint.id %}',
+        function(json) {
+            var data = [
+                { label: "{% trans "Remaining Hours" %}", data: json.remaining_hours },
+                { label: "{% trans "Open Tasks" %}", data: json.open_tasks,
+                  lines: { show: true, fill: true } } 
+            ];
+            $.plot($("#sprint-milestone-chart"), data, {
+                lines: { show: true, lineWidth: 1 },
+                points: { show: false },
+                xaxis: { mode: "time", min: json.start_date, max: json.end_date,
+                         ticks: 4 },
+                yaxis: { min: 0, ticks: 5 },
+                legend: { show: false },
+                grid: { markings: [{
+                    xaxis: { from: json.sprint_start_date,
+                             to: json.sprint_end_date },
+                    color: "#edd89a"
+                }]}
+            });
+        }
+    );
+{% endif %}
 
     $('#old-sprint-notice').fadeIn('slow');
 });

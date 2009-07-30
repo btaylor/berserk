@@ -50,13 +50,75 @@ class BugTracker(models.Model):
     password = models.CharField(max_length=32)
 
     class Meta:
-        unique_together = ('base_url', 'product', 'backend')
+        unique_together = (('base_url', 'product', 'backend'),)
 
     def __unicode__(self):
         return str(self.product)
 
     def get_remote_task_url(self, task):
         return '%s/show_bug.cgi?id=%s' % (self.base_url, task.remote_tracker_id)
+
+class Milestone(models.Model):
+    """
+    A collection of Sprints with a start date, an end date and a name.
+    """
+    name = models.CharField(max_length=128)
+    remote_tracker_name = models.CharField(max_length=128,
+                                           help_text=_('The name of the milestone in the selected Bug Tracker.'))
+    bug_tracker = models.ForeignKey(BugTracker)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    class Meta:
+        get_latest_by = '-end_date'
+
+    def __unicode__(self):
+        return self.name
+    
+    def snapshot_statistics(self):
+        """
+        Fetches the latest statistics about the milestone from the remote
+        tracker.
+        """
+        try:
+            client = BugzillaClient(self.bug_tracker.base_url,
+                                    self.bug_tracker.backend)
+        except AttributeError:
+            logging.error('Bugzilla backend %s not found' % self.bug_tracker.backend)
+            return None
+        
+        if not client.login(self.bug_tracker.username,
+                            self.bug_tracker.password):
+            logging.error('Could not authenticate with Bugzilla')
+            return None
+
+        stats = client.get_stats_for_milestone(self.bug_tracker.product,
+                                               self.remote_tracker_name)
+
+        stat, created = MilestoneStatisticsCache.objects.get_or_create(date=date.today(),
+                                                                       milestone=self)
+        stat.total_open_tasks = stats[0]
+        stat.total_estimated_hours = stats[1]
+        stat.total_remaining_hours = stats[2]
+        stat.save()
+        return stat
+
+class MilestoneStatisticsCache(models.Model):
+    """
+    A cache of daily statistics for displaying the number of open bugs and
+    remaining hours across the duration of a milestone.
+    """
+    milestone = models.ForeignKey(Milestone)
+    date = models.DateField(auto_now_add=True, db_index=True)
+    total_open_tasks = models.IntegerField()
+    total_estimated_hours = models.IntegerField()
+    total_remaining_hours = models.IntegerField()
+
+    class Meta:
+        unique_together = (('date', 'milestone'),)
+
+    def __unicode__(self):
+        return _('Snapshot of milestone %s at %d') % (self.milestone.name, date)
 
 class Sprint(models.Model):
     """
@@ -68,6 +130,7 @@ class Sprint(models.Model):
     velocity = models.IntegerField(default=6,
         help_text=_('The number of expected work-hours in a day'))
     default_bug_tracker = models.ForeignKey(BugTracker, null=True)
+    milestone = models.ForeignKey(Milestone, null=True, blank=True)
     objects = SprintManager()
 
     class Meta:
@@ -173,7 +236,7 @@ class Task(models.Model):
     bug_tracker = models.ForeignKey(BugTracker)
 
     class Meta:
-        unique_together = ('remote_tracker_id', 'bug_tracker')
+        unique_together = (('remote_tracker_id', 'bug_tracker'),)
 
     def __unicode__(self):
         return _("Issue #%s") % (self.remote_tracker_id)
@@ -308,11 +371,11 @@ class TaskSnapshotCache(models.Model):
     date = models.DateField(db_index=True)
     task_snapshot = models.ForeignKey(TaskSnapshot, db_index=True)
 
+    class Meta:
+        unique_together = (('date', 'task_snapshot'),)
+
     def __unicode__(self):
         return _("%s - #%d") % (self.date, self.task_snapshot.id)
-
-
-
 
 def _workday_diff(start, end):
     return len([d for dy, d in date_range(start, end) if d.isoweekday() <= 5])

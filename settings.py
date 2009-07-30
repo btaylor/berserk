@@ -19,6 +19,8 @@ DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
+DATABASE_STORAGE_ENGINE = 'INNODB'
+
 # How far to look back when notifying users about not updating their hours.
 # Set this to a number > 2 if you don't want users going crazy, or worse yet,
 # simply ignoring the emails.
@@ -108,6 +110,7 @@ INSTALLED_APPS = (
     
     # External Apps
     'djangoflash',
+    'south',
 
     # Local Apps
     'berserk2.sprints',

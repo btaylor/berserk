@@ -73,6 +73,14 @@ class BugzillaClient:
         """
         assert int(bug_id) > 0
         return BugzillaBug(self.backend, bug_id)
+
+    def get_stats_for_milestone(self, product, milestone):
+        """
+        Returns a tuple containing the number of open bugs, total estimated
+        hours and total remaining hours for the open bugs in the given
+        milestone.
+        """
+        return self.backend.get_stats_for_milestone(product, milestone)
             
 
 class BugzillaBug:

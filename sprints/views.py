@@ -21,17 +21,21 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 #
 
+import simplejson
+
+from time import mktime
 from datetime import timedelta
 
 from django.db import transaction
+from django.core import serializers
 from django.db import IntegrityError
 from django.db.models import Count, Sum, Q
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 from berserk2 import settings
 from berserk2.sprints.models import *
@@ -113,11 +117,6 @@ def sprint_current_bookmarklet(request):
     return HttpResponseRedirect(reverse('sprint_edit',
                                         kwargs={'sprint_id': sprint.id}))
 
-
-import simplejson
-
-from django.http import HttpResponse
-from django.core import serializers
 
 def sprint_load_effort_json(request, sprint_id):
     """
@@ -241,6 +240,35 @@ def sprint_burndown_json(request, sprint_id):
     return HttpResponse(simplejson.dumps({
         'data': [remaining_hours, user_remaining_hours, open_tasks],
         'weekends': weekends,
+    }))
+
+def sprint_milestone_graph_json(request, sprint_id):
+    """
+    Returns a list of points with the date as the X axis and the number of
+    remaining hours as the Y axis.
+    """
+    def jstime(date):
+        """
+        Similar to Unix time, Javascript time is the number of *milli*seconds
+        since the epoch.
+        """
+        return mktime(date.timetuple()) * 1000
+
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+    milestone = sprint.milestone
+
+    if sprint.milestone is None:
+        return HttpResponse(simplejson.dumps({}))
+
+    stats = MilestoneStatisticsCache.objects.filter(milestone=milestone) \
+                                            .order_by('date')
+    return HttpResponse(simplejson.dumps({
+        'remaining_hours': [(jstime(s.date), s.total_remaining_hours) for s in stats],
+        'open_tasks': [(jstime(s.date), s.total_open_tasks) for s in stats],
+        'start_date': jstime(milestone.start_date),
+        'end_date': jstime(milestone.end_date),
+        'sprint_start_date': jstime(sprint.start_date),
+        'sprint_end_date': jstime(sprint.end_date),
     }))
 
 def sprint_statistics_partial(request, sprint_id,

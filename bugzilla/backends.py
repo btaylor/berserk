@@ -22,8 +22,10 @@
 #
 
 import re
+import csv
 import twill
 from twill import commands
+from urllib import quote
 
 class BugzillaBackend:
     """
@@ -50,6 +52,26 @@ class BugzillaBackend:
         """
         commands.go('%s/show_bug.cgi?id=%s&ctype=xml' % (self.base_url, bug_id))
         return self.browser.get_html()
+
+    def get_stats_for_milestone(self, product, milestone):
+        """
+        Returns a tuple containing the number of open bugs, total estimated
+        hours and total remaining hours for the open bugs in the given
+        milestone.
+        """
+        commands.go('%s/buglist.cgi?bug_status=NEW&bug_status=ASSIGNED&bug_status=NEEDINFO&bug_status=REOPENED&product=%s&target_milestone=%s&query_format=long&columnlist=estimated_time%%2Cremaining_time&ctype=csv' % (self.base_url, quote(product), quote(milestone)))
+        csvstring = self.browser.get_html()
+        reader = csv.DictReader(csvstring.split('\n'))
+
+        open_bugs = 0
+        estimated_hours = 0
+        remaining_hours = 0
+        for row in reader:
+            open_bugs += 1
+            estimated_hours += float(row['estimated_time'])
+            remaining_hours += float(row['remaining_time'])
+
+        return (open_bugs, estimated_hours, remaining_hours)
 
 
 class NovellBugzillaBackend(BugzillaBackend):

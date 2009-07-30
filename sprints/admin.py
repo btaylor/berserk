@@ -26,7 +26,7 @@ from django.db.models import Q
 from django.contrib import admin
 from django.forms.util import ErrorList
 from berserk2.bugzilla import BugzillaClient
-from berserk2.sprints.models import BugTracker, Sprint, Task
+from berserk2.sprints.models import BugTracker, Sprint, Task, Milestone
 
 from django.utils.translation import ugettext as _
 
@@ -110,6 +110,11 @@ class TaskAdmin(admin.ModelAdmin):
         'tasksnapshot__submitted_by__first_name', 'tasksnapshot__submitted_by__last_name',
     )
 
+class MilestoneAdmin(admin.ModelAdmin):
+    list_display = ('name', 'start_date', 'end_date')
+    search_fields = ('name',)
+
 admin.site.register(BugTracker, BugTrackerAdmin)
 admin.site.register(Sprint, SprintAdmin)
 admin.site.register(Task, TaskAdmin)
+admin.site.register(Milestone, MilestoneAdmin)

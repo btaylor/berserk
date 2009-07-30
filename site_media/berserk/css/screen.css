@@ -150,13 +150,32 @@ img a {
     display: none;
 }
 
-#sprint-burndown-chart {
-    width: 800px;
-    height: 400px;
+#sprint-chart-area {
     margin: 8px auto;
-
     text-align: center;
     float: center;
+}
+
+#sprint-chart-area td {
+    vertical-align: top;
+}
+
+#sprint-burndown-chart {
+    width: 700px;
+    height: 400px;
+}
+
+#sprint-milestone-chart {
+    width: 180px;
+    height: 130px;
+    margin-top: 3px;
+    vertical-align: top;
+}
+
+#sprint-milestone-label {
+    margin-top: 10px;
+    text-transform: lowercase;
+    color: #222222;
 }
 
 #sprint-nav {
