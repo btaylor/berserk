@@ -110,9 +110,9 @@ class MilestoneStatisticsCache(models.Model):
     """
     milestone = models.ForeignKey(Milestone)
     date = models.DateField(auto_now_add=True, db_index=True)
-    total_open_tasks = models.IntegerField()
-    total_estimated_hours = models.IntegerField()
-    total_remaining_hours = models.IntegerField()
+    total_open_tasks = models.IntegerField(default=0)
+    total_estimated_hours = models.IntegerField(default=0)
+    total_remaining_hours = models.IntegerField(default=0)
 
     class Meta:
         unique_together = (('date', 'milestone'),)
