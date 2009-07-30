@@ -223,7 +223,8 @@ def sprint_burndown_json(request, sprint_id):
                              | Q(task_snapshot__status='CLOSED') \
                              | Q(task_snapshot__status='VERIFIED')) \
                     .aggregate(count=Count('task_snapshot'))
-        open_tasks.append([day, data['count']])
+        if data['count']:
+            open_tasks.append([day, data['count']])
 
         if not request.user.is_authenticated():
             continue
