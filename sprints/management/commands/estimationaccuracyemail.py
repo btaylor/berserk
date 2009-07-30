@@ -50,6 +50,10 @@ class Command(NoArgsCommand):
             return
 
         sprint = past_sprints[0]
+        if sprint.end_date + timedelta(1) != date.today():
+            log('   Not the day after the end of the sprint.  Exiting.')
+            return
+
         for user in User.objects.filter(email__isnull=False):
             log('   Examining user %s...' % user)
 
