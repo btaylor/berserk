@@ -53,10 +53,11 @@
 <script type="text/javascript">
 function deleteTask(task_id) {
     if (!confirm('{% trans "Are you sure you want to remove this task from the selected sprint?" %}'))
-        return false;
+        return;
 
     updateTasksAfterPost('{% url sprints.views.sprint_delete_task_json sprint.id %}',
                          { task_id: task_id });
+    return;
 };
 
 function updateTasksAfterPost(url, args) {
@@ -76,7 +77,7 @@ function updateTasksAfterPost(url, args) {
             $("#notice").html(data.notice).fadeIn("slow");
         }
         
-        grid.getStore().reload();
+        window.grid.getStore().reload();
         $('#add-task-entry').val('').focus();
         $('#sprint-statistics').load('{% url sprints.views.sprint_statistics_partial sprint.id %}');
     }, 'json');
@@ -91,7 +92,7 @@ function updateTasksAfterPost(url, args) {
         $('.fadein').fadeIn("slow");
     });
 
-    var grid = new Ext.grid.GridPanel({
+    window.grid = new Ext.grid.GridPanel({
         store: new Ext.data.GroupingStore({
             url: '{% url sprints.views.sprint_my_tasks_json sprint.id %}',
             autoLoad: true,
@@ -132,8 +133,8 @@ function updateTasksAfterPost(url, args) {
         }),
         plugins: new Ext.grid.GroupSummary()
     });
-    grid.getColumnModel().defaultSortable = true;
-    grid.render('sprint-tasks-table');
+    window.grid.getColumnModel().defaultSortable = true;
+    window.grid.render('sprint-tasks-table');
 
     $('#sprint-statistics').load('{% url sprints.views.sprint_statistics_partial sprint.id %}');
 
