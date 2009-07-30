@@ -73,6 +73,9 @@ class BugzillaBackend:
 
         return (open_bugs, estimated_hours, remaining_hours)
 
+    def get_cookies(self):
+        return self.browser.show_cookies()
+
 
 class NovellBugzillaBackend(BugzillaBackend):
     """
@@ -80,12 +83,19 @@ class NovellBugzillaBackend(BugzillaBackend):
     """
     def login(self, user, password):
         def loggedin():
-            return re.match(r"^Welcome to Novell's Bugzilla$", self.browser.get_title().strip())
+            """
+            Check the browser's cookie jar for a cookie with a name ending in
+            "bugzilla".  If it isn't expired, we're probably logged in.
+            """
+            for cookie in self.browser.cj:
+                if cookie.name.endswith('bugzilla') and not cookie.is_expired():
+                    return True
+            return False
 
-        commands.go('https://bugzilla.novell.com/ICSLogin/?"https://bugzilla.novell.com/ichainlogin.cgi?target=index.cgi?GoAheadAndLogIn%3D1"')
         if loggedin():
             return
 
+        commands.go('https://bugzilla.novell.com/ICSLogin/?"https://bugzilla.novell.com/ichainlogin.cgi?target=index.cgi?GoAheadAndLogIn%3D1"')
         commands.formvalue('loginfrm', 'username', user)
         commands.formvalue('loginfrm', 'password', password)
         commands.submit('0')
