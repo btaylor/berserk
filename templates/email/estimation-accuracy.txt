@@ -1,5 +1,4 @@
-{% load i18n %}{% load humanize %}{% load truncate %}
-Hello {{ user.first_name|safe }},
+{% load i18n %}{% load humanize %}{% load truncate %}Hello {{ user.first_name|safe }},
 
 Sprint {{ sprint.id }} (from {{ sprint.start_date|naturalday }} to {{ sprint.end_date|naturalday }}) is now complete.  I've created 
 a report for you about the accuracy of the estimates you made in this sprint
