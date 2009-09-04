@@ -182,6 +182,9 @@ class Sprint(models.Model):
         users_load = {}
         users_effort = {}
         for day, date in date_range(self.start_date, self.end_date):
+            if date > date.today():
+                continue
+
             rows = TaskSnapshotCache.objects.filter(date__lte=date, date__gte=date,
                                                     task_snapshot__task__sprints=self) \
                                             .values('task_snapshot__assigned_to') \
@@ -197,8 +200,8 @@ class Sprint(models.Model):
                     continue
 
                 if not users_load.has_key(user):
-                    users_load[user] = [0]*(self.iteration_days() + 1)
-                    users_effort[user] = [0]*(self.iteration_days() + 1)
+                    users_load[user] = ['']*(self.iteration_days() + 1)
+                    users_effort[user] = ['']*(self.iteration_days() + 1)
 
                 users_effort[user][day] = int(row['task_snapshot__remaining_hours__sum'])
                 users_load[user][day] = _calc_load(users_effort[user][day],

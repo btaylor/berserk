@@ -136,7 +136,7 @@ def sprint_load_effort_json(request, sprint_id):
 
     load_rows = []
     for u, l in load.iteritems():
-        load_rows.append([get_username_for_display(u)] + ['%.0f' % i for i in l])
+        load_rows.append([get_username_for_display(u)] + ['%.0f' % i for i in l if type(i) == type(float())])
 
     return HttpResponse(simplejson.dumps({
         'load': load_rows, 'effort': effort_rows,
