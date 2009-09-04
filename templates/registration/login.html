@@ -33,5 +33,10 @@
 <input type="hidden" name="next" value="{% url sprints.views.sprint_index %}" />
 {% endif %}
 </form>
+<script type="text/javascript">
+$('#id_password').keyup(function(e) {
+    if (e.keyCode == 13)
+        document.loginform.submit();
+});
+</script>
 {% endblock %}
-
