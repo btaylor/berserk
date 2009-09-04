@@ -27,7 +27,7 @@
         <div id="user-details">
 {% if user.is_authenticated %}
 {% blocktrans with user.first_name as f %}Welcome, {{ f }}.{% endblocktrans %}<br>
-<a href="{% url django.contrib.auth.views.password_change %}">Change Password</a> / <a href="{% url django.contrib.auth.views.logout %}">{% trans "Log out" %}</a>
+{% if user.is_staff %}<a href="/admin">Admin</a> / {% endif %}<a href="{% url django.contrib.auth.views.password_change %}">Change Password</a> / <a href="{% url django.contrib.auth.views.logout %}">{% trans "Log out" %}</a>
 {% else %}
 {% trans "Hello stranger, care to " %}<a href="{% url django.contrib.auth.views.login %}">{% trans "log in" %}</a>?
 {% endif %}
