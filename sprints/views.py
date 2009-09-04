@@ -132,7 +132,7 @@ def sprint_load_effort_json(request, sprint_id):
     effort_rows = []
     for u, e in effort.iteritems():
         effort_rows.append(['%s <span class="sparkline invisible">%s</span>' % \
-            (get_username_for_display(u), ','.join([str(v) for v in e]))] + e)
+            (get_username_for_display(u), ','.join([str(v) for v in e if v]))] + e)
 
     load_rows = []
     for u, l in load.iteritems():
@@ -175,7 +175,7 @@ def sprint_tasks_json(request, sprint_id):
     
     for task in tasks_data:
         task[1] = task[1] + '&nbsp;<span class="sparkline invisible">%s</span>' % \
-            ','.join([str(i) for i in task[6:]])
+            ','.join([str(i) for i in task[6:] if i])
 
     return HttpResponse(simplejson.dumps(tasks_data))
 
