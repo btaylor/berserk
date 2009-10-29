@@ -81,42 +81,47 @@ import urllib, cgi
 
 @login_required
 def sprint_current_bookmarklet(request):
+    def redirect(error=None, notice=None):
+        if error is not None:
+            request.flash['error'] = error
+        if notice is not None:
+            request.flash['notice'] = notice
+        return HttpResponseRedirect(reverse('sprint_edit',
+                                            kwargs={'sprint_id': sprint.id}))
+        
     sprint = Sprint.objects.current()
     if sprint == None or request.method != 'GET':
         return HttpResponseRedirect(reverse('sprint_index'))
-
-    remote_tracker_id = None
 
     # e.g.: https://bugzilla.mozilla.org/show_bug.cgi?id=490130
     url = urllib.unquote(request.GET['url'])
 
     path, query = urllib.splitquery(url)
-    if not path.startswith(sprint.default_bug_tracker.base_url):
-        request.flash['error'] = _('Hmm, this doesn\'t look like my default bug tracker URL.');
-        return HttpResponseRedirect(reverse('sprint_edit',
-                                            kwargs={'sprint_id': sprint.id}))
+    base_url = sprint.default_bug_tracker.base_url
 
-    data = cgi.parse_qsl(query)
-    for item in data:
-        key, value = item
+    if not path.startswith(base_url):
+        return redirect(error=_('Hmm, this doesn\'t look like my default bug tracker URL.'))
+
+    try:
+        data = cgi.parse_qsl(query)
+    except:
+        return redirect(error=_('I don\'t recognize this type of URL.'))
+
+    remote_tracker_id = None
+    for key, value in data:
         if key == 'id':
             remote_tracker_id = value
 
     if not remote_tracker_id:
-        request.flash['error'] = _('Hmm, I\'ve never seen this type of URL before.  Fancy!')
-        return HttpResponseRedirect(reverse('sprint_edit',
-                                            kwargs={'sprint_id': sprint.id}))
+        return redirect(error=_('Hmm, I\'ve never seen this type of URL before.  Fancy!'))
 
     result = _add_task(request, sprint, sprint.default_bug_tracker,
                        remote_tracker_id)
     if 'error' in result:
-        request.flash['error'] = result['error']
+        return redirect(error=result['error'])
     elif 'notice' in result:
-        request.flash['notice'] = result['notice']
-
-    return HttpResponseRedirect(reverse('sprint_edit',
-                                        kwargs={'sprint_id': sprint.id}))
-
+        return redirect(notice=result['notice'])
+    return redirect()
 
 def sprint_load_effort_json(request, sprint_id):
     """
