@@ -132,7 +132,7 @@ class BugzillaBug:
                 continue
 
             if e.localName == 'creation_ts':
-                self.created = get_date(get_child_value(e), require_seconds=False)
+                self.created = get_date(get_child_value(e))
             elif e.localName == 'short_desc':
                 self.summary = get_child_value(e)
             elif e.localName == 'delta_ts':
