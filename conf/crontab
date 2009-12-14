@@ -12,7 +12,7 @@ BERSERK_PATH = "/path/to/berserk2/"
 0 */3 * * *	(cd $BERSERK_PATH && python manage.py snapshotmilestones)
 
 # Snapshot tasks for the active sprint every hour
-0 * * * *	(cd $BERSERK_PATH && python manage.py snapshotmilestones)
+0 * * * *	(cd $BERSERK_PATH && python manage.py snapshottasks)
 
 # Test if we should send out estimation accuracy emails every day at midnight
 0 0 * * *	(cd $BERSERK_PATH && python manage.py estimationaccuracyemail)
