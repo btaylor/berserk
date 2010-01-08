@@ -26,7 +26,7 @@ DATABASE_STORAGE_ENGINE = 'INNODB'
 # simply ignoring the emails.
 UPDATE_HOURS_REMINDER_DAYS = 3
 
-NEW_TASK_BOOKMARKLET_URL = "javascript:(function(){location.href='%s?url=' + encodeURIComponent(window.location.href)})()"
+NEW_TASK_BOOKMARKLET_URL = "javascript:(function(){window.open('%s?url=' + encodeURIComponent(window.location.href), 'new_berserk_task')})()"
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
