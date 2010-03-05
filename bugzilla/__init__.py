@@ -116,7 +116,7 @@ class BugzillaBug:
         def get_child_value(el):
             if len(el.childNodes) == 0: return None
             val = el.childNodes[0].nodeValue
-            return str(val)
+            return unicode(val)
 
         def get_date(str, require_seconds=True):
             # Python can't parse the timezone correctly
