@@ -23,6 +23,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 #
 
+import sys
 from datetime import datetime
 from berserk2.sprints.models import Sprint, Task
 

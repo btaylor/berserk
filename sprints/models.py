@@ -1,26 +1,27 @@
 #
 # Copyright (c) 2008-2009 Brad Taylor <brad@getcoded.net>
 #
-# Permission is hereby granted, free of charge, to any person obtaining 
-# a copy of this software and associated documentation files (the 
-# "Software"), to deal in the Software without restriction, including 
-# without limitation the rights to use, copy, modify, merge, publish, 
-# distribute, sublicense, and/or sell copies of the Software, and to 
-# permit persons to whom the Software is furnished to do so, subject to 
-# the following conditions: 
-#  
-# The above copyright notice and this permission notice shall be 
-# included in all copies or substantial portions of the Software. 
-#  
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+import logging
 from time import *
 from datetime import datetime, date, timedelta
 
@@ -32,20 +33,22 @@ from django.db.models.signals import post_save
 from django.utils.translation import ugettext as _
 
 from berserk2.sprints.utils import date_range
+from berserk2.bugtracker import BugTrackerFactory
 from berserk2.sprints.managers import SprintManager
 
 class BugTracker(models.Model):
     """
-    A Bugzilla bug tracker.
+    A bug tracker.
     """
     product = models.CharField(max_length=128,
         verbose_name='Product Name',
-        help_text=_('The Bugzilla product name to monitor.'))
+        help_text=_('The Bugzilla product name or FogBugz project to monitor.'))
     base_url = models.CharField(max_length=256,
-        verbose_name='Bugzilla Base URL',
-        help_text=_("Example: 'https://bugzilla.mozilla.org'.  Make sure to omit trailing slashes."))
+        verbose_name='Bug Tracker Base URL',
+        help_text=_("Example: 'https://bugzilla.mozilla.org', 'http://foo.fogbugz.com'.  Make sure to omit trailing slashes."))
     backend = models.CharField(max_length=32,
-        help_text=_('The name of the class under berserk2.bugzilla.backends to use for accessing your Bugzilla instance.'))
+        help_text=_('The name of the class under berserk2.bugzilla.backends to use for accessing your Bugzilla instance.  This is not needed for FogBugz bug trackers.'),
+        blank=True)
     username = models.CharField(max_length=32)
     password = models.CharField(max_length=32)
 
@@ -80,16 +83,17 @@ class Milestone(models.Model):
         Fetches the latest statistics about the milestone from the remote
         tracker.
         """
+        tracker = BugTrackerFactory.get_bug_tracker()
         try:
-            client = BugzillaClient(self.bug_tracker.base_url,
-                                    self.bug_tracker.backend)
+            client = tracker(self.bug_tracker.base_url,
+                             self.bug_tracker.backend)
         except AttributeError:
-            logging.error('Bugzilla backend %s not found' % self.bug_tracker.backend)
+            logging.error('Backend %s not found' % self.bug_tracker.backend)
             return None
-        
+
         if not client.login(self.bug_tracker.username,
                             self.bug_tracker.password):
-            logging.error('Could not authenticate with Bugzilla')
+            logging.error('Could not authenticate with bug tracker')
             return None
 
         stats = client.get_stats_for_milestone(self.bug_tracker.product,
@@ -193,7 +197,7 @@ class Sprint(models.Model):
                 assigned_to = row['task_snapshot__assigned_to']
                 if assigned_to == None:
                     continue
-                
+
                 try:
                     user = User.objects.get(pk=int(assigned_to))
                 except ObjectDoesNotExist:
@@ -259,23 +263,24 @@ class Task(models.Model):
 
     def snapshot(self):
         """
-        Creates a new TaskSnapshot from the most recent Bugzilla data. Returns
+        Creates a new TaskSnapshot from the most recent bug tracke data. Returns
         the new snapshot if successful, None otherwise.
         """
         def lookup_user(email):
             users = User.objects.filter(email=email)
             return users[0] if users.count() > 0 else None
 
+        tracker = BugTrackerFactory.get_bug_tracker()
         try:
-            client = BugzillaClient(self.bug_tracker.base_url,
-                                    self.bug_tracker.backend)
+            client = tracker(self.bug_tracker.base_url,
+                             self.bug_tracker.backend)
         except AttributeError:
-            logging.error('Bugzilla backend %s not found' % self.bug_tracker.backend)
+            logging.error('Backend %s not found' % self.bug_tracker.backend)
             return None
-        
+
         if not client.login(self.bug_tracker.username,
                             self.bug_tracker.password):
-            logging.error('Could not authenticate with Bugzilla')
+            logging.error('Could not authenticate with bug tracker')
             return None
 
         bug = client.get_bug(self.remote_tracker_id)
@@ -287,13 +292,11 @@ class Task(models.Model):
                                            actual_hours=int(bug.actual_time),
                                            remaining_hours=int(bug.remaining_time))
 
-import logging
-from berserk2.bugzilla import *
 
 def _create_task_snapshot(sender, instance, created, **kwargs):
     """
     Called from Task's post_save signal.
-    
+
     Polls the BugTracker for the latest data for the Task, and creates a new
     TaskSnapshot for it.
     """
@@ -320,22 +323,23 @@ class TaskSnapshot(models.Model):
 
     class Meta:
         get_latest_by = 'date'
-    
+
     def __unicode__(self):
         return _("Snapshot of task %d at %s") % (self.task.id, self.date)
-    
+
     def get_submitted_by_display(self):
         if self.submitted_by == None:
             return unicode(None)
         else:
             return self.submitted_by.first_name
-    
+
     def get_assigned_to_display(self):
         if self.assigned_to == None:
             return unicode(None)
         else:
             return self.assigned_to.first_name
 
+    # TODO:
     def is_closed(self):
         """
         Returns True if the snapshot shows the Task is in a resolved state.
@@ -369,7 +373,7 @@ class TaskSnapshot(models.Model):
 def _update_task_snapshot_cache(sender, instance, created, **kwargs):
     """
     Called by TaskSnapshot's post_save signal.
-    
+
     Updates the TaskSnapshotCache with the most recent TaskSnapshot for the
     day.  This is to be used later by Sprint's get_users_load.
     """

@@ -342,12 +342,16 @@ def _add_task(request, sprint, default_bug_tracker, remote_tracker_id):
         if not sprint.is_active():
             raise Exception(_('You cannot edit an inactive sprint.'))
         
+        print "hello world 1"
         task, created = Task.objects.get_or_create(bug_tracker=default_bug_tracker,
                                                    remote_tracker_id=remote_tracker_id)
+        print task.snapshot()
+        print "hello world 2"
         if created:
             snapshot = task.get_latest_snapshot()
         else:
             snapshot = task.snapshot()
+        print "hello world 3"
 
         if snapshot == None:
             raise Exception(_('Invalid task id, or unable to contact the Bug Tracker to fetch Task information.'))

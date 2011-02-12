@@ -25,7 +25,7 @@ from django import forms
 from django.db.models import Q
 from django.contrib import admin
 from django.forms.util import ErrorList
-from berserk2.bugzilla import BugzillaClient
+from berserk2.bugtracker import BugTrackerFactory
 from berserk2.sprints.models import BugTracker, Sprint, Task, Milestone
 
 from django.utils.translation import ugettext as _
@@ -42,14 +42,19 @@ class BugTrackerAdminForm(forms.ModelForm):
         base_url = self.cleaned_data['base_url']
         username = self.cleaned_data['username']
         password = self.cleaned_data['password']
-        
-        if BugzillaClient.validate_backend(backend):
-            client = BugzillaClient(base_url, backend)
+
+        # Allow null backends
+        if backend == '' or backend == None:
+            return self.cleaned_data
+
+        tracker = BugTrackerFactory.get_bug_tracker()
+        if tracker.validate_backend(backend):
+            client = tracker(base_url, backend)
             if not client.login(username, password):
                 raise forms.ValidationError(_('Authentication credentials could not be validated.  Either your username or password is incorrect, or the server could not be reached.'))
         else:
             self._errors['backend'] = ErrorList([
-                _("Backend '%s' could not be found.  Make sure it can be found in berserk2.bugzilla.backends.") % backend
+                _("Backend '%s' could not be found.  Make sure it can be found in berserk2.bugtrackers.bugzilla.backends.") % backend
             ])
             del self.cleaned_data['backend']
         

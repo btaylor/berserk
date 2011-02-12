@@ -28,6 +28,10 @@ UPDATE_HOURS_REMINDER_DAYS = 3
 
 NEW_TASK_BOOKMARKLET_URL = "javascript:(function(){window.open('%s?url=' + encodeURIComponent(window.location.href), 'new_berserk_task')})()"
 
+# The bugtracker class to use.  Must be a child of berserk2.bugtracker
+#BUG_TRACKER_TYPE = "bugzilla.BugzillaClient"
+BUG_TRACKER_TYPE = "fogbugz.FogBugzClient"
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
