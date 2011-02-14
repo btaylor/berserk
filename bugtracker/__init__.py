@@ -23,16 +23,18 @@
 
 import bugzilla
 import fogbugz
+import berserk2.bugtracker
 
 from settings import BUG_TRACKER_TYPE
 
 class BugTrackerFactory:
     @staticmethod
     def get_bug_tracker():
-        print BUG_TRACKER_TYPE
-        import pprint
-        pprint.pprint(dir(berserk2.bugtracker))
         try:
-            return getattr(berserk2.bugtracker, BUG_TRACKER_TYPE)
+            mod = berserk2.bugtracker
+            parts = BUG_TRACKER_TYPE.split('.')
+            for i in parts:
+                mod = getattr(mod, i)
+            return mod
         except:
             return None
