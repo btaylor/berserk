@@ -18,10 +18,10 @@ class Monkeypatcher(unittest.TestCase):
     """
 
     def create_fake_app(self, name):
-        
+
         class Fake:
             pass
-        
+
         fake = Fake()
         fake.__name__ = name
         try:
@@ -37,8 +37,8 @@ class Monkeypatcher(unittest.TestCase):
         """
         if getattr(self, 'installed_apps', None):
             hacks.set_installed_apps(self.installed_apps)
-    
-    
+
+
     def tearDown(self):
         """
         Undoes what setUp did.

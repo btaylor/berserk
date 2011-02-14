@@ -4,9 +4,9 @@ from django.db import models
 from berserk2.sprints.models import *
 
 class Migration:
-    
+
     def forwards(self, orm):
-        
+
         # Adding model 'Milestone'
         db.create_table('sprints_milestone', (
             ('start_date', models.DateField()),
@@ -15,22 +15,22 @@ class Migration:
             ('name', models.CharField(max_length=128)),
         ))
         db.send_create_signal('sprints', ['Milestone'])
-        
+
         # Adding field 'Sprint.milestone'
         db.add_column('sprints_sprint', 'milestone', models.ForeignKey(orm.Milestone, null=True, blank=True))
-        
-    
-    
+
+
+
     def backwards(self, orm):
-        
+
         # Deleting model 'Milestone'
         db.delete_table('sprints_milestone')
-        
+
         # Deleting field 'Sprint.milestone'
         db.delete_column('sprints_sprint', 'milestone_id')
-        
-    
-    
+
+
+
     models = {
         'sprints.tasksnapshot': {
             'Meta': {'get_latest_by': "'date'"},
@@ -88,5 +88,5 @@ class Migration:
             'username': ('models.CharField', [], {'max_length': '32'})
         }
     }
-    
+
     complete_apps = ['sprints']

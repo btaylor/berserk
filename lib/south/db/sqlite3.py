@@ -5,13 +5,13 @@ from django.db.models import ForeignKey
 
 from south.db import generic
 from django.core.management.commands import inspectdb
-    
+
 class DatabaseOperations(generic.DatabaseOperations):
 
     """
     SQLite3 implementation of database operations.
     """
-    
+
     backend_name = "sqlite3"
 
     # SQLite ignores several constraints. I wish I could.
@@ -23,18 +23,18 @@ class DatabaseOperations(generic.DatabaseOperations):
         Adds a column.
         """
         # If it's not nullable, and has no default, raise an error (SQLite is picky)
-        if (not field.null and 
+        if (not field.null and
             (not field.has_default() or field.get_default() is None) and
             not field.empty_strings_allowed):
             raise ValueError("You cannot add a null=False column without a default value.")
         # Initialise the field.
         field.set_attributes_from_name(name)
-        # We add columns by remaking the table; even though SQLite supports 
+        # We add columns by remaking the table; even though SQLite supports
         # adding columns, it doesn't support adding PRIMARY KEY or UNIQUE cols.
         self._remake_table(table_name, added={
             field.column: self._column_sql_for_create(table_name, name, field, False),
         })
-    
+
     def _remake_table(self, table_name, added={}, renames={}, deleted=[], altered={},
                       primary_key_override=None, uniques_deleted=[]):
         """
@@ -89,7 +89,7 @@ class DatabaseOperations(generic.DatabaseOperations):
         # and index name scope is global
         self._make_multi_indexes(table_name, multi_indexes, renames=renames, deleted=deleted, uniques_deleted=uniques_deleted)
 
-    
+
     def _copy_data(self, src, dst, field_renames={}):
         "Used to copy data into a new table"
         # Make a list of all the fields to select
@@ -156,7 +156,7 @@ class DatabaseOperations(generic.DatabaseOperations):
 
             if columns and columns != uniques_deleted:
                 self._create_unique(table_name, columns)
-    
+
     def _column_sql_for_create(self, table_name, name, field, explicit_name=True):
         "Given a field and its name, returns the full type for the CREATE TABLE."
         field.set_attributes_from_name(name)
@@ -170,7 +170,7 @@ class DatabaseOperations(generic.DatabaseOperations):
         #if field.unique:
         #    sql += " UNIQUE"
         return sql
-    
+
     def alter_column(self, table_name, name, field, explicit_name=True):
         """
         Changes a column's SQL definition
@@ -185,25 +185,25 @@ class DatabaseOperations(generic.DatabaseOperations):
         Deletes a column.
         """
         self._remake_table(table_name, deleted=[column_name])
-    
+
     def rename_column(self, table_name, old, new):
         """
         Renames a column from one name to another.
         """
         self._remake_table(table_name, renames={old: new})
-    
+
     def create_unique(self, table_name, columns):
         """
         Create an unique index on columns
         """
         self._create_unique(table_name, columns)
-    
+
     def delete_unique(self, table_name, columns):
         """
         Delete an unique index
         """
         self._remake_table(table_name, uniques_deleted=columns)
-    
+
     def create_primary_key(self, table_name, columns):
         if not isinstance(columns, (list, tuple)):
             columns = [columns]
@@ -214,7 +214,7 @@ class DatabaseOperations(generic.DatabaseOperations):
     def delete_primary_key(self, table_name):
         # By passing True in, we make sure we wipe all existing PKs.
         self._remake_table(table_name, primary_key_override=True)
-    
+
     # No cascades on deletes
     def delete_table(self, table_name, cascade=True):
         generic.DatabaseOperations.delete_table(self, table_name, False)

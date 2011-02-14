@@ -13,9 +13,9 @@ from south.db import generic
 print >> sys.stderr, " ! WARNING: South's Oracle support is still alpha."
 print >> sys.stderr, " !          Be wary of posible bugs."
 
-class DatabaseOperations(generic.DatabaseOperations):    
+class DatabaseOperations(generic.DatabaseOperations):
     """
-    Oracle implementation of database operations.    
+    Oracle implementation of database operations.
     """
     backend_name = 'oracle'
 
@@ -25,7 +25,7 @@ class DatabaseOperations(generic.DatabaseOperations):
     delete_column_string =      'ALTER TABLE %s DROP COLUMN %s;'
 
     allows_combined_alters = False
-    
+
     constraits_dict = {
         'PRIMARY KEY': 'P',
         'UNIQUE': 'U',
@@ -35,7 +35,7 @@ class DatabaseOperations(generic.DatabaseOperations):
     table_names_cache = set()
 
     def adj_column_sql(self, col):
-        col = re.sub('(?P<constr>CHECK \(.*\))(?P<any>.*)(?P<default>DEFAULT [0|1])', 
+        col = re.sub('(?P<constr>CHECK \(.*\))(?P<any>.*)(?P<default>DEFAULT [0|1])',
                      lambda mo: '%s %s%s'%(mo.group('default'), mo.group('constr'), mo.group('any')), col) #syntax fix for boolean field only
         col = re.sub('(?P<not_null>NOT NULL) (?P<default>DEFAULT.+)',
                      lambda mo: '%s %s'%(mo.group('default'), mo.group('not_null')), col) #fix order  of DEFAULT and NOT NULL
@@ -51,7 +51,7 @@ class DatabaseOperations(generic.DatabaseOperations):
         tn = table_name.rsplit('_', 1)
 
         while len(tn) == 2:
-            tn2qn = self.quote_name(tn[0], upper = False, check_m2m = False) 
+            tn2qn = self.quote_name(tn[0], upper = False, check_m2m = False)
             if tn2qn in self.table_names_cache:
                 m2m_table_name = table_name.replace(tn[0], tn2qn)
                 break
@@ -79,7 +79,7 @@ class DatabaseOperations(generic.DatabaseOperations):
 
         return upper and tn.upper() or tn.lower()
 
-    def create_table(self, table_name, fields): 
+    def create_table(self, table_name, fields):
         qn = self.quote_name(table_name, upper = False)
         qn_upper = qn.upper()
         columns = []
@@ -200,7 +200,7 @@ class DatabaseOperations(generic.DatabaseOperations):
             SELECT user_cons_columns.constraint_name, user_cons_columns.column_name
             FROM user_constraints
             JOIN user_cons_columns ON
-                 user_constraints.table_name = user_cons_columns.table_name AND 
+                 user_constraints.table_name = user_cons_columns.table_name AND
                  user_constraints.constraint_name = user_cons_columns.constraint_name
             WHERE user_constraints.table_name = '%s' AND
                   user_constraints.constraint_type = '%s'

@@ -50,13 +50,13 @@ def freeze_apps(apps):
         print " ! models parser (it often broke things)."
         print " ! To fix this, read http://south.aeracode.org/wiki/MyFieldsDontWork"
         sys.exit(1)
-    
+
     return model_defs
-    
+
 def freeze_apps_to_string(apps):
     return pprint_frozen_models(freeze_apps(apps))
-    
-### 
+
+###
 
 def model_key(model):
     "For a given model, return 'appname.modelname'."

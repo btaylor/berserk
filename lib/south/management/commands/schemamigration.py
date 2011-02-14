@@ -42,9 +42,9 @@ class Command(DataCommand):
     )
     help = "Creates a new template schema migration for the given app"
     usage_str = "Usage: ./manage.py schemamigration appname migrationname [--empty] [--initial] [--auto] [--add-model ModelName] [--add-field ModelName.field_name] [--stdout]"
-    
+
     def handle(self, app=None, name="", added_model_list=None, added_field_list=None, freeze_list=None, initial=False, auto=False, stdout=False, added_index_list=None, verbosity=1, empty=False, **options):
-        
+
         # Any supposed lists that are None become empty lists
         added_model_list = added_model_list or []
         added_field_list = added_field_list or []
@@ -54,24 +54,24 @@ class Command(DataCommand):
         # --stdout means name = -
         if stdout:
             name = "-"
-	
+
         # Only allow valid names
         if re.search('[^_\w]', name) and name != "-":
             self.error("Migration names should contain only alphanumeric characters and underscores.")
-        
+
         # Make sure options are compatable
         if initial and (added_model_list or added_field_list or auto):
             self.error("You cannot use --initial and other options together\n" + self.usage_str)
-        
+
         if auto and (added_model_list or added_field_list or initial):
             self.error("You cannot use --auto and other options together\n" + self.usage_str)
-        
+
         if not app:
             self.error("You must provide an app to create a migration for.\n" + self.usage_str)
-        
+
         # Get the Migrations for this app (creating the migrations dir if needed)
         migrations = Migrations(app, force_creation=True, verbose_creation=verbosity > 0)
-        
+
         # What actions do we need to do?
         if auto:
             # Get the old migration
@@ -97,11 +97,11 @@ class Command(DataCommand):
                 old_orm = last_migration.orm(),
                 new_defs = new_defs,
             )
-        
+
         elif initial:
             # Do an initial migration
             change_source = changes.InitialChanges(migrations)
-        
+
         else:
             # Read the commands manually off of the arguments
             if (added_model_list or added_field_list or added_index_list):
@@ -116,17 +116,17 @@ class Command(DataCommand):
             else:
                 print >>sys.stderr, "You have not passed any of --initial, --auto, --empty, --add-model, --add-field or --add-index."
                 sys.exit(1)
-        
+
         # if not name, there's an error
         if not name:
             if change_source:
                 name = change_source.suggest_name()
             if not name:
                 self.error("You must provide a name for this migration\n" + self.usage_str)
-        
+
         # See what filename is next in line. We assume they use numbers.
         new_filename = migrations.next_filename(name)
-        
+
         # Get the actions, and then insert them into the actions lists
         forwards_actions = []
         backwards_actions = []
@@ -142,22 +142,22 @@ class Command(DataCommand):
                     action.add_forwards(forwards_actions)
                     action.add_backwards(backwards_actions)
                     print >>sys.stderr, action.console_line()
-        
+
         # Nowt happen? That's not good for --auto.
         if auto and not forwards_actions:
             self.error("Nothing seems to have changed.")
-        
+
         # Work out which apps to freeze
         apps_to_freeze = self.calc_frozen_apps(migrations, freeze_list)
-        
+
         # So, what's in this file, then?
         file_contents = MIGRATION_TEMPLATE % {
-            "forwards": "\n".join(forwards_actions or ["pass"]), 
-            "backwards": "\n".join(backwards_actions or ["pass"]), 
+            "forwards": "\n".join(forwards_actions or ["pass"]),
+            "backwards": "\n".join(backwards_actions or ["pass"]),
             "frozen_models":  freezer.freeze_apps_to_string(apps_to_freeze),
             "complete_apps": apps_to_freeze and "complete_apps = [%s]" % (", ".join(map(repr, apps_to_freeze))) or ""
         }
-        
+
         # - is a special name which means 'print to stdout'
         if name == "-":
             print file_contents

@@ -7,7 +7,7 @@ class DatabaseOperations(generic.DatabaseOperations):
     """
     PsycoPG2 implementation of database operations.
     """
-    
+
     backend_name = "postgres"
 
     def rename_column(self, table_name, old, new):
@@ -19,7 +19,7 @@ class DatabaseOperations(generic.DatabaseOperations):
             self.quote_name(old),
             self.quote_name(new),
         ))
-    
+
     def rename_table(self, old_table_name, table_name):
         "will rename the table and an associated ID sequence and primary key index"
         # First, rename the table

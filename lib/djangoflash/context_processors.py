@@ -30,15 +30,15 @@ CONTEXT_VAR = 'flash'
 def flash(request):
     """This context processor gets the :class:`FlashScope` object from the
     current *request* and adds it to the template context:
-    
+
     .. code-block:: html+django
-    
+
        <html>
            <head></head>
            <body>
                request.flash['message'] = {{ flash.message }}
            </body>
        </html>
-    
+
     """
     return {CONTEXT_VAR:request.flash}

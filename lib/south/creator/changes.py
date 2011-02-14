@@ -16,7 +16,7 @@ class BaseChanges(object):
     """
     def suggest_name(self):
         return ''
-    
+
     def split_model_def(self, model, model_def):
         """
         Given a model and its model def (a dict of field: triple), returns three
@@ -33,11 +33,11 @@ class BaseChanges(object):
             else:
                 real_fields[name] = triple
         return real_fields, meta, m2m_fields
-    
+
     def current_model_from_key(self, key):
         app_label, model_name = key.split(".")
         return models.get_model(app_label, model_name)
-    
+
     def current_field_from_key(self, key, fieldname):
         app_label, model_name = key.split(".")
         # Special, for the magical field from order_with_respect_to
@@ -56,18 +56,18 @@ class AutoChanges(BaseChanges):
     """
     Detects changes by 'diffing' two sets of frozen model definitions.
     """
-    
+
     # Field types we don't generate add/remove field changes for.
     IGNORED_FIELD_TYPES = [
         GenericRelation,
     ]
-    
+
     def __init__(self, migrations, old_defs, old_orm, new_defs):
         self.migrations = migrations
         self.old_defs = old_defs
         self.old_orm = old_orm
         self.new_defs = new_defs
-    
+
     def suggest_name(self):
         parts = ["auto"]
         for change_name, params in self.get_changes():
@@ -101,15 +101,15 @@ class AutoChanges(BaseChanges):
                     "_".join([x.name for x in params['fields']]),
                 ))
         return ("__".join(parts))[:70]
-    
+
     def get_changes(self):
         """
         Returns the difference between the old and new sets of models as a 5-tuple:
         added_models, deleted_models, added_fields, deleted_fields, changed_fields
         """
-        
+
         deleted_models = set()
-        
+
         # See if anything's vanished
         for key in self.old_defs:
             if key not in self.new_defs:
@@ -118,7 +118,7 @@ class AutoChanges(BaseChanges):
                 if old_meta.get("managed", "True") != "False":
                     # Alright, delete it.
                     yield ("DeleteModel", {
-                        "model": self.old_orm[key], 
+                        "model": self.old_orm[key],
                         "model_def": old_fields,
                     })
                     # Also make sure we delete any M2Ms it had.
@@ -127,7 +127,7 @@ class AutoChanges(BaseChanges):
                         field = self.old_orm[key + ":" + fieldname]
                         if auto_through(field):
                             yield ("DeleteM2M", {"model": self.old_orm[key], "field": field})
-                    # And any unique constraints it had 
+                    # And any unique constraints it had
                     unique_together = eval(old_meta.get("unique_together", "[]"))
                     if unique_together:
                         # If it's only a single tuple, make it into the longer one
@@ -141,7 +141,7 @@ class AutoChanges(BaseChanges):
                             })
                 # We always add it in here so we ignore it later
                 deleted_models.add(key)
-        
+
         # Or appeared
         for key in self.new_defs:
             if key not in self.old_defs:
@@ -149,7 +149,7 @@ class AutoChanges(BaseChanges):
                 new_fields, new_meta, new_m2ms = self.split_model_def(self.current_model_from_key(key), self.new_defs[key])
                 if new_meta.get("managed", "True") != "False":
                     yield ("AddModel", {
-                        "model": self.current_model_from_key(key), 
+                        "model": self.current_model_from_key(key),
                         "model_def": new_fields,
                     })
                     # Also make sure we add any M2Ms it has.
@@ -158,7 +158,7 @@ class AutoChanges(BaseChanges):
                         field = self.current_field_from_key(key, fieldname)
                         if auto_through(field):
                             yield ("AddM2M", {"model": self.current_model_from_key(key), "field": field})
-                    # And any unique constraints it has 
+                    # And any unique constraints it has
                     unique_together = eval(new_meta.get("unique_together", "[]"))
                     if unique_together:
                         # If it's only a single tuple, make it into the longer one
@@ -170,14 +170,14 @@ class AutoChanges(BaseChanges):
                                 "model": self.current_model_from_key(key),
                                 "fields": [self.current_model_from_key(key)._meta.get_field_by_name(x)[0] for x in fields],
                             })
-        
+
         # Now, for every model that's stayed the same, check its fields.
         for key in self.old_defs:
             if key not in deleted_models:
-                
+
                 old_fields, old_meta, old_m2ms = self.split_model_def(self.old_orm[key], self.old_defs[key])
                 new_fields, new_meta, new_m2ms = self.split_model_def(self.current_model_from_key(key), self.new_defs[key])
-                
+
                 # Find fields that have vanished.
                 for fieldname in old_fields:
                     if fieldname not in new_fields:
@@ -194,7 +194,7 @@ class AutoChanges(BaseChanges):
                                 "field": field,
                                 "field_def": old_fields[fieldname],
                             })
-                
+
                 # And ones that have appeared
                 for fieldname in new_fields:
                     if fieldname not in old_fields:
@@ -211,7 +211,7 @@ class AutoChanges(BaseChanges):
                                 "field": field,
                                 "field_def": new_fields[fieldname],
                             })
-                
+
                 # Find M2Ms that have vanished
                 for fieldname in old_m2ms:
                     if fieldname not in new_m2ms:
@@ -219,7 +219,7 @@ class AutoChanges(BaseChanges):
                         field = self.old_orm[key + ":" + fieldname]
                         if auto_through(field):
                             yield ("DeleteM2M", {"model": self.old_orm[key], "field": field})
-                
+
                 # Find M2Ms that have appeared
                 for fieldname in new_m2ms:
                     if fieldname not in old_m2ms:
@@ -227,7 +227,7 @@ class AutoChanges(BaseChanges):
                         field = self.current_field_from_key(key, fieldname)
                         if auto_through(field):
                             yield ("AddM2M", {"model": self.current_model_from_key(key), "field": field})
-                
+
                 # For the ones that exist in both models, see if they were changed
                 for fieldname in set(old_fields).intersection(set(new_fields)):
                     # Non-index changes
@@ -269,7 +269,7 @@ class AutoChanges(BaseChanges):
                                 "model": self.old_orm[key],
                                 "fields": [old_field],
                             })
-                
+
                 # See if there's any M2Ms that have changed.
                 for fieldname in set(old_m2ms).intersection(set(new_m2ms)):
                     old_field = self.old_orm[key + ":" + fieldname]
@@ -280,7 +280,7 @@ class AutoChanges(BaseChanges):
                     # Have they _removed_ a through= ?
                     if not auto_through(old_field) and auto_through(new_field):
                         yield ("AddM2M", {"model": self.current_model_from_key(key), "field": new_field})
-                
+
                 ## See if the unique_togethers have changed
                 # First, normalise them into lists of sets.
                 old_unique_together = eval(old_meta.get("unique_together", "[]"))
@@ -320,27 +320,27 @@ class AutoChanges(BaseChanges):
         and which knows django.db.models.fields.CharField = models.CharField.
         Has a whole load of tests in tests/autodetection.py.
         """
-        
+
         # If they're not triples, just do normal comparison
         if not cls.is_triple(old) or not cls.is_triple(new):
             return old != new
-        
+
         # Expand them out into parts
         old_field, old_pos, old_kwd = old
         new_field, new_pos, new_kwd = new
-        
+
         # Copy the positional and keyword arguments so we can compare them and pop off things
         old_pos, new_pos = old_pos[:], new_pos[:]
         old_kwd = dict(old_kwd.items())
         new_kwd = dict(new_kwd.items())
-        
+
         # Remove comparison of the existence of 'unique', that's done elsewhere.
         # TODO: Make this work for custom fields where unique= means something else?
         if "unique" in old_kwd:
             del old_kwd['unique']
         if "unique" in new_kwd:
             del new_kwd['unique']
-        
+
         # If the first bit is different, check it's not by dj.db.models...
         if old_field != new_field:
             if old_field.startswith("models.") and (new_field.startswith("django.db.models") \
@@ -350,7 +350,7 @@ class AutoChanges(BaseChanges):
                 else:
                     # Remove those fields from the final comparison
                     old_field = new_field = ""
-        
+
         # If there's a positional argument in the first, and a 'to' in the second,
         # see if they're actually comparable.
         if (old_pos and "to" in new_kwd) and ("orm" in new_kwd['to'] and "orm" not in old_pos[0]):
@@ -363,7 +363,7 @@ class AutoChanges(BaseChanges):
             # Remove those attrs from the final comparison
             old_pos = old_pos[1:]
             del new_kwd['to']
-        
+
         return old_field != new_field or old_pos != new_pos or old_kwd != new_kwd
 
 
@@ -371,13 +371,13 @@ class ManualChanges(BaseChanges):
     """
     Detects changes by reading the command line.
     """
-    
+
     def __init__(self, migrations, added_models, added_fields, added_indexes):
         self.migrations = migrations
         self.added_models = added_models
         self.added_fields = added_fields
         self.added_indexes = added_indexes
-    
+
     def suggest_name(self):
         bits = []
         for model_name in self.added_models:
@@ -387,7 +387,7 @@ class ManualChanges(BaseChanges):
         for index_name in self.added_indexes:
             bits.append('add_index_%s' % index_name)
         return '_'.join(bits).replace('.', '_')
-    
+
     def get_changes(self):
         # Get the model defs so we can use them for the yield later
         model_defs = freeze_apps([self.migrations.app_label()])
@@ -423,36 +423,36 @@ class ManualChanges(BaseChanges):
                 "model": model,
                 "fields": [model._meta.get_field_by_name(field_name)[0]],
             })
-    
-    
+
+
 class InitialChanges(BaseChanges):
     """
     Creates all models; handles --initial.
     """
     def suggest_name(self):
         return 'initial'
-    
+
     def __init__(self, migrations):
         self.migrations = migrations
-    
+
     def get_changes(self):
         # Get the frozen models for this app
         model_defs = freeze_apps([self.migrations.app_label()])
-        
+
         for model in models.get_models(models.get_app(self.migrations.app_label())):
-            
+
             # Don't do anything for unmanaged, abstract or proxy models
             if model._meta.abstract or getattr(model._meta, "proxy", False) or not getattr(model._meta, "managed", True):
                 continue
-            
+
             real_fields, meta, m2m_fields = self.split_model_def(model, model_defs[model_key(model)])
-            
+
             # Firstly, add the main table and fields
             yield ("AddModel", {
                 "model": model,
                 "model_def": real_fields,
             })
-            
+
             # Then, add any uniqueness that's around
             if meta:
                 unique_together = eval(meta.get("unique_together", "[]"))
@@ -466,7 +466,7 @@ class InitialChanges(BaseChanges):
                             "model": model,
                             "fields": [model._meta.get_field_by_name(x)[0] for x in fields],
                         })
-            
+
             # Finally, see if there's some M2M action
             for name, triple in m2m_fields.items():
                 field = model._meta.get_field_by_name(name)[0]

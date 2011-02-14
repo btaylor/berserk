@@ -3,24 +3,24 @@
 #
 # Copyright (c) 2008-2009 Brad Taylor <brad@getcoded.net>
 #
-# Permission is hereby granted, free of charge, to any person obtaining 
-# a copy of this software and associated documentation files (the 
-# "Software"), to deal in the Software without restriction, including 
-# without limitation the rights to use, copy, modify, merge, publish, 
-# distribute, sublicense, and/or sell copies of the Software, and to 
-# permit persons to whom the Software is furnished to do so, subject to 
-# the following conditions: 
-#  
-# The above copyright notice and this permission notice shall be 
-# included in all copies or substantial portions of the Software. 
-#  
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
 from datetime import date, datetime, timedelta
@@ -33,7 +33,7 @@ from django.db.models import Count, Sum, Q
 from django.template import loader, Context
 from django.contrib.auth.models import User
 from django.core.management.base import NoArgsCommand
-            
+
 class Command(NoArgsCommand):
     help = "Emails users at the end of the sprint with statistics about the accuracy of their estimates"
 
@@ -45,7 +45,7 @@ class Command(NoArgsCommand):
 
         past_sprints = Sprint.objects.filter(end_date__lt=date.today()) \
                                      .order_by('-end_date')
-        if past_sprints.count() == 0:   
+        if past_sprints.count() == 0:
             log('   No past sprints found.  Exiting.')
             return
 
@@ -72,7 +72,7 @@ class Command(NoArgsCommand):
             if cached_snaps.count() == 0:
                 log('   - User closed no bugs this iteration or was assigned no tasks.  Aborting.')
                 continue
-            
+
             t = loader.get_template('email/estimation-accuracy-subject.txt')
             c = Context({
                 'user': user, 'sprint': sprint,
@@ -85,7 +85,7 @@ class Command(NoArgsCommand):
 
             t = loader.get_template('email/estimation-accuracy.txt')
             body = t.render(c)
-        
+
             print "About to send to %s" % user
             print subject
             print body

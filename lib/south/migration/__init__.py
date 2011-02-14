@@ -148,15 +148,15 @@ def migrate_app(migrations, target_name=None, merge=False, fake=False, db_dry_ru
     verbosity = int(verbosity)
     # Fire off the pre-migrate signal
     pre_migrate.send(None, app=app_label)
-    
+
     # If there aren't any, quit quizically
     if not migrations:
         print "? You have no migrations for the '%s' app. You might want some." % app_label
         return
-    
+
     # Load the entire dependency graph
     Migrations.calculate_dependencies()
-    
+
     # Check there's no strange ones in the database
     applied = MigrationHistory.objects.filter(applied__isnull=False)
     # If we're using a different database, use that
@@ -166,10 +166,10 @@ def migrate_app(migrations, target_name=None, merge=False, fake=False, db_dry_ru
         # We now have to make sure the migrations are all reloaded, as they'll
         # have imported the old value of south.db.db.
         Migrations.invalidate_all_modules()
-    
+
     south.db.db.debug = (verbosity > 1)
     applied = check_migration_histories(applied, delete_ghosts, ignore_ghosts)
-    
+
     # Guess the target_name
     target = migrations.guess_migration(target_name)
     if verbosity:
@@ -177,13 +177,13 @@ def migrate_app(migrations, target_name=None, merge=False, fake=False, db_dry_ru
             print " - Soft matched migration %s to %s." % (target_name,
                                                            target.name())
         print "Running migrations for %s:" % app_label
-    
+
     # Get the forwards and reverse dependencies for this target
     direction, problems, workplan = get_direction(target, applied, migrations,
                                                   verbosity, interactive)
     if problems and not (merge or skip):
         raise exceptions.InconsistentMigrationHistory(problems)
-    
+
     # Perform the migration
     migrator = get_migrator(direction, db_dry_run, fake, load_initial_data)
     if migrator:

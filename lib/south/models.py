@@ -32,6 +32,6 @@ class MigrationHistory(models.Model):
 
     def get_migration(self):
         return self.get_migrations().migration(self.migration)
-    
+
     def __unicode__(self):
         return "<%s: %s>" % (self.app_name, self.migration)

@@ -4,33 +4,33 @@ from django.db import models
 from berserk2.sprints.models import *
 
 class Migration:
-    
+
     def forwards(self, orm):
-        
+
         # Changing field 'MilestoneStatisticsCache.total_open_tasks'
         db.alter_column('sprints_milestonestatisticscache', 'total_open_tasks', models.IntegerField(default=0))
-        
+
         # Changing field 'MilestoneStatisticsCache.total_estimated_hours'
         db.alter_column('sprints_milestonestatisticscache', 'total_estimated_hours', models.IntegerField(default=0))
-        
+
         # Changing field 'MilestoneStatisticsCache.total_remaining_hours'
         db.alter_column('sprints_milestonestatisticscache', 'total_remaining_hours', models.IntegerField(default=0))
-        
-    
-    
+
+
+
     def backwards(self, orm):
-        
+
         # Changing field 'MilestoneStatisticsCache.total_open_tasks'
         db.alter_column('sprints_milestonestatisticscache', 'total_open_tasks', models.IntegerField())
-        
+
         # Changing field 'MilestoneStatisticsCache.total_estimated_hours'
         db.alter_column('sprints_milestonestatisticscache', 'total_estimated_hours', models.IntegerField())
-        
+
         # Changing field 'MilestoneStatisticsCache.total_remaining_hours'
         db.alter_column('sprints_milestonestatisticscache', 'total_remaining_hours', models.IntegerField())
-        
-    
-    
+
+
+
     models = {
         'sprints.tasksnapshot': {
             'Meta': {'get_latest_by': "'date'"},
@@ -100,5 +100,5 @@ class Migration:
             'username': ('models.CharField', [], {'max_length': '32'})
         }
     }
-    
+
     complete_apps = ['sprints']

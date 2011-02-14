@@ -45,7 +45,7 @@ class TestMigration(Monkeypatcher):
                           'fakeapp:0002_eggs',
                           'fakeapp:0003_alter_spam'],
                          migrations)
-    
+
     def test_repr(self):
         migrations = [repr(m) for m in self.fakeapp]
         self.assertEqual(['<Migration: fakeapp:0001_spam>',
@@ -56,7 +56,7 @@ class TestMigration(Monkeypatcher):
     def test_app_label(self):
         self.assertEqual(['fakeapp', 'fakeapp', 'fakeapp'],
                          [m.app_label() for m in self.fakeapp])
-                         
+
     def test_name(self):
         self.assertEqual(['0001_spam', '0002_eggs', '0003_alter_spam'],
                          [m.name() for m in self.fakeapp])
@@ -66,7 +66,7 @@ class TestMigration(Monkeypatcher):
                           'fakeapp.migrations.0002_eggs',
                           'fakeapp.migrations.0003_alter_spam'],
                          [m.full_name() for m in self.fakeapp])
-    
+
     def test_migration(self):
         # Can't use vanilla import, modules beginning with numbers aren't in grammar
         M1 = __import__("fakeapp.migrations.0001_spam", {}, {}, ['Migration']).Migration
@@ -436,19 +436,19 @@ class TestMigrations(Monkeypatcher):
     installed_apps = ["fakeapp", "otherfakeapp"]
 
     def test_all(self):
-        
+
         M1 = Migrations(__import__("fakeapp", {}, {}, ['']))
         M2 = Migrations(__import__("otherfakeapp", {}, {}, ['']))
-        
+
         self.assertEqual(
             [M1, M2],
             list(all_migrations()),
         )
 
     def test(self):
-        
+
         M1 = Migrations(__import__("fakeapp", {}, {}, ['']))
-        
+
         self.assertEqual(M1, Migrations("fakeapp"))
         self.assertEqual(M1, Migrations(self.create_fake_app("fakeapp")))
 
@@ -492,7 +492,7 @@ class TestMigrations(Monkeypatcher):
         names = ['fakeapp', 'otherfakeapp']
         self.assertEqual(names,
                          [Migrations(n).app_label() for n in names])
-    
+
     def test_full_name(self):
         names = ['fakeapp', 'otherfakeapp']
         self.assertEqual([n + '.migrations' for n in names],
@@ -504,7 +504,7 @@ class TestMigrationLogic(Monkeypatcher):
     """
     Tests if the various logic functions in migration actually work.
     """
-    
+
     installed_apps = ["fakeapp", "otherfakeapp"]
 
     def assertListEqual(self, list1, list2):
@@ -516,18 +516,18 @@ class TestMigrationLogic(Monkeypatcher):
 
     def test_find_ghost_migrations(self):
         pass
-    
+
     def test_apply_migrations(self):
         MigrationHistory.objects.all().delete()
         migrations = Migrations("fakeapp")
-        
+
         # We should start with no migrations
         self.assertEqual(list(MigrationHistory.objects.all()), [])
-        
+
         # Apply them normally
         migrate_app(migrations, target_name=None, fake=False,
                     load_initial_data=True)
-        
+
         # We should finish with all migrations
         self.assertListEqual(
             ((u"fakeapp", u"0001_spam"),
@@ -535,32 +535,32 @@ class TestMigrationLogic(Monkeypatcher):
              (u"fakeapp", u"0003_alter_spam"),),
             MigrationHistory.objects.values_list("app_name", "migration"),
         )
-        
+
         # Now roll them backwards
         migrate_app(migrations, target_name="zero", fake=False)
-        
+
         # Finish with none
         self.assertEqual(list(MigrationHistory.objects.all()), [])
-    
-    
+
+
     def test_migration_merge_forwards(self):
         MigrationHistory.objects.all().delete()
         migrations = Migrations("fakeapp")
-        
+
         # We should start with no migrations
         self.assertEqual(list(MigrationHistory.objects.all()), [])
-        
+
         # Insert one in the wrong order
         MigrationHistory.objects.create(app_name = "fakeapp",
                                         migration = "0002_eggs",
                                         applied = datetime.datetime.now())
-        
+
         # Did it go in?
         self.assertListEqual(
             ((u"fakeapp", u"0002_eggs"),),
             MigrationHistory.objects.values_list("app_name", "migration"),
         )
-        
+
         # Apply them normally
         self.assertRaises(exceptions.InconsistentMigrationHistory,
                           migrate_app,
@@ -592,16 +592,16 @@ class TestMigrationLogic(Monkeypatcher):
                 ],
                 e.problems,
             )
-        
+
         # Nothing should have changed (no merge mode!)
         self.assertListEqual(
             ((u"fakeapp", u"0002_eggs"),),
             MigrationHistory.objects.values_list("app_name", "migration"),
         )
-        
+
         # Apply with merge
         migrate_app(migrations, target_name=None, merge=True, fake=False)
-        
+
         # We should finish with all migrations
         self.assertListEqual(
             ((u"fakeapp", u"0001_spam"),
@@ -609,28 +609,28 @@ class TestMigrationLogic(Monkeypatcher):
              (u"fakeapp", u"0003_alter_spam"),),
             MigrationHistory.objects.values_list("app_name", "migration"),
         )
-        
+
         # Now roll them backwards
         migrate_app(migrations, target_name="0002", fake=False)
         migrate_app(migrations, target_name="0001", fake=True)
         migrate_app(migrations, target_name="zero", fake=False)
-        
+
         # Finish with none
         self.assertEqual(list(MigrationHistory.objects.all()), [])
-    
+
     def test_alter_column_null(self):
-        
+
         def null_ok():
             from django.db import connection, transaction
             # the DBAPI introspection module fails on postgres NULLs.
             cursor = connection.cursor()
-        
+
             # SQLite has weird now()
             if db.backend_name == "sqlite3":
                 now_func = "DATETIME('NOW')"
             else:
                 now_func = "NOW()"
-            
+
             try:
                 cursor.execute("INSERT INTO southtest_spam (id, weight, expires, name) VALUES (100, 10.1, %s, NULL);" % now_func)
             except:
@@ -643,7 +643,7 @@ class TestMigrationLogic(Monkeypatcher):
 
         MigrationHistory.objects.all().delete()
         migrations = Migrations("fakeapp")
-        
+
         # by default name is NOT NULL
         migrate_app(migrations, target_name="0002", fake=False)
         self.failIf(null_ok())
@@ -652,7 +652,7 @@ class TestMigrationLogic(Monkeypatcher):
              (u"fakeapp", u"0002_eggs"),),
             MigrationHistory.objects.values_list("app_name", "migration"),
         )
-        
+
         # after 0003, it should be NULL
         migrate_app(migrations, target_name="0003", fake=False)
         self.assert_(null_ok())
@@ -671,22 +671,22 @@ class TestMigrationLogic(Monkeypatcher):
              (u"fakeapp", u"0002_eggs"),),
             MigrationHistory.objects.values_list("app_name", "migration"),
         )
-        
+
         # finish with no migrations, otherwise other tests fail...
         migrate_app(migrations, target_name="zero", fake=False)
         self.assertEqual(list(MigrationHistory.objects.all()), [])
-    
+
     def test_dependencies(self):
-        
+
         fakeapp = Migrations("fakeapp")
         otherfakeapp = Migrations("otherfakeapp")
-        
+
         # Test a simple path
         self.assertEqual([fakeapp['0001_spam'],
                           fakeapp['0002_eggs'],
                           fakeapp['0003_alter_spam']],
                          fakeapp['0003_alter_spam'].forwards_plan())
-        
+
         # And a complex one.
         self.assertEqual(
             [
@@ -876,12 +876,12 @@ class TestManualChanges(Monkeypatcher):
                                [],
                                ['fakeapp.slug'],
                                [])
-        self.assertEquals(change.suggest_name(), 
+        self.assertEquals(change.suggest_name(),
                           'add_field_fakeapp_slug')
 
         change = ManualChanges(migrations,
                                [],
                                [],
                                ['fakeapp.slug'])
-        self.assertEquals(change.suggest_name(), 
+        self.assertEquals(change.suggest_name(),
                           'add_index_fakeapp_slug')

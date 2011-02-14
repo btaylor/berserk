@@ -6,20 +6,20 @@ class DatabaseOperations(generic.DatabaseOperations):
     """
     django-pyodbc (sql_server.pyodbc) implementation of database operations.
     """
-    
+
     backend_name = "pyodbc"
-    
+
     add_column_string = 'ALTER TABLE %s ADD %s;'
     alter_string_set_type = 'ALTER COLUMN %(column)s %(type)s'
     alter_string_set_null = 'ALTER COLUMN %(column)s %(type)s NULL'
     alter_string_drop_null = 'ALTER COLUMN %(column)s %(type)s NOT NULL'
-    
+
     allows_combined_alters = False
 
     drop_index_string = 'DROP INDEX %(index_name)s ON %(table_name)s'
     drop_constraint_string = 'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s'
     delete_column_string = 'ALTER TABLE %s DROP COLUMN %s'
-    
+
     default_schema_name = "dbo"
 
 
@@ -82,23 +82,23 @@ class DatabaseOperations(generic.DatabaseOperations):
           AND TABLE_CATALOG = %s
           AND TABLE_SCHEMA = %s
           AND TABLE_NAME = %s
-          AND COLUMN_NAME = %s 
+          AND COLUMN_NAME = %s
         """
         db_name = self._get_setting('name')
         schema_name = self._get_schema_name()
         cons = self.execute(sql, [db_name, schema_name, table_name, name])
         return [c[0] for c in cons]
 
-    def _alter_set_defaults(self, field, name, params, sqls): 
+    def _alter_set_defaults(self, field, name, params, sqls):
         "Subcommand of alter_column that sets default values (overrideable)"
         # First drop the current default if one exists
         table_name = self.quote_name(params['table_name'])
         drop_default = self.drop_column_default_sql(table_name, name)
         if drop_default:
             sqls.append((drop_default, []))
-            
+
         # Next, set any default
-        
+
         if field.has_default(): # was: and not field.null
             default = field.get_default()
             sqls.append(('ADD DEFAULT %%s for %s' % (self.quote_name(name),), [default]))
@@ -165,7 +165,7 @@ class DatabaseOperations(generic.DatabaseOperations):
         db_name = self._get_setting('name')
         schema_name = self._get_schema_name()
         return self.execute(sql, [db_name, schema_name, table_name])
-                
+
     def delete_table(self, table_name, cascade=True):
         """
         Deletes the table 'table_name'.
@@ -180,7 +180,7 @@ class DatabaseOperations(generic.DatabaseOperations):
                 self.execute(sql, [])
             cascade = False
         super(DatabaseOperations, self).delete_table(table_name, cascade)
-            
+
     def rename_column(self, table_name, old, new):
         """
         Renames the column of 'table_name' from 'old' to 'new'.

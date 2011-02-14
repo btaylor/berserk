@@ -4,9 +4,9 @@ from django.db import models
 from berserk2.sprints.models import *
 
 class Migration:
-    
+
     def forwards(self, orm):
-        
+
         # Adding model 'MilestoneStatisticsCache'
         db.create_table('sprints_milestonestatisticscache', (
             ('total_open_tasks', models.IntegerField()),
@@ -17,28 +17,28 @@ class Migration:
             ('id', models.AutoField(primary_key=True)),
         ))
         db.send_create_signal('sprints', ['MilestoneStatisticsCache'])
-        
+
         # Adding field 'Milestone.bug_tracker'
         db.add_column('sprints_milestone', 'bug_tracker', models.ForeignKey(orm.BugTracker))
-        
+
         # Adding field 'Milestone.remote_tracker_name'
         db.add_column('sprints_milestone', 'remote_tracker_name', models.CharField(max_length=128))
-        
-    
-    
+
+
+
     def backwards(self, orm):
-        
+
         # Deleting model 'MilestoneStatisticsCache'
         db.delete_table('sprints_milestonestatisticscache')
-        
+
         # Deleting field 'Milestone.bug_tracker'
         db.delete_column('sprints_milestone', 'bug_tracker_id')
-        
+
         # Deleting field 'Milestone.remote_tracker_name'
         db.delete_column('sprints_milestone', 'remote_tracker_name')
-        
-    
-    
+
+
+
     models = {
         'sprints.tasksnapshot': {
             'Meta': {'get_latest_by': "'date'"},
@@ -106,5 +106,5 @@ class Migration:
             'username': ('models.CharField', [], {'max_length': '32'})
         }
     }
-    
+
     complete_apps = ['sprints']

@@ -61,35 +61,35 @@ class DatabaseOperations(object):
         self.pending_create_signals = []
         self.db_alias = db_alias
         self._initialised = False
-    
+
     def _is_multidb(self):
-        try: 
+        try:
             from django.db import connections
         except ImportError:
             return False
         else:
             return True
 
-    def _get_connection(self): 
-        """ 
-        Returns a django connection for a given DB Alias 
+    def _get_connection(self):
+        """
+        Returns a django connection for a given DB Alias
         """
         if self._is_multidb():
-            from django.db import connections 
-            return connections[self.db_alias] 
+            from django.db import connections
+            return connections[self.db_alias]
         else:
-            from django.db import connection 
-            return connection 
+            from django.db import connection
+            return connection
 
     def _get_setting(self, setting_name):
         """
         Allows code to get a setting (like, for example, STORAGE_ENGINE)
         """
         setting_name = setting_name.upper()
-        connection = self._get_connection() 
+        connection = self._get_connection()
         if self._is_multidb():
             # Django 1.2 and above
-            return connection.settings_dict[setting_name] 
+            return connection.settings_dict[setting_name]
         else:
             # Django 1.1 and below
             return getattr(settings, "DATABASE_%s" % setting_name)
@@ -111,7 +111,7 @@ class DatabaseOperations(object):
         except (KeyError, AttributeError):
             return self.default_schema_name
 
-    
+
     def _possibly_initialise(self):
         if not self._initialised:
             self.connection_init()
@@ -123,7 +123,7 @@ class DatabaseOperations(object):
         e.g. which storage engine (MySQL) or transaction serialisability level.
         """
         pass
-    
+
     def quote_name(self, name):
         """
         Uses the database backend to quote the given table/column name.
@@ -135,9 +135,9 @@ class DatabaseOperations(object):
         Executes the given SQL statement, with optional parameters.
         If the instance's debug attribute is True, prints out what it executes.
         """
-        
+
         self._possibly_initialise()
-        
+
         cursor = self._get_connection().cursor()
         if self.debug:
             print "   = %s" % sql, params
@@ -298,8 +298,8 @@ class DatabaseOperations(object):
             return field.db_type(connection=self._get_connection())
         except TypeError:
             return field.db_type()
-        
-    def _alter_set_defaults(self, field, name, params, sqls): 
+
+    def _alter_set_defaults(self, field, name, params, sqls):
         "Subcommand of alter_column that sets default values (overrideable)"
         # Next, set any default
         if not field.null and field.has_default():
@@ -319,7 +319,7 @@ class DatabaseOperations(object):
         @param name: The name of the column to alter
         @param field: The new field definition to use
         """
-        
+
         if self.dry_run:
             return
 
@@ -343,7 +343,7 @@ class DatabaseOperations(object):
                         'table': self.quote_name(table_name),
                         'constraint': self.quote_name(constraint),
                     })
-        
+
             # Drop all foreign key constraints
             try:
                 self.delete_foreign_key(table_name, name)
@@ -354,17 +354,17 @@ class DatabaseOperations(object):
         # First, change the type
         params = {
             "column": self.quote_name(name),
-            "type": self._db_type_for_alter_column(field),            
+            "type": self._db_type_for_alter_column(field),
             "table_name": table_name
         }
 
         # SQLs is a list of (SQL, values) pairs.
         sqls = []
-        
+
         # Only alter the column if it has a type (Geometry ones sometimes don't)
         if params["type"] is not None:
             sqls.append((self.alter_string_set_type % params, []))
-        
+
         # Next, nullity
         if field.null:
             sqls.append((self.alter_string_set_null % params, []))
@@ -385,7 +385,7 @@ class DatabaseOperations(object):
             # Databases like e.g. MySQL don't like more than one alter at once.
             for sql, values in sqls:
                 self.execute("ALTER TABLE %s %s;" % (self.quote_name(table_name), sql), values)
-        
+
         if not ignore_constraints:
             # Add back FK constraints if needed
             if field.rel and self.supports_foreign_keys:
@@ -416,7 +416,7 @@ class DatabaseOperations(object):
         else:
             ifsc_table = "key_column_usage"
 
-        schema = self._get_schema_name()            
+        schema = self._get_schema_name()
 
         # First, load all constraint->col mappings for this table.
         rows = self.execute("""
@@ -431,13 +431,13 @@ class DatabaseOperations(object):
                 kc.table_name = %%s AND
                 c.constraint_type = %%s
         """ % ifsc_table, [schema, table_name, type])
-        
+
         # Load into a dict
         mapping = {}
         for constraint, column in rows:
             mapping.setdefault(constraint, set())
             mapping[constraint].add(column)
-        
+
         # Find ones affecting these columns
         for constraint, itscols in mapping.items():
             # If columns is None we definitely want this field! (see docstring)
@@ -456,8 +456,8 @@ class DatabaseOperations(object):
 
         cols = ", ".join(map(self.quote_name, columns))
         self.execute("ALTER TABLE %s ADD CONSTRAINT %s UNIQUE (%s)" % (
-            self.quote_name(table_name), 
-            self.quote_name(name), 
+            self.quote_name(table_name),
+            self.quote_name(name),
             cols,
         ))
         return name
@@ -479,7 +479,7 @@ class DatabaseOperations(object):
             raise ValueError("Cannot find a UNIQUE constraint on table %s, columns %r" % (table_name, columns))
         for constraint in constraints:
             self.execute(self.delete_unique_sql % (
-                self.quote_name(table_name), 
+                self.quote_name(table_name),
                 self.quote_name(constraint),
             ))
 
@@ -504,15 +504,15 @@ class DatabaseOperations(object):
             sql = field.db_type(connection=self._get_connection())
         except TypeError:
             sql = field.db_type()
-        
+
         if sql:
-            
+
             # Some callers, like the sqlite stuff, just want the extended type.
             if with_name:
                 field_output = [self.quote_name(field.column), sql]
             else:
                 field_output = [sql]
-            
+
             field_output.append('%sNULL' % (not field.null and 'NOT ' or ''))
             if field.primary_key:
                 field_output.append('PRIMARY KEY')
@@ -525,7 +525,7 @@ class DatabaseOperations(object):
                 # We must specify the index tablespace inline, because we
                 # won't be generating a CREATE INDEX statement for this field.
                 field_output.append(self._get_connection().ops.tablespace_sql(tablespace, inline=True))
-            
+
             sql = ' '.join(field_output)
             sqlparams = ()
             # if the field is "NOT NULL" and a default value is provided, create the column with it
@@ -570,7 +570,7 @@ class DatabaseOperations(object):
         if hasattr(field, 'post_create_sql'):
             for stmt in field.post_create_sql(no_style(), table_name):
                 self.add_deferred_sql(stmt)
-        
+
         # In 1.2 and above, you have to ask the DatabaseCreation stuff for it.
         # This also creates normal indexes in 1.1.
         if hasattr(self._get_connection().creation, "sql_indexes_for_field"):
@@ -578,7 +578,7 @@ class DatabaseOperations(object):
             model = self.mock_model("FakeModelForGISCreation", table_name)
             for stmt in self._get_connection().creation.sql_indexes_for_field(model, field, no_style()):
                 self.add_deferred_sql(stmt)
-        
+
         if sql:
             return sql % sqlparams
         else:
@@ -606,7 +606,7 @@ class DatabaseOperations(object):
             self.quote_name(to_column_name),
             self._get_connection().ops.deferrable_sql() # Django knows this
         )
-    
+
 
     def delete_foreign_key(self, table_name, column):
         "Drop a foreign key constraint"
@@ -715,17 +715,17 @@ class DatabaseOperations(object):
         # Dry runs mean we can't do anything.
         if self.dry_run:
             return
-        
+
         constraints = list(self._constraints_affecting_columns(table_name, None, type="PRIMARY KEY"))
         if not constraints:
             raise ValueError("Cannot find a PRIMARY KEY constraint on table %s" % (table_name,))
-        
+
         for constraint in constraints:
             self.execute(self.delete_primary_key_sql % {
                 "table": self.quote_name(table_name),
                 "constraint": self.quote_name(constraint),
             })
-    
+
     drop_primary_key = alias('delete_primary_key')
 
 
@@ -822,10 +822,10 @@ class DatabaseOperations(object):
         over all models within the app sending the signal.  This is a
         patch we should push Django to make  For now, this should work.
         """
-        
+
         if self.debug:
             print " - Sending post_syncdb signal for %s: %s" % (app_label, model_names)
-        
+
         app = models.get_app(app_label)
         if not app:
             return
@@ -865,7 +865,7 @@ class DatabaseOperations(object):
                     )
 
 
-    def mock_model(self, model_name, db_table, db_tablespace='', 
+    def mock_model(self, model_name, db_table, db_tablespace='',
                    pk_field_name='id', pk_field_type=models.AutoField,
                    pk_field_args=[], pk_field_kwargs={}):
         """

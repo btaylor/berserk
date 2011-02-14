@@ -4,9 +4,9 @@ from django.db import models
 from berserk2.sprints.models import *
 
 class Migration:
-    
+
     def forwards(self, orm):
-        
+
         # Adding model 'TaskSnapshot'
         db.create_table('sprints_tasksnapshot', (
             ('status', models.CharField(max_length=32)),
@@ -22,7 +22,7 @@ class Migration:
             ('remaining_hours', models.IntegerField()),
         ))
         db.send_create_signal('sprints', ['TaskSnapshot'])
-        
+
         # Adding model 'Task'
         db.create_table('sprints_task', (
             ('remote_tracker_id', models.CharField(max_length=32)),
@@ -30,7 +30,7 @@ class Migration:
             ('id', models.AutoField(primary_key=True)),
         ))
         db.send_create_signal('sprints', ['Task'])
-        
+
         # Adding model 'TaskSnapshotCache'
         db.create_table('sprints_tasksnapshotcache', (
             ('date', models.DateField(db_index=True)),
@@ -38,7 +38,7 @@ class Migration:
             ('id', models.AutoField(primary_key=True)),
         ))
         db.send_create_signal('sprints', ['TaskSnapshotCache'])
-        
+
         # Adding model 'Sprint'
         db.create_table('sprints_sprint', (
             ('end_date', models.DateField()),
@@ -48,7 +48,7 @@ class Migration:
             ('id', models.AutoField(primary_key=True)),
         ))
         db.send_create_signal('sprints', ['Sprint'])
-        
+
         # Adding model 'BugTracker'
         db.create_table('sprints_bugtracker', (
             ('username', models.CharField(max_length=32)),
@@ -59,50 +59,50 @@ class Migration:
             ('backend', models.CharField(max_length=32)),
         ))
         db.send_create_signal('sprints', ['BugTracker'])
-        
+
         # Adding ManyToManyField 'Task.sprints'
         db.create_table('sprints_task_sprints', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('task', models.ForeignKey(Task, null=False)),
             ('sprint', models.ForeignKey(Sprint, null=False))
         ))
-        
+
         # Creating unique_together for [base_url, product, backend] on BugTracker.
         db.create_unique('sprints_bugtracker', ['base_url', 'product', 'backend'])
-        
+
         # Creating unique_together for [remote_tracker_id, bug_tracker] on Task.
         db.create_unique('sprints_task', ['remote_tracker_id', 'bug_tracker_id'])
-        
-    
-    
+
+
+
     def backwards(self, orm):
-        
+
         # Deleting model 'TaskSnapshot'
         db.delete_table('sprints_tasksnapshot')
-        
+
         # Deleting model 'Task'
         db.delete_table('sprints_task')
-        
+
         # Deleting model 'TaskSnapshotCache'
         db.delete_table('sprints_tasksnapshotcache')
-        
+
         # Deleting model 'Sprint'
         db.delete_table('sprints_sprint')
-        
+
         # Deleting model 'BugTracker'
         db.delete_table('sprints_bugtracker')
-        
+
         # Dropping ManyToManyField 'Task.sprints'
         db.delete_table('sprints_task_sprints')
-        
+
         # Deleting unique_together for [base_url, product, backend] on BugTracker.
         db.delete_unique('sprints_bugtracker', ['base_url', 'product', 'backend'])
-        
+
         # Deleting unique_together for [remote_tracker_id, bug_tracker] on Task.
         db.delete_unique('sprints_task', ['remote_tracker_id', 'bug_tracker_id'])
-        
-    
-    
+
+
+
     models = {
         'sprints.tasksnapshot': {
             'Meta': {'get_latest_by': "'date'"},
@@ -152,5 +152,5 @@ class Migration:
             'username': ('models.CharField', [], {'max_length': '32'})
         }
     }
-    
+
     complete_apps = ['sprints']

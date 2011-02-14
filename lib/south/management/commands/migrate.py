@@ -52,7 +52,7 @@ class Command(BaseCommand):
     args = "[appname] [migrationname|zero] [--all] [--list] [--skip] [--merge] [--no-initial-data] [--fake] [--db-dry-run] [--database=dbalias]"
 
     def handle(self, app=None, target=None, skip=False, merge=False, backwards=False, fake=False, db_dry_run=False, show_list=False, database=DEFAULT_DB_ALIAS, delete_ghosts=False, ignore_ghosts=False, **options):
-        
+
         # NOTE: THIS IS DUPLICATED FROM django.core.management.commands.syncdb
         # This code imports any module named 'management' in INSTALLED_APPS.
         # The 'management' module is the preferred way of listening to post_syncdb
@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 if not msg.startswith('No module named') or 'management' not in msg:
                     raise
         # END DJANGO DUPE CODE
-        
+
         # if all_apps flag is set, shift app over to target
         if options.get('all_apps', False):
             target = app
@@ -82,13 +82,13 @@ class Command(BaseCommand):
                 return
         else:
             apps = list(migration.all_migrations())
-        
+
         # Do we need to show the list of migrations?
         if show_list and apps:
             list_migrations(apps, database)
-        
+
         if not show_list:
-            
+
             for app in apps:
                 result = migration.migrate_app(
                     app,

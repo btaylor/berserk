@@ -34,7 +34,7 @@ truncate_chars = allow_lazy(truncate_chars, unicode)
 def truncatechars(value, arg):
     """
     Truncates a string after a certain number of characters, but respects word boundaries.
-    
+
     Argument: Number of characters to truncate after.
     """
     try:

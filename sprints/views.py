@@ -1,24 +1,24 @@
 #
 # Copyright (c) 2008-2009 Brad Taylor <brad@getcoded.net>
 #
-# Permission is hereby granted, free of charge, to any person obtaining 
-# a copy of this software and associated documentation files (the 
-# "Software"), to deal in the Software without restriction, including 
-# without limitation the rights to use, copy, modify, merge, publish, 
-# distribute, sublicense, and/or sell copies of the Software, and to 
-# permit persons to whom the Software is furnished to do so, subject to 
-# the following conditions: 
-#  
-# The above copyright notice and this permission notice shall be 
-# included in all copies or substantial portions of the Software. 
-#  
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
 import simplejson
@@ -54,7 +54,7 @@ def sprint_index(request):
 
     if sprint == None:
         raise Http404(_('No sprints have been defined yet.  Visit the Admin page to get started.'))
-    
+
     return HttpResponseRedirect(sprint.get_absolute_url())
 
 def sprint_detail(request, sprint_id,
@@ -167,7 +167,7 @@ def sprint_tasks_json(request, sprint_id):
 
         task_data[(csnap.date - sprint.start_date).days + 7] = s.remaining_hours
         latest_snap = s
-    
+
     for task in tasks_data:
         task[1] = task[1] + '&nbsp;<span class="sparkline invisible">%s</span>' % \
             ','.join([str(i) for i in task[6:] if i != ''])
@@ -185,7 +185,7 @@ def sprint_my_tasks_json(request, sprint_id):
         cached_snaps = cached_snaps.filter(date=date.today())
     else:
         cached_snaps = cached_snaps.filter(date=sprint.end_date)
-    
+
     tasks_data = []
     for cached_snap in cached_snaps:
         snap = cached_snap.task_snapshot
@@ -204,7 +204,7 @@ def sprint_burndown_json(request, sprint_id):
     number of remaining hours as the Y axis.
     """
     sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-    
+
     remaining_hours = []
     user_remaining_hours = []
     open_tasks = []
@@ -281,7 +281,7 @@ def sprint_statistics_partial(request, sprint_id,
 
     sum = cached_snaps.aggregate(value=Sum('task_snapshot__remaining_hours'))
     hours = sum['value'] if sum['value'] != None else 0
- 
+
     load = None
     if sprint.is_active():
         load = _calc_load(hours, _workday_diff(sprint.start_date, date.today()),
@@ -331,17 +331,13 @@ def _add_task(request, sprint, default_bug_tracker, remote_tracker_id):
     try:
         if not sprint.is_active():
             raise Exception(_('You cannot edit an inactive sprint.'))
-        
-        print "hello world 1"
+
         task, created = Task.objects.get_or_create(bug_tracker=default_bug_tracker,
                                                    remote_tracker_id=remote_tracker_id)
-        print task.snapshot()
-        print "hello world 2"
         if created:
             snapshot = task.get_latest_snapshot()
         else:
             snapshot = task.snapshot()
-        print "hello world 3"
 
         if snapshot == None:
             raise Exception(_('Invalid task id, or unable to contact the Bug Tracker to fetch Task information.'))
@@ -349,7 +345,7 @@ def _add_task(request, sprint, default_bug_tracker, remote_tracker_id):
             raise Exception(_('Please assign this bug to yourself before adding it to your sprint.'))
         elif snapshot.remaining_hours == 0:
             raise Exception(_('No time remains on this bug. Please add additional hours before adding it to your sprint.'))
-        
+
         if task.sprints.filter(pk=sprint.pk):
             raise Exception(_('This task has already been added to the sprint.'))
 

@@ -4,27 +4,27 @@ from django.db import models
 from berserk2.sprints.models import *
 
 class Migration:
-    
+
     def forwards(self, orm):
-        
+
         # Creating unique_together for [date, task_snapshot] on TaskSnapshotCache.
         db.create_unique('sprints_tasksnapshotcache', ['date', 'task_snapshot_id'])
-        
+
         # Creating unique_together for [date, milestone] on MilestoneStatisticsCache.
         db.create_unique('sprints_milestonestatisticscache', ['date', 'milestone_id'])
-        
-    
-    
+
+
+
     def backwards(self, orm):
-        
+
         # Deleting unique_together for [date, task_snapshot] on TaskSnapshotCache.
         db.delete_unique('sprints_tasksnapshotcache', ['date', 'task_snapshot_id'])
-        
+
         # Deleting unique_together for [date, milestone] on MilestoneStatisticsCache.
         db.delete_unique('sprints_milestonestatisticscache', ['date', 'milestone_id'])
-        
-    
-    
+
+
+
     models = {
         'sprints.tasksnapshot': {
             'Meta': {'get_latest_by': "'date'"},
@@ -94,5 +94,5 @@ class Migration:
             'username': ('models.CharField', [], {'max_length': '32'})
         }
     }
-    
+
     complete_apps = ['sprints']

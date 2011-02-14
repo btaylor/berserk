@@ -28,7 +28,7 @@ class Migrator(object):
     def print_title(self, target):
         if self.verbosity:
             print self.title(target)
-        
+
     @staticmethod
     def status(target):
         raise NotImplementedError()
@@ -197,7 +197,7 @@ class FakeMigrator(MigratorWrapper):
 
 
 class LoadInitialDataMigrator(MigratorWrapper):
-    
+
     def load_initial_data(self, target, db='default'):
         if target is None or target != target.migrations[-1]:
             return

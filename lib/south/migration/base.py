@@ -41,24 +41,24 @@ def application_to_app_label(application):
 
 
 class MigrationsMetaclass(type):
-    
+
     """
     Metaclass which ensures there is only one instance of a Migrations for
     any given app.
     """
-    
+
     def __init__(self, name, bases, dict):
         super(MigrationsMetaclass, self).__init__(name, bases, dict)
         self.instances = {}
-    
+
     def __call__(self, application, **kwds):
-        
+
         app_label = application_to_app_label(application)
-        
+
         # If we don't already have an instance, make one
         if app_label not in self.instances:
             self.instances[app_label] = super(MigrationsMetaclass, self).__call__(app_label_to_app_module(app_label), **kwds)
-        
+
         return self.instances[app_label]
 
     def _clear_cache(self):
@@ -70,9 +70,9 @@ class Migrations(list):
     """
     Holds a list of Migration objects for a particular app.
     """
-    
+
     __metaclass__ = MigrationsMetaclass
-    
+
     if getattr(settings, "SOUTH_USE_PYC", False):
         MIGRATION_FILENAME = re.compile(r'(?!__init__)' # Don't match __init__.py
                                         r'[0-9a-zA-Z_]*' # Don't match dotfiles, or names with dots/invalid chars in them
@@ -86,7 +86,7 @@ class Migrations(list):
         "Constructor. Takes the module of the app, NOT its models (like get_app returns)"
         self._cache = {}
         self.set_application(application, force_creation, verbose_creation)
-    
+
     def create_migrations_directory(self, verbose=True):
         "Given an application, ensures that the migrations directory is ready."
         migrations_dir = self.migrations_dir()
@@ -102,7 +102,7 @@ class Migrations(list):
             if verbose:
                 print "Creating __init__.py in '%s'..." % migrations_dir
             open(init_path, "w").close()
-    
+
     def migrations_dir(self):
         """
         Returns the full path of the migrations directory.
@@ -128,7 +128,7 @@ class Migrations(list):
         else:
             # Get directory directly
             return os.path.dirname(module.__file__)
-    
+
     def migrations_module(self):
         "Returns the module name of the migrations module for this"
         app_label = application_to_app_label(self.application)
@@ -210,7 +210,7 @@ class Migrations(list):
             return self[-1]
         else:
             return self._guess_migration(prefix=target_name)
-    
+
     def app_label(self):
         return self._application.__name__.split('.')[-1]
 
@@ -226,14 +226,14 @@ class Migrations(list):
             for migration in migrations:
                 migration.calculate_dependencies()
         cls._dependencies_done = True
-    
+
     @staticmethod
     def invalidate_all_modules():
         "Goes through all the migrations, and invalidates all cached modules."
         for migrations in all_migrations():
             for migration in migrations:
                 migration.invalidate_module()
-    
+
     def next_filename(self, name):
         "Returns the fully-formatted filename of what a new migration 'name' would be"
         highest_number = 0
@@ -251,11 +251,11 @@ class Migrations(list):
 
 
 class Migration(object):
-    
+
     """
     Class which represents a particular migration file on-disk.
     """
-    
+
     def __init__(self, migrations, filename):
         """
         Returns the migration class implied by 'filename'.
@@ -326,7 +326,7 @@ class Migration(object):
             return None
         return self.migrations[index]
     next = memoize(next)
-    
+
     def _get_dependency_objects(self, attrname):
         """
         Given the name of an attribute (depends_on or needed_by), either yields
@@ -345,7 +345,7 @@ class Migration(object):
             if migration.is_before(self) == False:
                 raise exceptions.DependsOnHigherMigration(self, migration)
             yield migration
-    
+
     def calculate_dependencies(self):
         """
         Loads dependency info for this migration, and stores it in itself
@@ -364,7 +364,7 @@ class Migration(object):
         if previous:
             self.dependencies.add(previous)
             previous.dependents.add(self)
-    
+
     def invalidate_module(self):
         """
         Removes the cached version of this migration's module import, so we

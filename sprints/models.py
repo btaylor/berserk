@@ -77,7 +77,7 @@ class Milestone(models.Model):
 
     def __unicode__(self):
         return self.name
-    
+
     def snapshot_statistics(self):
         """
         Fetches the latest statistics about the milestone from the remote
@@ -152,7 +152,7 @@ class Sprint(models.Model):
     def is_active(self):
         """
         Returns true if the current date is between the start and end dates of
-        the Sprint. 
+        the Sprint.
         """
         return date.today() >= self.start_date \
                and date.today() <= self.end_date
@@ -213,7 +213,7 @@ class Sprint(models.Model):
                                                    self.iteration_workdays(),
                                                    self.velocity)
         return (users_load, users_effort)
-    
+
     def get_previous_or_none(self):
         """
         Returns the previous Sprint by end_date, or None if none were found.
@@ -223,7 +223,7 @@ class Sprint(models.Model):
         except models.DoesNotExist:
             pass
         return None
-    
+
     def get_next_or_none(self):
         """
         Returns the next Sprint by end_date, or None if none were found.
