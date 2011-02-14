@@ -28,7 +28,7 @@ from xml.dom import minidom
 import dateutil.parser
 
 class FogBugzClient:
-    def __init__(self, base_url):
+    def __init__(self, base_url, unused):
         self.base_url = base_url
         self.backend = FogBugz(base_url)
 
