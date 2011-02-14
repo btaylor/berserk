@@ -40,6 +40,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from berserk2 import settings
 from berserk2.sprints.models import *
 from berserk2.sprints.utils import date_range
+from berserk2.bugtracker import BugTrackerFactory
 from berserk2.sprints.urls import reverse_full_url
 from berserk2.sprints.models import _workday_diff, _calc_load
 
@@ -77,7 +78,7 @@ def sprint_edit(request, sprint_id,
                                'bookmarklet_url': bookmarklet_url},
                               context_instance=RequestContext(request))
 
-import urllib, cgi
+import urllib
 
 @login_required
 def sprint_current_bookmarklet(request):
@@ -88,32 +89,21 @@ def sprint_current_bookmarklet(request):
             request.flash['notice'] = notice
         return HttpResponseRedirect(reverse('sprint_edit',
                                             kwargs={'sprint_id': sprint.id}))
-        
+
     sprint = Sprint.objects.current()
     if sprint == None or request.method != 'GET':
         return HttpResponseRedirect(reverse('sprint_index'))
 
-    # e.g.: https://bugzilla.mozilla.org/show_bug.cgi?id=490130
-    url = urllib.unquote(request.GET['url'])
+    tracker = BugTrackerFactory.get_bug_tracker()
+    if not tracker:
+        return redirect(error=_('Your bug tracker has not been set up yet.'))
 
-    path, query = urllib.splitquery(url)
     base_url = sprint.default_bug_tracker.base_url
-
-    if not path.startswith(base_url):
-        return redirect(error=_('Hmm, this doesn\'t look like my default bug tracker URL.'))
-
-    try:
-        data = cgi.parse_qsl(query)
-    except:
-        return redirect(error=_('I don\'t recognize this type of URL.'))
-
-    remote_tracker_id = None
-    for key, value in data:
-        if key == 'id':
-            remote_tracker_id = value
+    remote_tracker_id = tracker.get_id_from_url(urllib.unquote(request.GET['url']),
+                                                base_url)
 
     if not remote_tracker_id:
-        return redirect(error=_('Hmm, I\'ve never seen this type of URL before.  Fancy!'))
+        return redirect(error=_('I don\'t recognize this type of URL.'))
 
     result = _add_task(request, sprint, sprint.default_bug_tracker,
                        remote_tracker_id)

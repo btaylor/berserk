@@ -25,6 +25,7 @@ from time import strptime
 from datetime import datetime
 from xml.dom import minidom
 import logging
+import urllib, cgi
 
 class BugzillaClient:
     """
@@ -52,6 +53,28 @@ class BugzillaClient:
             return False
         else:
             return True
+
+    @staticmethod
+    def get_id_from_url(url, base_url):
+        """
+        Returns the id of a bug given a correctly-formatted URL,
+            e.g.: https://bugzilla.mozilla.org/show_bug.cgi?id=490130
+        otherwise, returns None.
+        """
+        path, query = urllib.splitquery(url)
+        if not path.startswith(base_url):
+            return None
+
+        try:
+            data = cgi.parse_qsl(query)
+        except:
+            return None
+
+        remote_tracker_id = None
+        for key, value in data:
+            if key == 'id':
+                return value
+        return None
 
     def login(self, user, password):
         """

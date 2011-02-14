@@ -26,6 +26,7 @@ from time import strptime
 from datetime import datetime
 from xml.dom import minidom
 import dateutil.parser
+import urllib
 
 class FogBugzClient:
     def __init__(self, base_url, unused):
@@ -38,6 +39,23 @@ class FogBugzClient:
         Returns True always, as this client doesn't support backends.
         """
         return True
+
+    @staticmethod
+    def get_id_from_url(url, base_url):
+        """
+        Returns the id of a bug given a correctly-formatted URL,
+            e.g.: https://foo.fogbugz.com/default.asp?23714#430608
+        otherwise, returns None.
+        """
+        path, query = urllib.splitquery(url)
+        if not path.startswith(base_url):
+            return None
+
+        try:
+            id, junk = query.split('#', 1)
+            return id
+        except:
+            return None
 
     def login(self, user, password):
         """
