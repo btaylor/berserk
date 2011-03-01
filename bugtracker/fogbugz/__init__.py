@@ -44,7 +44,8 @@ class FogBugzClient:
     def get_id_from_url(url, base_url):
         """
         Returns the id of a bug given a correctly-formatted URL,
-            e.g.: https://foo.fogbugz.com/default.asp?23714#430608
+            e.g.: https://foo.fogbugz.com/default.asp?23714
+                  https://foo.fogbugz.com/default.asp?23714#430608
         otherwise, returns None.
         """
         path, query = urllib.splitquery(url)
@@ -52,8 +53,8 @@ class FogBugzClient:
             return None
 
         try:
-            id, junk = query.split('#', 1)
-            return id
+            vals = query.split('#', 1)
+            return vals[0]
         except:
             return None
 
