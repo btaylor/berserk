@@ -60,7 +60,7 @@ class BugTracker(models.Model):
 
     def get_remote_task_url(self, task):
         tracker = BugTrackerFactory.get_bug_tracker()
-        return tracker.get_url_from_id(self.base_url, task.remote_tracker_id)
+        return tracker.get_url_from_id(task.remote_tracker_id, self.base_url)
 
 class Milestone(models.Model):
     """
