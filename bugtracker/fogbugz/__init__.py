@@ -197,6 +197,6 @@ class FogBugzBug:
             elif e.name == 'hrselapsed':
                 self.actual_time = int(ceil(float(get_child_value(e))))
             elif e.name == 'fopen':
-                self.is_open = get_child_value(e) # TODO: some parsing
+                self.is_open = get_child_value(e) == 'true'
 
         self.remaining_time = max(self.estimated_time - self.actual_time, 0)
