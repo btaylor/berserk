@@ -193,9 +193,9 @@ class FogBugzBug:
             elif e.name == 'semailassignedto':
                 self.assigned_to = get_child_value(e)
             elif e.name == 'hrscurrest':
-                self.estimated_time = int(get_child_value(e))
+                self.estimated_time = int(ceil(float(get_child_value(e))))
             elif e.name == 'hrselapsed':
-                self.actual_time = int(get_child_value(e))
+                self.actual_time = int(ceil(float(get_child_value(e))))
             elif e.name == 'fopen':
                 self.is_open = get_child_value(e) # TODO: some parsing
 
