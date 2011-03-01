@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     'berserk2.sprints',
     'berserk2.core',
     'berserk2.reports',
+    'berserk2.timeline',
 
     # External Apps
     'djangoflash',
