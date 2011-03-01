@@ -41,6 +41,14 @@ class FogBugzClient:
         return True
 
     @staticmethod
+    def get_url_from_id(remote_tracker_id, base_url):
+        """
+        Returns an absolute URL to a bug given its remote_tracker_id and the
+        tracker's base_url.
+        """
+        return '%s/default.asp?%s' % (base_url, remote_tracker_id)
+
+    @staticmethod
     def get_id_from_url(url, base_url):
         """
         Returns the id of a bug given a correctly-formatted URL,

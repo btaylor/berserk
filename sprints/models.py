@@ -59,7 +59,8 @@ class BugTracker(models.Model):
         return str(self.product)
 
     def get_remote_task_url(self, task):
-        return '%s/show_bug.cgi?id=%s' % (self.base_url, task.remote_tracker_id)
+        tracker = BugTrackerFactory.get_bug_tracker()
+        return tracker.get_url_from_id(self.base_url, task.remote_tracker_id)
 
 class Milestone(models.Model):
     """
