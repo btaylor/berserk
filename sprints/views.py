@@ -33,6 +33,7 @@ from django.db.models import Count, Sum, Q
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -291,6 +292,7 @@ def sprint_statistics_partial(request, sprint_id,
                               {'hours': hours, 'load': load },
                               context_instance=RequestContext(request))
 
+@csrf_exempt
 def sprint_delete_task_json(request, sprint_id):
     if not request.user.is_authenticated():
         return HttpResponse(simplejson.dumps(result))
