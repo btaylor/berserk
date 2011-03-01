@@ -199,4 +199,13 @@ class FogBugzBug:
             elif e.name == 'fopen':
                 self.is_open = get_child_value(e) == 'true'
 
-        self.remaining_time = max(self.estimated_time - self.actual_time, 0)
+        # If a bug is resolved or closed, there is no remaining time.  Yes,
+        # this may hide some time (if a bug isn't fixed yet), but unless QA and
+        # development are very tightly integrated such that bugs are being
+        # closed very quickly, sprints will be completed with unnecessarily
+        # high hour counts.  Also, this mirrors Bugzilla's behavior, for better
+        # or worse.
+        if not self.status.startswith('Resolved') and self.is_open:
+            self.remaining_time = max(self.estimated_time - self.actual_time, 0)
+        else:
+            self.remaining_time = 0
