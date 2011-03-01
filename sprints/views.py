@@ -159,7 +159,7 @@ def sprint_tasks_json(request, sprint_id):
         s = csnap.task_snapshot
         if latest_snap == None or s.task != latest_snap.task:
             task_data = [
-                '<a href="%s">#%s</a>' % (s.task.get_absolute_url(), s.task.remote_tracker_id),
+                '<a href="%s" target="_blank">#%s</a>' % (s.task.get_absolute_url(), s.task.remote_tracker_id),
                 s.title, s.component, s.get_assigned_to_display(), s.get_submitted_by_display(),
                 s.status, s.estimated_hours
             ]
