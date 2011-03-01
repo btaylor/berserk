@@ -312,6 +312,7 @@ def sprint_delete_task_json(request, sprint_id):
             'notice': _('Task #%s has been removed from this sprint.') % task.remote_tracker_id
         }))
 
+@csrf_exempt
 @transaction.commit_manually
 def sprint_new_json(request, sprint_id):
     if not request.user.is_authenticated():
