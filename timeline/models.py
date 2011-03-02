@@ -22,13 +22,46 @@
 #
 
 from django.db import models
+from django.contrib.auth.models import User
 
-class Event:
+from berserk2.timeline.managers import ActorManager
+
+class Actor(models.Model):
+    first_name = models.CharField(max_length=32)
+    last_name = models.CharField(max_length=32)
+    GENDER_CHOICES = (
+        ('U', u'Unknown'),
+        ('M', u'Male'),
+        ('F', u'Female'),
+    )
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='U')
+    user = models.ForeignKey(User, null=True, blank=True)
+    objects = ActorManager()
+
+    def __unicode__(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
+    def get_reflexive_gender_pronoun(self):
+        """
+        Returns the lowercase reflexive gender pronoun (e.g.: himself, herself)
+        for the actor's gender.
+        """
+        if self.gender == 'M':
+            return 'himself'
+        elif self.gender == 'F':
+            return 'herself'
+        else:
+            return 'itself'
+
+class Event(models.Model):
     date = models.DateTimeField(auto_now_add=True, db_index=True)
     source = models.CharField(max_length=32)
-    protagonist = models.ForeignKey(User, related_name='protagonist',
+    protagonist = models.ForeignKey(Actor, related_name='protagonist',
                                     null=True, db_index=True)
-    deuteragonist = models.ForeignKey(User, related_name='deuteragonist',
+    deuteragonist = models.ForeignKey(Actor, related_name='deuteragonist',
                                       null=True, db_index=True)
-    message = models.CharField()
-    comment = models.CharField()
+    message = models.CharField(max_length=256)
+    comment = models.TextField()
+
+    def __unicode__(self):
+        return self.message

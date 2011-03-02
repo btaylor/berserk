@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #
 # Copyright (c) 2008-2011 Brad Taylor <brad@getcoded.net>
 #
@@ -21,37 +23,15 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import imaplib
-import pprint
-import email
+from django.conf import settings
+from django.core.management.base import NoArgsCommand
 
-class PeriodicPullSource:
-    def run(self):
-        raise NotImplementedError()
+from berserk2.sprints.models import *
+from berserk2.timeline.sources import FogBugzEmailSource
 
-class FogBugzEmailSource(PeriodicPullSource):
-    def run(self):
-        c = imaplib.IMAP4_SSL('imap.gmail.com')
-        c.debug = 4
-        c.login('XXX', 'XXXX')
-        try:
-            c.select('INBOX')#, readonly=True)
+class Command(NoArgsCommand):
+    help = "Syncs the timeline sources"
 
-            typ, [msg_ids] = c.search(None, 'UNSEEN')
-            for i in msg_ids.split(' '):
-                typ, msg_data = c.fetch(i, '(RFC822)')
-                for response_part in msg_data:
-                    if isinstance(response_part, tuple):
-                        msg = email.message_from_string(response_part[1])
-                        body = unicode(msg.get_payload(decode=True),
-                                       'ascii', 'replace')
-                        print body
-
-                        # Mark unread when we're done with parsing the message
-                        #typ, response = c.store(i, '+FLAGS', r'(\Seen)')
-        finally:
-            try:
-                c.close()
-            except:
-                pass
-            c.logout()
+    def handle(self, *args, **options):
+        c = FogBugzEmailSource()
+        c.run()

@@ -32,6 +32,13 @@ NEW_TASK_BOOKMARKLET_URL = "javascript:(function(){window.open('%s?url=' + encod
 # Permitted values are 'bugzilla.BugzillaClient' or 'fogbugz.FogBugzClient'
 BUG_TRACKER_TYPE = "fogbugz.FogBugzClient"
 
+# Settings for the FogBugz email source for berserk's timeline
+# This source polls an IMAP server at regular intervals to feed update emails
+# into the timeline
+FB_EMAIL_SOURCE_HOST = ''
+FB_EMAIL_SOURCE_USER = ''
+FB_EMAIL_SOURCE_PASSWORD = ''
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #
 # Copyright (c) 2008-2011 Brad Taylor <brad@getcoded.net>
 #
@@ -23,14 +21,14 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-from berserk2.sprints.models import *
+from django.contrib import admin
+from berserk2.timeline.models import Event, Actor
 
-from django.conf import settings
-from django.core.management.base import BaseCommand
+class EventAdmin(admin.ModelAdmin):
+    pass
 
-class Command(BaseCommand):
-    args = "<imap server> <username> <password>"
-    help = "Polls the specified imap server for bug email, parses it, and stuffs it into the database"
+class ActorAdmin(admin.ModelAdmin):
+    pass
 
-    def handle(self, *args, **options):
-        pass
+admin.site.register(Event, EventAdmin)
+admin.site.register(Actor, ActorAdmin)
