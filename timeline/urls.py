@@ -21,15 +21,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-from django.template import RequestContext
-from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.conf.urls.defaults import *
 
-from berserk2.timeline.models import Event
-
-def timeline_index(request,
-                   template_name='timeline/timeline_index.html'):
-    events = Event.objects.order_by('-date')[:50]
-    return render_to_response(template_name,
-                              {'events': events},
-                              context_instance=RequestContext(request))
+urlpatterns = patterns('berserk2.timeline.views',
+    url(r'^$', 'timeline_index', name="timeline_index"),
+)

@@ -1,0 +1,18 @@
+{% extends "timeline/base.html" %}
+
+{% load i18n %}
+
+{% block banner-container %}
+{% endblock %}
+
+{% block body %}
+<ul id="timeline-event-container">
+{% for e in events %}
+    <li class="timeline-event">
+        <p>{{ e.message }}</p>
+        <blockquote><small><em>{{ e.comment }}</em></small></blockquote>
+    </li>
+{% endfor %}
+</ul>
+
+{% endblock %}

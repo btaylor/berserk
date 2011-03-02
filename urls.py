@@ -29,6 +29,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^sprints/', include('berserk2.sprints.urls')),
+    (r'^timeline/', include('berserk2.timeline.urls')),
     (r'^reports/', include('berserk2.reports.urls')),
     (r'^$', 'django.views.generic.simple.redirect_to', {'url': '/sprints/'}),
 
