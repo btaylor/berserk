@@ -21,9 +21,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+from datetime import datetime
+
 from django.template import RequestContext
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 from berserk2.timeline.models import Event
 
@@ -33,3 +35,15 @@ def timeline_index(request,
     return render_to_response(template_name,
                               {'events': events},
                               context_instance=RequestContext(request))
+
+def timeline_latest_events_json(request, last_update_date):
+    """
+    Returns a list of events since last_update_date in json format.
+    """
+    events = Event.objects.filter(date_gt=last_update_date) \
+                          .order_by('-date')
+    data = map(lambda e: (e.message, e.comment))
+    return HttpResponse(simplejson.dumps({
+        'last_updated': datetime.now(),
+        'events': data,
+    }))
