@@ -45,6 +45,9 @@ class FogBugzEmailSource(PeriodicPullSource):
             c.select('INBOX')
 
             typ, [msg_ids] = c.search(None, 'UNSEEN')
+            if msg_ids == '':
+                return
+
             for i in msg_ids.split(' '):
                 typ, msg_data = c.fetch(i, '(RFC822)')
                 for response_part in msg_data:
