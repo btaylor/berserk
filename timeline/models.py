@@ -25,6 +25,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from berserk2.timeline.managers import ActorManager
+from berserk2.core.templatetags.truncate import truncate_chars
 
 class Actor(models.Model):
     first_name = models.CharField(max_length=32)
@@ -65,3 +66,6 @@ class Event(models.Model):
 
     def __unicode__(self):
         return self.message
+
+    def get_comment_for_display(self):
+        return truncate_chars(self.comment, 125)

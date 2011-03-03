@@ -11,7 +11,7 @@
     <li class="timeline-event" data-id="{{ e.pk }}">
         <p>{{ e.message }}</p>
 {% if e.comment %}
-        <p class="timeline-event-comment">{{ e.comment }}</p>
+        <p class="timeline-event-comment">{{ e.get_comment_for_display }}</p>
 {% endif %}
     </li>
 {% endfor %}

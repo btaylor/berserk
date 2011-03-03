@@ -48,7 +48,10 @@ def timeline_latest_events_json(request, start_after):
     """
     events = Event.objects.filter(pk__gt=start_after) \
                           .order_by('date')
-    data = map(lambda e: {'pk': e.pk, 'message': e.message, 'comment': e.comment}, events)
+    data = map(lambda e: {
+        'pk': e.pk, 'message': e.message,
+        'comment': e.get_comment_for_display(),
+    }, events)
 
     new_start_after = start_after
     if events.count() > 0:
