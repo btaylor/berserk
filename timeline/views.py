@@ -47,12 +47,12 @@ def timeline_latest_events_json(request, start_after):
     Returns a list of events newer than start_after (a event pk) in json format.
     """
     events = Event.objects.filter(pk__gt=start_after) \
-                          .order_by('-date')
-    data = map(lambda e: (e.pk, e.message, e.comment), events)
+                          .order_by('date')
+    data = map(lambda e: {'pk': e.pk, 'message': e.message, 'comment': e.comment}, events)
 
-    new_start_after = 0
+    new_start_after = start_after
     if events.count() > 0:
-        new_start_after = events[0].pk
+        new_start_after = events[events.count()-1].pk
     return HttpResponse(simplejson.dumps({
         'new_start_after': new_start_after,
         'events': data,
