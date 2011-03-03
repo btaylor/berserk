@@ -21,6 +21,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+import simplejson
+
 from datetime import datetime
 
 from django.template import RequestContext
@@ -32,18 +34,26 @@ from berserk2.timeline.models import Event
 def timeline_index(request,
                    template_name='timeline/timeline_index.html'):
     events = Event.objects.order_by('-date')[:50]
+    new_start_after = 0
+    if events.count() > 0:
+        new_start_after = events[0].pk
     return render_to_response(template_name,
-                              {'events': events},
+                              {'events': events,
+                               'new_start_after': new_start_after},
                               context_instance=RequestContext(request))
 
-def timeline_latest_events_json(request, last_update_date):
+def timeline_latest_events_json(request, start_after):
     """
-    Returns a list of events since last_update_date in json format.
+    Returns a list of events newer than start_after (a event pk) in json format.
     """
-    events = Event.objects.filter(date_gt=last_update_date) \
+    events = Event.objects.filter(pk__gt=start_after) \
                           .order_by('-date')
-    data = map(lambda e: (e.message, e.comment))
+    data = map(lambda e: (e.pk, e.message, e.comment), events)
+
+    new_start_after = 0
+    if events.count() > 0:
+        new_start_after = events[0].pk
     return HttpResponse(simplejson.dumps({
-        'last_updated': datetime.now(),
+        'new_start_after': new_start_after,
         'events': data,
     }))
