@@ -21,9 +21,13 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+import re
+
 from django.db import models
 from django.contrib.auth.models import User
 
+from berserk2.sprints.models import BugTracker
+from berserk2.bugtracker import BugTrackerFactory
 from berserk2.timeline.managers import ActorManager
 from berserk2.core.templatetags.truncate import truncate_chars
 
@@ -69,3 +73,11 @@ class Event(models.Model):
 
     def get_comment_for_display(self):
         return truncate_chars(self.comment, 125)
+
+    def get_message_for_display(self):
+        tracker_client = BugTrackerFactory.get_bug_tracker()
+
+        # FIXME:
+        tracker = BugTracker.objects.all()[0]
+
+        return tracker_client.urlize_bug_numbers(self.message, tracker.base_url)

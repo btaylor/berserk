@@ -49,7 +49,7 @@ def timeline_latest_events_json(request, start_after):
     events = Event.objects.filter(pk__gt=start_after) \
                           .order_by('date')
     data = map(lambda e: {
-        'pk': e.pk, 'message': e.message,
+        'pk': e.pk, 'message': e.get_message_for_display(),
         'comment': e.get_comment_for_display(),
     }, events)
 

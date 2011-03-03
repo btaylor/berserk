@@ -24,8 +24,10 @@
 from time import strptime
 from datetime import datetime
 from xml.dom import minidom
+
 import logging
 import urllib, cgi
+import re
 
 class BugzillaClient:
     """
@@ -83,6 +85,10 @@ class BugzillaClient:
             if key == 'id':
                 return value
         return None
+
+    @staticmethod
+    def urlize_bug_numbers(string, base_url):
+        return re.sub('#([0-9]{1,7})', r'#<a href="%s/show_bug.cgi?id=\1" target="_blank">\1</a>' % base_url, string)
 
     def login(self, user, password):
         """

@@ -29,6 +29,7 @@ from math import ceil
 
 import dateutil.parser
 import urllib
+import re
 
 class FogBugzClient:
     def __init__(self, base_url, unused):
@@ -67,6 +68,10 @@ class FogBugzClient:
             return vals[0]
         except:
             return None
+
+    @staticmethod
+    def urlize_bug_numbers(string, base_url):
+        return re.sub('#([0-9]{1,7})', r'#<a href="%s/default.asp?\1" target="_blank">\1</a>' % base_url, string)
 
     def login(self, user, password):
         """

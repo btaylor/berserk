@@ -9,7 +9,7 @@
 <ul id="timeline-event-container" data-start-after="{{ new_start_after }}">
 {% for e in events %}
     <li class="timeline-event" data-id="{{ e.pk }}">
-        <p>{{ e.message }}</p>
+        <p>{{ e.get_message_for_display|safe }}</p>
 {% if e.comment %}
         <p class="timeline-event-comment">{{ e.get_comment_for_display }}</p>
 {% endif %}
@@ -28,7 +28,7 @@ window.setInterval(function () {
 	$.getJSON(url.replace('99', start_after), function (data) {
 		$.each(data.events, function (i, e) {
 			var li = $('<li>').addClass('timeline-event').attr('data-id', e.pk)
-			                  .append($('<p>').text(e.message));
+			                  .append($('<p>').html(e.message));
 			if (e.comment != '')
 				li.append($('<p>').addClass('timeline-event-comment').text(e.comment));
 
