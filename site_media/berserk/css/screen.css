@@ -273,3 +273,23 @@ img a {
     color: #ffffff !important;
     text-decoration: none;
 }
+
+#timeline-event-container {
+    max-width: 70em;
+    margin: 0 auto;
+    padding-left: 0;
+    cursor: pointer;
+}
+
+.timeline-event {
+    list-style: none;
+    margin: 3px;
+    padding: 1px 8px 1px 8px;
+    background-color: #FFF6D9;
+}
+
+.timeline-event-comment {
+    color: #D2AF77;
+    font-style: oblique;
+    margin-left: 1em;
+}
