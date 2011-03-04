@@ -29,7 +29,7 @@ function add_hidden_event (e, prepend) {
 	var li = $('<li>').addClass('timeline-event').attr('data-id', e.pk)
 			  .append($('<p>').html(e.message));
 	if (e.comment != '')
-		li.append($('<p>').addClass('timeline-event-comment').text(e.comment));
+		li.append($('<p>').addClass('timeline-event-comment').html(e.comment));
 
 	li.hide();
 	if (prepend) {
