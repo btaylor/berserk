@@ -41,9 +41,11 @@ function get_relative_date_string (date) {
 	if (diff < 60) {
 		mesg = 'moments ago';
 	} else if (diff < 3600) {
-		mesg = Math.round(diff / 60) + ' minutes ago';
+		var mins = Math.round(diff / 60);
+		mesg = mins + ' minute' + (mins == 1 ? '' : 's') + ' ago';
 	} else if (diff < 43200) {
-		mesg = Math.round(diff / 3600) + ' hours ago';
+		var hours = Math.round(diff / 3600);
+		mesg = hours + ' hour' + (hours == 1 ? '' : 's') + ' ago';
 	} else {
 		var dt = new Date(date * 1000);
 		if (dt.year == curr.year)
