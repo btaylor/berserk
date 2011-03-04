@@ -293,7 +293,18 @@ img a {
 }
 
 .timeline-event-comment {
+    height: 1.2em;
     color: #D2AF77;
     font-style: oblique;
     padding: 0.5em 0 0 1em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.timeline-event-comment:hover {
+    height: auto !important;
+    white-space: normal;
+    text-overflow: clip;
+    overflow: visible;
 }

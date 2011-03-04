@@ -71,9 +71,6 @@ class Event(models.Model):
     def __unicode__(self):
         return self.message
 
-    def get_comment_for_display(self):
-        return truncate_chars(self.comment, 125)
-
     def get_message_for_display(self):
         tracker_client = BugTrackerFactory.get_bug_tracker()
 
