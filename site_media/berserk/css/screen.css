@@ -284,12 +284,17 @@ img a {
 .timeline-event {
     list-style: none;
     margin: 3px;
-    padding: 1px 8px 1px 8px;
+    padding: 12px 12px 12px 12px;
     background-color: #FFF6D9;
+    /*background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFBF0), to(#FFF6D9));*/
+}
+
+.timeline-event p {
+    margin: 0;
 }
 
 .timeline-event-comment {
     color: #D2AF77;
     font-style: oblique;
-    margin-left: 1em;
+    padding: 0.5em 0 0 1em;
 }
