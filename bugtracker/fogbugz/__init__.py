@@ -71,7 +71,7 @@ class FogBugzClient:
 
     @staticmethod
     def urlize_bug_numbers(string, base_url):
-        return re.sub('#([0-9]{1,7})', r'#<a href="%s/default.asp?\1" target="_blank">\1</a>' % base_url, string)
+        return re.sub('([ -\'">])#([0-9]{1,7})([ .\'"<])', r'\1#<a href="%s/default.asp?\2" target="_blank">\2</a>\3' % base_url, string)
 
     def login(self, user, password):
         """
