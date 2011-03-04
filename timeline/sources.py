@@ -25,6 +25,8 @@ from berserk2 import settings
 from berserk2.timeline.models import Actor, Event
 from berserk2.sprints.models import Task, BugTracker
 
+from django.utils.html import escape
+
 import imaplib
 import pprint
 import email
@@ -53,8 +55,9 @@ class FogBugzEmailSource(PeriodicPullSource):
                 for response_part in msg_data:
                     if isinstance(response_part, tuple):
                         msg = email.message_from_string(response_part[1])
-                        body = unicode(msg.get_payload(decode=True),
-                                       'ascii', 'replace')
+                        body = msg.get_payload(decode=True)
+                        if not body:
+                            continue
                         tokens = self._tokenize_body(body)
                         self._parse_body(tokens)
         finally:
@@ -140,19 +143,67 @@ class FogBugzEmailSource(PeriodicPullSource):
             else:
                 self._add_event(case_id, protagonist, deuteragonist,
                                '$(protagonist) assigned case $(case) to $(deuteragonist).', comment)
+        elif subject.startswith('A FogBugz case was closed by'):
+            self._add_event(case_id, protagonist, None,
+                           '$(protagonist) closed $(case).', comment)
         elif len(changes) == 0:
             self._add_event(case_id, protagonist, None,
-                           '$(protagonist) added a comment to $(case).', comment)
+                           '$(protagonist) commented on $(case).', comment)
         else:
             # Examine changes.  Each change will result in an update.
             for change in changes:
-                m = re.match('(\w+) changed from \'(.*)\' to \'(.*)\'.?', change)
+                m = re.match('(?P<type>\w+) changed from \'(?P<before>.*)\' to \'(?P<after>.*)\'.?', change)
                 if not m:
                     continue
 
-                self._add_event(case_id, protagonist, None,
-                               "$(protagonist) changed the %s of $(case) from '%s' to '%s'." % \
-                               (m.group(1).lower(), m.group(2), m.group(3)), comment)
+                type = m.group('type').lower()
+                before = m.group('before')
+                after = m.group('after')
+
+                if type == 'milestone':
+                    self._add_event(case_id, protagonist, None,
+                                    "$(protagonist) moved $(case) to the '%s' milestone." % after,
+                                    comment)
+                elif type == 'title':
+                    self._add_event(case_id, protagonist, None,
+                                    "$(protagonist) changed the title of $(case) to '%s'." % escape(after),
+                                    comment)
+                elif type == 'status':
+                    if before.startswith('Resolved') and after == 'Active':
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) reopened $(case).", comment)
+                    elif after == 'Resolved (Fixed)':
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) marked $(case) as fixed.", comment)
+                    elif after == 'Resolved (Not Reproducible)':
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) marked $(case) as not reproducible.", comment)
+                    elif after == 'Resolved (Duplicate)':
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) marked $(case) as duplicate.", comment)
+                    elif after == 'Resolved (Postpooned)':
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) marked $(case) as postponed.", comment)
+                    elif after == 'Resolved (By Design)':
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) marked $(case) as by design.", comment)
+                    elif after == 'Resolved (Won\'t Fix)':
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) marked $(case) as won't fix.", comment)
+                    elif after == 'Resolved (Implemented)':
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) marked $(case) as implemented.", comment)
+                    elif after == 'Resolved (Completed)':
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) marked $(case) as completed.", comment)
+                    else:
+                        self._add_event(case_id, protagonist, None,
+                                        "$(protagonist) marked the status of $(case) as %s." % after,
+                                        comment)
+                else:
+                    self._add_event(case_id, protagonist, None,
+                                    "$(protagonist) changed the %s of $(case) from %s to %s." % \
+                                    (type, before, after))
 
 
     def _add_event(self, case_id, protagonist, deuteragonist, message, comment):
@@ -163,10 +214,11 @@ class FogBugzEmailSource(PeriodicPullSource):
         # caused an update.
         snap = case.snapshot()
 
-        message = message.replace('$(case)', "#%s: '%s'" % (case.remote_tracker_id, snap.title))
+        message = message.replace('$(case)', '<span title="{1}: \'{0}\' in {2}">#{1}</span>'.format(
+                                  escape(snap.title), case.remote_tracker_id, snap.component))
 
         protagonist, created = Actor.objects.get_or_create_by_full_name(protagonist)
-        message = message.replace('$(protagonist)', protagonist.first_name)
+        message = message.replace('$(protagonist)', '%s %s' % (protagonist.first_name, protagonist.last_name))
         message = message.replace('$(proto_self)', protagonist.get_reflexive_gender_pronoun())
 
         if deuteragonist:

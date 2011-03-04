@@ -1,0 +1,46 @@
+Berserk is a Scrum tracking tool developed to track sprint backlog, integrating
+with Bugzilla or FogBugz to track these tasks.
+
+The workflow of Berserk is heavily influenced by Overlord and Flux developed by
+Medsphere.
+
+
+To install:
+
+ * Make sure your berserk checkout directory is actually named berserk2.
+
+ * pip install
+    - django
+    - mysql-python
+    - simplejson
+    - beautifulsoup
+    - twill (for Bugzilla Novell backend only)
+
+ * Copy local_settings.py.in to local_settings.py.  Configure your settings in
+   local_settings.py.  Make sure to list your database settings, which bug
+   tracker you want to use, and if you plan to use timeline, your email
+   settings.
+
+ * python manage.py syncdb
+
+ * python manage.py migrate
+
+ * Set up berserk in your webserver or for development:
+
+     python manage.py runserver
+
+To configure:
+
+ * Navigate to berserk's admin page in your browser.  If you are running in
+   development mode, this is at http://127.0.0.1:8000/admin.
+
+ * Configure the default site to point to where Berserk is located on the
+   internet.  In development mode, using http://127.0.0.1:8000 is a-ok.
+
+ * Configure your first bug tracker, providing the product (or in FogBugz
+   terms, a project), the base url and login credentials.
+
+ * If you plan to run in production, install the crontab configuration located
+   in conf/crontab.  If you're running in development mode, you'll need to run
+   the management commands manually when you want fresh data.
+
