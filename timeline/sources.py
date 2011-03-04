@@ -32,15 +32,24 @@ import pprint
 import email
 import re
 
-class PeriodicPullSource:
-    def run(self):
-        raise NotImplementedError()
-
-class FogBugzEmailSource(PeriodicPullSource):
+class FogBugzEmailSource():
     def __init__(self):
-        self.name = 'FogBugzEmailSource'
+        self.name = 'FogBugz'
+
+    @staticmethod
+    def enabled():
+        """
+        Returns true if the source is configured properly and should be run.
+        """
+        return settings.FB_EMAIL_SOURCE_HOST != '' \
+               and settings.FB_EMAIL_SOURCE_USER != '' \
+               and settings.FB_EMAIL_SOURCE_USER != ''
 
     def run(self):
+        """
+        Runs a single iteration of the source, in this case, polling for the
+        first set of unread messages.
+        """
         c = imaplib.IMAP4_SSL(settings.FB_EMAIL_SOURCE_HOST)
         c.login(settings.FB_EMAIL_SOURCE_USER, settings.FB_EMAIL_SOURCE_PASSWORD)
         try:

@@ -27,11 +27,19 @@ from django.conf import settings
 from django.core.management.base import NoArgsCommand
 
 from berserk2.sprints.models import *
-from berserk2.timeline.sources import FogBugzEmailSource
+from berserk2.timeline import sources
 
 class Command(NoArgsCommand):
     help = "Syncs the timeline sources"
 
     def handle(self, *args, **options):
-        c = FogBugzEmailSource()
-        c.run()
+        for source in settings.TIMELINE_SOURCES:
+            if not hasattr(sources, source):
+                continue
+
+            cls = getattr(sources, source)
+            if not cls.enabled():
+                continue
+
+            s = cls()
+            s.run()
