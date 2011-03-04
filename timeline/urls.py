@@ -26,4 +26,5 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('berserk2.timeline.views',
     url(r'^$', 'timeline_index', name="timeline_index"),
     url(r'^latest_events_json/(?P<start_after>\d+)$', 'timeline_latest_events_json', name="timeline_latest_events_json"),
+    url(r'^previous_events_json/(?P<earlier_than>\d+)$', 'timeline_previous_events_json', name="timeline_previous_events_json"),
 )
