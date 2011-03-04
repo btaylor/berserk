@@ -292,6 +292,14 @@ img a {
     margin: 0;
 }
 
+.timeline-date {
+    float: right;
+    text-align: right;
+
+    font-size: 0.8em;
+    color: #D2AF77;
+}
+
 .timeline-event-comment {
     height: 1.2em;
     color: #D2AF77;

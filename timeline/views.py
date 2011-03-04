@@ -31,6 +31,7 @@ from django.template.defaultfilters import linebreaksbr
 from django.shortcuts import render_to_response, get_object_or_404
 
 from berserk2.timeline.models import Event
+from berserk2.timeline.templatetags.utcunixtimestamp import utcunixtimestamp
 
 def timeline_index(request,
                    template_name='timeline/timeline_index.html'):
@@ -57,7 +58,8 @@ def timeline_latest_events_json(request, start_after):
     events = Event.objects.filter(pk__gt=start_after) \
                           .order_by('date')
     data = map(lambda e: {
-        'pk': e.pk, 'message': e.get_message_for_display(),
+        'pk': e.pk, 'date': utcunixtimestamp(e.date),
+        'message': e.get_message_for_display(),
         'comment': linebreaksbr(e.comment),
     }, events)
 
@@ -78,7 +80,8 @@ def timeline_previous_events_json(request, earlier_than):
     events = Event.objects.filter(pk__lt=earlier_than) \
                           .order_by('-date')[:25]
     data = map(lambda e: {
-        'pk': e.pk, 'message': e.get_message_for_display(),
+        'pk': e.pk, 'date': utcunixtimestamp(e.date),
+        'message': e.get_message_for_display(),
         'comment': linebreaksbr(e.comment),
     }, events)
 
