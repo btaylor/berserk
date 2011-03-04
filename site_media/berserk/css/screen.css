@@ -286,7 +286,6 @@ img a {
     margin: 3px;
     padding: 12px 12px 12px 12px;
     background-color: #FFF6D9;
-    /*background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFBF0), to(#FFF6D9));*/
 }
 
 .timeline-event p {
