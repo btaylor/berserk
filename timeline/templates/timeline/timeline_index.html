@@ -49,9 +49,9 @@ function get_relative_date_string (date) {
 	} else {
 		var dt = new Date(date * 1000);
 		if (dt.year == curr.year)
-			mesg = MONTHS[dt.month] + ' ' + dt.day;
+			mesg = MONTHS[dt.getMonth()] + ' ' + dt.getDay();
 		else
-			mesg = MONTHS[dt.month] + ' ' + dt.day + ' ' + dt.getFullYear();
+			mesg = MONTHS[dt.getMonth()] + ' ' + dt.getDay() + ' ' + dt.getFullYear();
 	}
 	return mesg;
 }
