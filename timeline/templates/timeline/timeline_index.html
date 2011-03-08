@@ -13,6 +13,7 @@
     <li class="timeline-event" data-id="{{ e.pk }}" data-timestamp="{{ e.date|utcunixtimestamp }}">
 	<p class="timeline-date"></p>
         <p>{{ e.get_message_for_display|safe }}</p>
+        <p class="timeline-event-task">{{ e.get_task_for_display }}</p>
 {% if e.comment %}
         <p class="timeline-event-comment">{{ e.comment|linebreaksbr }}</p>
 {% endif %}
@@ -62,6 +63,8 @@ function add_hidden_event (e, prepend) {
 	                  .append($('<p>').addClass('timeline-date')
 	                                  .text(get_relative_date_string(e.date)))
 	                  .append($('<p>').html(e.message));
+	if (e.task != '')
+		li.append($('<p>').addClass('timeline-event-task').html(e.task));
 	if (e.comment != '')
 		li.append($('<p>').addClass('timeline-event-comment').html(e.comment));
 

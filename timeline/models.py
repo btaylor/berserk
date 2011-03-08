@@ -25,10 +25,11 @@ import re
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.template import Context, Template
 
-from berserk2.sprints.models import BugTracker
 from berserk2.bugtracker import BugTrackerFactory
 from berserk2.timeline.managers import ActorManager
+from berserk2.sprints.models import BugTracker, Task
 from berserk2.core.templatetags.truncate import truncate_chars
 
 class Actor(models.Model):
@@ -67,14 +68,34 @@ class Event(models.Model):
                                       null=True, db_index=True)
     message = models.CharField(max_length=256)
     comment = models.TextField()
+    task = models.ForeignKey(Task, related_name='task',
+                             blank=True, null=True)
 
     def __unicode__(self):
         return self.message
 
     def get_message_for_display(self):
-        tracker_client = BugTrackerFactory.get_bug_tracker()
+        proto_self = ''
+        if self.protagonist:
+            proto_self = self.protagonist.get_reflexive_gender_pronoun()
 
-        # FIXME:
-        tracker = BugTracker.objects.all()[0]
+        deuter_self = ''
+        if self.deuteragonist:
+            deuter_self = self.deuteragonist.get_reflexive_gender_pronoun()
 
-        return tracker_client.urlize_bug_numbers(self.message, tracker.base_url)
+        snap = self.task.get_latest_snapshot()
+        task_link = '<a href="%s" target="_blank">#%s</a>' \
+                    % (self.task.get_absolute_url(), self.task.remote_tracker_id)
+
+        t = Template(self.message)
+        return t.render(Context({
+            'protagonist': self.protagonist, 'proto_self': proto_self,
+            'deuteragonist': self.deuteragonist, 'deuter_self': deuter_self,
+            'task_link': task_link,
+        }, autoescape=False))
+
+    def get_task_for_display(self):
+        if self.task:
+            snap = self.task.get_latest_snapshot()
+            return '#%s: %s' % (self.task.remote_tracker_id, snap.title)
+        return ''

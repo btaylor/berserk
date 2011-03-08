@@ -278,7 +278,6 @@ img a {
     max-width: 55em;
     margin: 0 auto;
     padding-left: 0;
-    cursor: pointer;
 }
 
 .timeline-event {
@@ -295,6 +294,7 @@ img a {
 .timeline-date {
     float: right;
     text-align: right;
+    padding-left: 3px;
 
     font-size: 0.8em;
     color: #D2AF77;
@@ -308,6 +308,7 @@ img a {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .timeline-event-comment:hover {
@@ -315,4 +316,10 @@ img a {
     white-space: normal;
     text-overflow: clip;
     overflow: visible;
+}
+
+.timeline-event-task {
+    font-size: 0.8em;
+    color: #666666;
+    padding-top: 0.3em;
 }

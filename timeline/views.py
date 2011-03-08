@@ -60,6 +60,7 @@ def timeline_latest_events_json(request, start_after):
     data = map(lambda e: {
         'pk': e.pk, 'date': utcunixtimestamp(e.date),
         'message': e.get_message_for_display(),
+        'task': e.get_task_for_display(),
         'comment': linebreaksbr(e.comment),
     }, events)
 
@@ -82,6 +83,7 @@ def timeline_previous_events_json(request, earlier_than):
     data = map(lambda e: {
         'pk': e.pk, 'date': utcunixtimestamp(e.date),
         'message': e.get_message_for_display(),
+        'task': e.get_task_for_display(),
         'comment': linebreaksbr(e.comment),
     }, events)
 
