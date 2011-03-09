@@ -1,0 +1,22 @@
+A FogBugz case was edited by Ardvark Ardvark.
+
+Case ID:      23861
+Title:        Lorem ipsum dolor sit amet, consectetur adipiscing elit. In consect
+Status:       Active
+Category:     Bug
+Project:      Ardvark Ardvark
+Area:         Ardvark Ardvark
+Priority:     4 - Medium
+Milestone:    11.10 Bouncy
+Assigned To:  Ardvark Ardvark
+
+URL:          https://ardvark.fogbugz.com/default.asp?23861
+
+
+Changes: 
+Estimate changed from '12 hours' to '0 hours'.
+Non-timesheet elapsed time changed from '8 hours' to '0 hours'
+
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://ardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D23861) from this case.

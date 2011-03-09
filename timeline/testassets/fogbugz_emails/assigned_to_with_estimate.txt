@@ -1,0 +1,21 @@
+A FogBugz case was assigned to Ardvark Ardvark by Ardvark Ardvark.
+
+Case ID:      24079
+Title:        Lorem ipsum dolor sit amet, adipiscin 'eli ina'
+Status:       Active
+Category:     Bug
+Project:      Ardvark Ardvark
+Area:         Ardvark Ardvark
+Priority:     4 - Medium
+Milestone:    11.10 Bouncy
+Assigned To:  Ardvark Ardvark
+
+URL:          https://ardvark.fogbugz.com/default.asp?24079
+
+
+Changes: 
+Estimate set to '1 hour'
+
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://ardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D24079) from this case.

@@ -1,0 +1,18 @@
+A FogBugz case was closed by Ardvark Ardvark.
+
+Case ID:      18843
+Title:        Lorem ipsum dolor sit amet, consectetur adipiscing elit. In consectetur nulla nec eros s
+Status:       Closed (Fixed)
+Category:     Bug
+Project:      Ardvark Ardvark
+Area:         Ardvark Ardvark
+Priority:     4 - Medium
+Milestone:    Undecided
+Assigned To:  CLOSED
+
+URL:          https://ardvark.fogbugz.com/default.asp?18843
+
+No longer applicable. Closing.
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://ardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D18843) from this case.

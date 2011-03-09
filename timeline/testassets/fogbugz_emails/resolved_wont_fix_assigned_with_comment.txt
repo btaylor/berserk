@@ -1,0 +1,22 @@
+A FogBugz case was Resolved (Won't Fix) and assigned to Ardvark Ardvark by Ardvark Ardvark.
+
+Case ID:      24042
+Title:        Lorem ipsum dolor sit amet, consectetur 'dipiscing'
+Status:       Resolved (Won't Fix)
+Category:     Bug
+Project:      Ardvark Ardvark
+Area:         Ardvark Ardvark
+Priority:     4 - Medium
+Milestone:    Undecided
+Assigned To:  Ardvark Ardvark
+
+URL:          https://ardvark.fogbugz.com/default.asp?24042
+
+
+Changes: 
+Status changed from 'Active' to 'Resolved (Won't Fix)'.
+
+Lorem ipsum dolor sit amet, consectetur a.
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://ardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D24042) from this case.

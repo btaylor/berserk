@@ -22,7 +22,6 @@
 #
 
 import imaplib
-import pprint
 import email
 import re
 
@@ -67,8 +66,7 @@ class FogBugzEmailSource():
                         body = msg.get_payload(decode=True)
                         if not body:
                             continue
-                        tokens = self._tokenize_body(body)
-                        self._parse_body(tokens)
+                        self._parse_body(self._tokenize_body(body).split('\r\n'))
         finally:
             try:
                 c.close()
@@ -76,9 +74,7 @@ class FogBugzEmailSource():
                 pass
             c.logout()
 
-    def _tokenize_body(self, body):
-        lines = body.split('\r\n')
-
+    def _tokenize_body(self, lines):
         case_id = 0
         changes = []
         begin_changes_block = False
@@ -89,30 +85,29 @@ class FogBugzEmailSource():
         i = 0
         while i < len(lines):
             l = lines[i].strip()
-            n = lines[i+1].strip() if i + 1 < len(lines) else None
-            m = lines[i+2].strip() if i + 2 < len(lines) else None
+            m = lines[i+1].strip() if i + 1 < len(lines) else None
+            n = lines[i+2].strip() if i + 2 < len(lines) else None
 
             # Look for the end of email marker
-            if l == '' and n == '':
-                if m and m.startswith('You are subscribed'):
-                    break
-                elif m and m.startswith('If you do not want to receive'):
+            if l == '' and m == '':
+                if n and n.startswith('You are subscribed'):
                     break
 
-            if l.startswith('URL:'):
-                i += 1 # Skip over the following blank line
-                begin_comment_block = True
-                begin_changes_block = False
-            elif l.startswith('Last message:'):
-                begin_comment_block = True
-                begin_changes_block = False
-            elif l.startswith('Changes:'):
+            if l.startswith('Changes:'):
                 begin_changes_block = True
-                begin_comment_block = False
+            elif not begin_changes_block and not begin_comment_block \
+                 and l.startswith('URL:') and m == '' and n != '' \
+                 and not n.startswith('Description'):
+                i += 1
+                begin_comment_block = True
+            elif begin_changes_block:
+                if l == '':
+                    begin_changes_block = False
+                    begin_comment_block = True
+                else:
+                    changes.append(l)
             elif begin_comment_block:
                 comment.append(l)
-            elif begin_changes_block:
-                changes.append(l)
 
             if l.startswith('Case ID:'):
                 foo, bar, case_id = l.split()
@@ -174,7 +169,7 @@ class FogBugzEmailSource():
                                     comment)
                     continue
 
-                m = re.match('(?P<type>.+) changed from \'(?P<before>.*)\' to \'(?P<after>.*)\'.?', change)
+                m = re.match("(?P<type>.+) changed from '?(?P<before>.*)'? to '?(?P<after>.*)'?\.?", change)
                 if not m:
                     continue
 
@@ -191,7 +186,7 @@ class FogBugzEmailSource():
                                     "{{ protagonist }} changed the title of {{ task_link }} to '%s'." % escape(after),
                                     comment)
                 elif type == 'non-timesheet elapsed time':
-                    hours = float(after.split(' ', 1)[0])
+                    hours = int(after.split(' ', 1)[0])
                     plural = 'hour has' if hours == 1 else 'hours have'
                     self._add_event(case_id, protagonist, None,
                                     "{{ protagonist }} reports that %s %s been spent on {{ task_link }}." % (hours, plural),
