@@ -66,7 +66,7 @@ class FogBugzEmailSource():
                         body = msg.get_payload(decode=True)
                         if not body:
                             continue
-                        self._parse_body(self._tokenize_body(body).split('\r\n'))
+                        self._parse_body(self._tokenize_body(body.split('\r\n')))
         finally:
             try:
                 c.close()
