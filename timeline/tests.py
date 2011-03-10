@@ -97,7 +97,7 @@ class FogBugzEmailSourceTokenizerTest(TestCase):
         self.assertEqual('A FogBugz case was assigned to Unspecified Aardvark Limbo by Aardvark Bobcat.', tokens['subject'])
         self.assertEqual(22240, tokens['case_id'])
         self.assertEqual(["Milestone changed from '11.10 Bouncy' to '11.12 Classy'."], tokens['changes'])
-        self.assertEqual(["Lorem ipsum dolor sit amet, consectetur adipiscing el (#999999) ectetur nulla nec eros s. -Aardvark."], tokens['comment'])
+        self.assertEqual(["Lorem ipsum dolor sit amet, consectetur adipiscing el (#999999) ectetur nulla nec eros. -Aardvark."], tokens['comment'])
 
     def test_parent_change_no_comment(self):
         tokens = self._get_tokens_from_file('timeline/testassets/fogbugz_emails/parent_change_no_comment.txt')
