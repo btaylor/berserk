@@ -1,0 +1,21 @@
+A FogBugz case was edited by Aardvark Bobcat.
+
+Case ID:      23987
+Title:        Lorem ipsum dolor sit amet, consectetura
+Status:       Active
+Category:     Bug
+Project:      Aardvark Aardvark Aardvark Aardvark
+Area:         Aardvark Aardvark
+Priority:     4 - Medium
+Milestone:    Undecided
+Assigned To:  Unspecified Aardvark Limbo
+
+URL:          https://aardvark.fogbugz.com/default.asp?23987
+
+Last message:
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed adipiscing tincidunt imperdiet. Maecenas a bibendum mi. Nulla in enim ni.
+
+Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque cursus, orci at venenatis posuerel.
+
+
+If you do not want to receive automatic notifications anymore, change your preferences in the Options screen. (https://aardvark.fogbugz.com/default.asp?pg=3DpgPrefs)

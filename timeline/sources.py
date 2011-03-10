@@ -90,11 +90,14 @@ class FogBugzEmailSource():
 
             # Look for the end of email marker
             if l == '' and m == '':
-                if n and n.startswith('You are subscribed'):
+                if n and (n.startswith('You are subscribed') \
+                          or n.startswith('If you do not want to')):
                     break
 
             if l.startswith('Changes:'):
                 begin_changes_block = True
+            elif l.startswith('Last message:'):
+                begin_comment_block = True
             elif not begin_changes_block and not begin_comment_block \
                  and l.startswith('URL:') and m == '' and n != '' \
                  and not n.startswith('Description'):

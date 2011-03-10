@@ -123,6 +123,16 @@ class FogBugzEmailSourceTokenizerTest(TestCase):
         ], tokens['changes'])
         self.assertEqual([], tokens['comment'])
 
+    def test_last_message(self):
+        tokens = self._get_tokens_from_file('timeline/testassets/fogbugz_emails/last_message.txt')
+        self.assertEqual('A FogBugz case was edited by Aardvark Bobcat.', tokens['subject'])
+        self.assertEqual(23987, tokens['case_id'])
+        self.assertEqual([], tokens['changes'])
+        self.assertEqual([
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed adipiscing tincidunt imperdiet. Maecenas a bibendum mi. Nulla in enim ni.',
+'',
+'Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque cursus, orci at venenatis posuerel.'], tokens['comment'])
+
 class FogBugzEmailSourceParserTest(TestCase):
     def setUp(self):
         self.fb = FogBugzEmailSource()
@@ -383,3 +393,22 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
                          b.message)
 
         self.assertEqual('', b.comment)
+
+    def test_last_message(self):
+        self._parse_file('timeline/testassets/fogbugz_emails/last_message.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(1, events.count())
+
+        a = events[0]
+        self.assertEqual('Aardvark', a.protagonist.first_name)
+        self.assertEqual('Bobcat', a.protagonist.last_name)
+
+        self.assertEqual(None, a.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} commented on {{ task_link }}.',
+                         a.message)
+
+        self.assertEqual('''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed adipiscing tincidunt imperdiet. Maecenas a bibendum mi. Nulla in enim ni.
+
+Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque cursus, orci at venenatis posuerel.''', a.comment)
