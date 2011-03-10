@@ -1,20 +1,20 @@
-A FogBugz case was assigned to Unspecified Ardvark Limbo by Ardvark Ardvark.
+A FogBugz case was assigned to Unspecified Aardvark Limbo by Aardvark Bobcat.
 
 Case ID:      23416
 Title:        Lorem ipsum dolor sit amet, consectetur adipiscing elit
 Status:       Active
 Category:     Bug
-Project:      Ardvark Ardvark Ardvark Ardvark
-Area:         Ardvark
+Project:      Aardvark Aardvark Aardvark Aardvark
+Area:         Aardvark
 Priority:     2 - Urgent
 Milestone:    Undecided
-Assigned To:  Unspecified Ardvark Limbo
+Assigned To:  Unspecified Aardvark Limbo
 
-URL:          https://ardvark.fogbugz.com/default.asp?23416
+URL:          https://aardvark.fogbugz.com/default.asp?23416
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. In consectetur nulla nec eros sollicitudin pharetra consequat arcu egestas. Nunc nunc dolor, viverra vel feugiat at, elementum at eros. Morbi egestas euismod nisl, non bibendum massa commodo euismod.
 
 Maecenas sed nisi eu ligula interdum porttitor ut quis sem.
 
 
-You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://ardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D23416) from this case.
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D23416) from this case.

@@ -1,16 +1,16 @@
-A FogBugz case was closed by Ardvark Ardvark.
+A FogBugz case was closed by Aardvark Bobcat.
 
 Case ID:      14243
 Title:        Lorem ipsum dolor sit amet, consectetur adipiscing elit. In co
 Status:       Closed (Fixed)
 Category:     Bug
-Project:      Ardvark Ardvark
-Area:         Ardvark Ardvark
+Project:      Aardvark Aardvark
+Area:         Aardvark Aardvark
 Priority:     4 - Medium
 Milestone:    The Foreseeable Future: 8/15/2014
 Assigned To:  CLOSED
 
-URL:          https://ardvark.fogbugz.com/default.asp?14243
+URL:          https://aardvark.fogbugz.com/default.asp?14243
 
 
 Changes: 
@@ -19,4 +19,4 @@ Severity changed from (No Value) to '4 - Minor (Default)'
 verified
 
 
-You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://ardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D14243) from this case.
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D14243) from this case.

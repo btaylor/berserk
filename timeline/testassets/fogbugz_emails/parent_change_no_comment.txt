@@ -1,16 +1,16 @@
-A FogBugz case was edited by Ardvark Ardvark.
+A FogBugz case was edited by Aardvark Bobcat.
 
 Case ID:      23723
 Title:        Lorem ipsum dolor sit amet, consectetu
 Status:       Active
 Category:     Bug
-Project:      Ardvark Ardvark
-Area:         Ardvark Ardvark
+Project:      Aardvark Aardvark
+Area:         Aardvark Aardvark
 Priority:     4 - Medium
 Milestone:    Undecided
-Assigned To:  Ardvark Ardvark
+Assigned To:  Aardvark Aardvark
 
-URL:          https://ardvark.fogbugz.com/default.asp?23723
+URL:          https://aardvark.fogbugz.com/default.asp?23723
 
 
 Changes: 
@@ -18,4 +18,4 @@ Parent changed from (None) to Case 24054.
 
 
 
-You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://ardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D23723) from this case.
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D23723) from this case.

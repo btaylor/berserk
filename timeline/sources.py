@@ -121,6 +121,7 @@ class FogBugzEmailSource():
                 'comment': comment}
 
     def _parse_body(self, tokens):
+        e = None
         message = ''
         protagonist = ''
         deuteragonist = ''
@@ -136,106 +137,118 @@ class FogBugzEmailSource():
 
         # Subject matching
         if subject.startswith('A new case'):
-            self._add_event(case_id, protagonist, None,
-                            '{{ protagonist }} opened a new case {{ task_link }}.', comment)
+            e = self._add_event(case_id, protagonist, None,
+                                '{{ protagonist }} opened a new case {{ task_link }}.', comment)
         elif subject.startswith('A FogBugz case was assigned to'):
             m = re.search('A FogBugz case was assigned to (.*) by', subject)
             deuteragonist = m.group(1)
-            print 'protagonist: $%s$' % protagonist
-            print 'deuteragonist: $%s$' % deuteragonist
             if protagonist == deuteragonist:
-                print 'equal'
-                self._add_event(case_id, protagonist, None,
-                               '{{ protagonist }} assigned case {{ task_link }} to {{ proto_self }}.', comment)
+                e = self._add_event(case_id, protagonist, None,
+                                    '{{ protagonist }} assigned case {{ task_link }} to {{ proto_self }}.', comment)
             else:
-                print 'not equal'
-                self._add_event(case_id, protagonist, deuteragonist,
-                               '{{ protagonist }} assigned case {{ task_link }} to {{ deuteragonist }}.', comment)
+                e = self._add_event(case_id, protagonist, deuteragonist,
+                                    '{{ protagonist }} assigned case {{ task_link }} to {{ deuteragonist }}.', comment)
         elif subject.startswith('A FogBugz case was closed by'):
-            self._add_event(case_id, protagonist, None,
-                           '{{ protagonist }} closed {{ task_link }}.', comment)
-        elif len(changes) == 0:
-            self._add_event(case_id, protagonist, None,
-                           '{{ protagonist }} commented on {{ task_link }}.', comment)
-        else:
-            # Examine changes.  Each change will result in an update.
+            e = self._add_event(case_id, protagonist, None,
+                                '{{ protagonist }} closed {{ task_link }}.', comment)
+
+        if len(changes) > 0:
             for change in changes:
-                m = re.match("Estimate set to '(?P<hours>\d+.?\d*) hours'", change)
+                m = re.match("Estimate set to '(?P<hours>\d+.?\d*) hours?'", change)
                 if m:
-                    hours = float(m.group('hours'))
+                    hours = int(m.group('hours'))
                     plural = 'hour' if hours == 1 else 'hours'
-                    self._add_event(case_id, protagonist, None,
-                                    "{{ protagonist }} estimates {{ task_link }} will require %s %s to complete." % (hours, plural),
-                                    comment)
+                    e = self._add_event(case_id, protagonist, None,
+                                        "{{ protagonist }} estimates {{ task_link }} will require %d %s to complete." % (hours, plural),
+                                        comment)
                     continue
 
-                m = re.match("(?P<type>.+) changed from '?(?P<before>.*)'? to '?(?P<after>.*)'?\.?", change)
+                # The change line may or may not end in a period
+                change = change.rstrip('.')
+
+                m = re.match("^(?P<type>.+) changed from '?(?P<before>.*)'? to '?(?P<after>.*)'?$", change)
                 if not m:
                     continue
 
                 type = m.group('type').lower()
-                before = m.group('before')
-                after = m.group('after')
 
+                # Make up for the regex not being greedy enough, and eating the
+                # single quote when we ask it to
+                before = m.group('before').strip("'")
+                after = m.group('after').strip("'")
                 if type == 'milestone':
-                    self._add_event(case_id, protagonist, None,
-                                    "{{ protagonist }} moved {{ task_link }} to the '%s' milestone." % after,
-                                    comment)
+                    e = self._add_event(case_id, protagonist, None,
+                                        "{{ protagonist }} moved {{ task_link }} to the '%s' milestone." % after,
+                                        comment)
                 elif type == 'title':
-                    self._add_event(case_id, protagonist, None,
-                                    "{{ protagonist }} changed the title of {{ task_link }} to '%s'." % escape(after),
-                                    comment)
+                    e = self._add_event(case_id, protagonist, None,
+                                        "{{ protagonist }} changed the title of {{ task_link }} to '%s'." % escape(after),
+                                        comment)
+                elif type == 'estimate':
+                    hours = int(after.split(' ', 1)[0])
+                    plural = 'hour' if hours == 1 else 'hours'
+                    e = self._add_event(case_id, protagonist, None,
+                                        "{{ protagonist }} estimates {{ task_link }} will require %d %s to complete." % (hours, plural),
+                                        comment)
                 elif type == 'non-timesheet elapsed time':
                     hours = int(after.split(' ', 1)[0])
                     plural = 'hour has' if hours == 1 else 'hours have'
-                    self._add_event(case_id, protagonist, None,
-                                    "{{ protagonist }} reports that %s %s been spent on {{ task_link }}." % (hours, plural),
-                                    comment)
+                    e = self._add_event(case_id, protagonist, None,
+                                        "{{ protagonist }} reports that %d %s been spent on {{ task_link }}." % (hours, plural),
+                                        comment)
                 elif type == 'status':
                     if before.startswith('Resolved') and after == 'Active':
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} reopened {{ task_link }}.", comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} reopened {{ task_link }}.", comment)
                     elif after == 'Resolved (Fixed)':
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} marked {{ task_link }} as fixed.", comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} marked {{ task_link }} as fixed.", comment)
                     elif after == 'Resolved (Not Reproducible)':
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} marked {{ task_link }} as not reproducible.", comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} marked {{ task_link }} as not reproducible.", comment)
                     elif after == 'Resolved (Duplicate)':
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} marked {{ task_link }} as duplicate.", comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} marked {{ task_link }} as duplicate.", comment)
                     elif after == 'Resolved (Postpooned)':
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} marked {{ task_link }} as postponed.", comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} marked {{ task_link }} as postponed.", comment)
                     elif after == 'Resolved (By Design)':
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} marked {{ task_link }} as by design.", comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} marked {{ task_link }} as by design.", comment)
                     elif after == 'Resolved (Won\'t Fix)':
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} marked {{ task_link }} as won't fix.", comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} marked {{ task_link }} as won't fix.", comment)
                     elif after == 'Resolved (Implemented)':
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} marked {{ task_link }} as implemented.", comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} marked {{ task_link }} as implemented.", comment)
                     elif after == 'Resolved (Completed)':
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} marked {{ task_link }} as completed.", comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} marked {{ task_link }} as completed.", comment)
                     else:
-                        self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} marked the status of {{ task_link }} as %s." % after,
-                                        comment)
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} marked the status of {{ task_link }} as %s." % after,
+                                            comment)
                 else:
-                    self._add_event(case_id, protagonist, None,
-                                    "{{ protagonist }} changed the %s of {{ task_link }} from %s to %s." % \
-                                    (type, before, after), comment)
+                    e = self._add_event(case_id, protagonist, None,
+                                        "{{ protagonist }} changed the %s of {{ task_link }} from %s to %s." % \
+                                        (type, before, after), comment)
+
+        # Last resort: if nothing else, the user just commented
+        if e == None and len(changes) == 0 and len(comment) > 0:
+            self._add_event(case_id, protagonist, None,
+                            '{{ protagonist }} commented on {{ task_link }}.', comment)
 
 
     def _add_event(self, case_id, protagonist, deuteragonist, message, comment):
-        task, created = Task.objects.get_or_create(remote_tracker_id=case_id,
-                                                   bug_tracker=BugTracker.objects.all()[0])
+        task = None
+        trackers = BugTracker.objects.all()
+        if trackers.count() > 0:
+            task, created = Task.objects.get_or_create(remote_tracker_id=case_id,
+                                                       bug_tracker=trackers[0])
 
-        # We always want to fetch a new snapshot as this event has probably
-        # caused an update.
-        snap = task.snapshot()
+            # We always want to fetch a new snapshot as this event has probably
+            # caused an update.
+            snap = task.snapshot()
 
         if protagonist:
             protagonist, created = Actor.objects.get_or_create_by_full_name(protagonist)
