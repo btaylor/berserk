@@ -143,11 +143,14 @@ class FogBugzEmailSource():
         changes = tokens['changes']
         comment = tokens['comment']
 
+        # The actor involved in the event will be identified in the subject line:
+        # e.g.: A FogBugz case was edited by Aardvark Bobcat.
         m = re.search('by (\w+ \w+)', subject)
         if m:
             protagonist = m.group(1)
 
-        # Subject matching
+        # Some emails are formatted such that the action is embedded inside of
+        # the subject line:
         if subject.startswith('A new case'):
             e = self._add_event(case_id, protagonist, None,
                                 '{{ protagonist }} opened a new case {{ task_link }}.', comment)
@@ -164,6 +167,7 @@ class FogBugzEmailSource():
             e = self._add_event(case_id, protagonist, None,
                                 '{{ protagonist }} closed {{ task_link }}.', comment)
 
+        # Others have actions listed out nicely:
         if len(changes) > 0:
             for change in changes:
                 m = re.match("Estimate set to '(?P<hours>\d+.?\d*) hours?'", change)
@@ -176,6 +180,7 @@ class FogBugzEmailSource():
                     continue
 
                 # The change line may or may not end in a period
+                # Don't you just love their consistentcy?
                 change = change.rstrip('.')
 
                 m = re.match("^(?P<type>.+) changed from '?(?P<before>.*)'? to '?(?P<after>.*)'?$", change)
@@ -184,8 +189,8 @@ class FogBugzEmailSource():
 
                 type = m.group('type').lower()
 
-                # Make up for the regex not being greedy enough, and eating the
-                # single quote when we ask it to
+                # Sometimes the regex isn't greedy enough and doesn't eat the
+                # single quote when we ask it nicely
                 before = m.group('before').strip("'")
                 after = m.group('after').strip("'")
                 if type == 'milestone':
