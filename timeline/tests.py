@@ -165,7 +165,7 @@ class FogBugzEmailSourceParserTest(TestCase):
         self.assertEqual('Unspecified Aardvark', a.deuteragonist.first_name)
         self.assertEqual('Limbo', a.deuteragonist.last_name)
 
-        self.assertEqual('{{ protagonist }} assigned case {{ task_link }} to {{ deuteragonist }}.',
+        self.assertEqual('{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}.',
                          a.message)
 
         self.assertEqual('', a.comment)
@@ -182,7 +182,7 @@ class FogBugzEmailSourceParserTest(TestCase):
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} assigned case {{ task_link }} to {{ proto_self }}.',
+        self.assertEqual('{{ protagonist }} assigned {{ task_link }} to {{ proto_self }}.',
                          a.message)
 
         self.assertEqual('', a.comment)
@@ -211,7 +211,7 @@ class FogBugzEmailSourceParserTest(TestCase):
         self.assertEqual('Unspecified Aardvark', a.deuteragonist.first_name)
         self.assertEqual('Limbo', a.deuteragonist.last_name)
 
-        self.assertEqual('{{ protagonist }} assigned case {{ task_link }} to {{ deuteragonist }}.',
+        self.assertEqual('{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}.',
                          a.message)
 
         self.assertEqual("""Lorem ipsum dolor sit amet, consectetur adipiscing elit. In consectetur nulla nec eros sollicitudin pharetra consequat arcu egestas. Nunc nunc dolor, viverra vel feugiat at, elementum at eros. Morbi egestas euismod nisl, non bibendum massa commodo euismod.
@@ -321,7 +321,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
         self.assertEqual('Unspecified Aardvark', a.deuteragonist.first_name)
         self.assertEqual('Limbo', a.deuteragonist.last_name)
 
-        self.assertEqual('{{ protagonist }} assigned case {{ task_link }} to {{ deuteragonist }}.',
+        self.assertEqual('{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}.',
                          a.message)
 
         self.assertEqual('Lorem ipsum dolor sit amet, consectetur adipiscing el (#999999) ectetur nulla nec eros. -Aardvark.',
@@ -352,7 +352,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} set the parent of {{ task_link }} to case 24054.',
+        self.assertEqual('{{ protagonist }} set the parent of {{ task_link }} to #24054.',
                          a.message)
 
         self.assertEqual('', a.comment)
@@ -444,7 +444,7 @@ Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque curs
 
         self.assertEqual(None, b.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} notes that {{ task_link }} is a duplicate of case 23792.',
+        self.assertEqual('{{ protagonist }} notes that {{ task_link }} is a duplicate of #23792.',
                          b.message)
 
         self.assertEqual('', b.comment)

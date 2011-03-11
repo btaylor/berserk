@@ -123,6 +123,15 @@ class FogBugzEmailSource():
                 'changes': changes,
                 'comment': comment}
 
+    def _get_case_id(self, after):
+        """
+        From a string like 'Case 43355' returns the case number as an int.
+        """
+        m = re.match('Case (?P<case_id>\d+)', after)
+        if m:
+            return int(m.group('case_id'))
+        return None
+
     def _parse_body(self, tokens):
         e = None
         message = ''
@@ -147,10 +156,10 @@ class FogBugzEmailSource():
             deuteragonist = m.group(1)
             if protagonist == deuteragonist:
                 e = self._add_event(case_id, protagonist, None,
-                                    '{{ protagonist }} assigned case {{ task_link }} to {{ proto_self }}.', comment)
+                                    '{{ protagonist }} assigned {{ task_link }} to {{ proto_self }}.', comment)
             else:
                 e = self._add_event(case_id, protagonist, deuteragonist,
-                                    '{{ protagonist }} assigned case {{ task_link }} to {{ deuteragonist }}.', comment)
+                                    '{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}.', comment)
         elif subject.startswith('A FogBugz case was closed by'):
             e = self._add_event(case_id, protagonist, None,
                                 '{{ protagonist }} closed {{ task_link }}.', comment)
@@ -233,11 +242,11 @@ class FogBugzEmailSource():
                                             comment)
                 elif type == 'duplicate of':
                     e = self._add_event(case_id, protagonist, None,
-                                        '{{ protagonist }} notes that {{ task_link }} is a duplicate of %s.' % after.lower(),
+                                        '{{ protagonist }} notes that {{ task_link }} is a duplicate of #%d.' % self._get_case_id(after),
                                         comment)
                 elif type == 'parent':
                     e = self._add_event(case_id, protagonist, None,
-                                        '{{ protagonist }} set the parent of {{ task_link }} to %s.' % after.lower(),
+                                        '{{ protagonist }} set the parent of {{ task_link }} to #%d.' % self._get_case_id(after),
                                         comment)
                 else:
                     e = self._add_event(case_id, protagonist, None,
