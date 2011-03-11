@@ -263,12 +263,9 @@ class FogBugzEmailSource():
         task = None
         trackers = BugTracker.objects.all()
         if trackers.count() > 0:
+            # TODO: Grab default bug tracker from the currently active sprint
             task, created = Task.objects.get_or_create(remote_tracker_id=case_id,
                                                        bug_tracker=trackers[0])
-
-            # We always want to fetch a new snapshot as this event has probably
-            # caused an update.
-            snap = task.snapshot()
 
         if protagonist:
             protagonist, created = Actor.objects.get_or_create_by_full_name(protagonist)
