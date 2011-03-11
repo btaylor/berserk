@@ -285,7 +285,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, b.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} changed the severity of {{ task_link }} from (No Value) to 4 - Minor (Default).',
+        self.assertEqual('{{ protagonist }} set the severity of {{ task_link }} to 4 - Minor (Default).',
                          b.message)
 
         self.assertEqual('verified', a.comment)
@@ -396,7 +396,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} changed the severity of {{ task_link }} from (No Value) to 4 - Minor (Default).',
+        self.assertEqual('{{ protagonist }} set the severity of {{ task_link }} to 4 - Minor (Default).',
                          a.message)
 
         self.assertEqual('', a.comment)

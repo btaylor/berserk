@@ -254,9 +254,14 @@ class FogBugzEmailSource():
                                         '{{ protagonist }} set the parent of {{ task_link }} to #%d.' % self._get_case_id(after),
                                         comment)
                 else:
-                    e = self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} changed the %s of {{ task_link }} from %s to %s." % \
-                                        (type, before, after), comment)
+                    if before == '(No Value)':
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} set the %s of {{ task_link }} to %s." % (type, after),
+                                            comment)
+                    else:
+                        e = self._add_event(case_id, protagonist, None,
+                                            "{{ protagonist }} changed the %s of {{ task_link }} from %s to %s." % \
+                                            (type, before, after), comment)
 
         # Last resort: if nothing else, the user just commented
         if e == None and len(changes) == 0 and len(comment) > 0:
