@@ -168,10 +168,10 @@ class FogBugzEmailSource():
             for change in changes:
                 m = re.match("Estimate set to '(?P<hours>\d+.?\d*) hours?'", change)
                 if m:
-                    hours = int(m.group('hours'))
+                    hours = float(m.group('hours'))
                     plural = 'hour' if hours == 1 else 'hours'
                     e = self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} estimates {{ task_link }} will require %d %s to complete." % (hours, plural),
+                                        "{{ protagonist }} estimates {{ task_link }} will require %g %s to complete." % (hours, plural),
                                         comment)
                     continue
 
@@ -197,16 +197,16 @@ class FogBugzEmailSource():
                                         "{{ protagonist }} changed the title of {{ task_link }} to '%s'." % escape(after),
                                         comment)
                 elif type == 'estimate':
-                    hours = int(after.split(' ', 1)[0])
+                    hours = float(after.split(' ', 1)[0])
                     plural = 'hour' if hours == 1 else 'hours'
                     e = self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} estimates {{ task_link }} will require %d %s to complete." % (hours, plural),
+                                        "{{ protagonist }} estimates {{ task_link }} will require %g %s to complete." % (hours, plural),
                                         comment)
                 elif type == 'non-timesheet elapsed time':
-                    hours = int(after.split(' ', 1)[0])
+                    hours = float(after.split(' ', 1)[0])
                     plural = 'hour has' if hours == 1 else 'hours have'
                     e = self._add_event(case_id, protagonist, None,
-                                        "{{ protagonist }} reports that %d %s been spent on {{ task_link }}." % (hours, plural),
+                                        "{{ protagonist }} reports that %g %s been spent on {{ task_link }}." % (hours, plural),
                                         comment)
                 elif type == 'status':
                     if before.startswith('Resolved') and after == 'Active':

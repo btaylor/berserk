@@ -1,0 +1,24 @@
+A FogBugz case was edited by Aardvark Bobcat.
+
+Case ID:      23986
+Title:        sed consectetur quam vel me
+Status:       Active
+Category:     Bug
+Project:      Aardvark Aardvark Aardvark Aardvark
+Area:         Aardvark
+Priority:     4 - Medium
+Milestone:    Undecided
+Assigned To:  Unspecified Aardvark Limbo
+
+URL:          https://aardvark.fogbugz.com/default.asp?23986
+
+
+Changes: 
+Estimate set to '37.5 hours'
+
+Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla q.
+
+Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metus orci. Proin in erat a felis accumsan adipiscing ac in dolor. Donec quis est turpis, venenatis cursus sapien. Vivamus id gravida nisl. Vestibulum est nunc, varius vitae sagittis eu, tincidunt sed diam. Sed semper risus malesuada diam molestie volutpat. Donec naisi.
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D23986) from this case.

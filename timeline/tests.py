@@ -141,6 +141,16 @@ class FogBugzEmailSourceTokenizerTest(TestCase):
                           'Duplicate of changed from (None) to Case 23792.'], tokens['changes'])
         self.assertEqual([], tokens['comment'])
 
+    def test_float_estimate(self):
+        tokens = self._get_tokens_from_file('timeline/testassets/fogbugz_emails/float_estimate.txt')
+        self.assertEqual('A FogBugz case was edited by Aardvark Bobcat.', tokens['subject'])
+        self.assertEqual(23986, tokens['case_id'])
+        self.assertEqual(["Estimate set to '37.5 hours'"], tokens['changes'])
+        self.assertEqual([
+'Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla q.',
+'',
+'Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metus orci. Proin in erat a felis accumsan adipiscing ac in dolor. Donec quis est turpis, venenatis cursus sapien. Vivamus id gravida nisl. Vestibulum est nunc, varius vitae sagittis eu, tincidunt sed diam. Sed semper risus malesuada diam molestie volutpat. Donec naisi.'], tokens['comment'])
+
 class FogBugzEmailSourceParserTest(TestCase):
     def setUp(self):
         self.fb = FogBugzEmailSource()
@@ -448,3 +458,22 @@ Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque curs
                          b.message)
 
         self.assertEqual('', b.comment)
+
+    def test_float_estimate(self):
+        self._parse_file('timeline/testassets/fogbugz_emails/float_estimate.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(1, events.count())
+
+        a = events[0]
+        self.assertEqual('Aardvark', a.protagonist.first_name)
+        self.assertEqual('Bobcat', a.protagonist.last_name)
+
+        self.assertEqual(None, a.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} estimates {{ task_link }} will require 37.5 hours to complete.',
+                         a.message)
+
+        self.assertEqual('''Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla q.
+
+Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metus orci. Proin in erat a felis accumsan adipiscing ac in dolor. Donec quis est turpis, venenatis cursus sapien. Vivamus id gravida nisl. Vestibulum est nunc, varius vitae sagittis eu, tincidunt sed diam. Sed semper risus malesuada diam molestie volutpat. Donec naisi.''', a.comment)
