@@ -235,6 +235,10 @@ class FogBugzEmailSource():
                     e = self._add_event(case_id, protagonist, None,
                                         '{{ protagonist }} notes that {{ task_link }} is a duplicate of %s.' % after.lower(),
                                         comment)
+                elif type == 'parent':
+                    e = self._add_event(case_id, protagonist, None,
+                                        '{{ protagonist }} set the parent of {{ task_link }} to %s.' % after.lower(),
+                                        comment)
                 else:
                     e = self._add_event(case_id, protagonist, None,
                                         "{{ protagonist }} changed the %s of {{ task_link }} from %s to %s." % \

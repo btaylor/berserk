@@ -352,7 +352,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} changed the parent of {{ task_link }} from (None) to Case 24054.',
+        self.assertEqual('{{ protagonist }} set the parent of {{ task_link }} to case 24054.',
                          a.message)
 
         self.assertEqual('', a.comment)
