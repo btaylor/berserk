@@ -133,6 +133,14 @@ class FogBugzEmailSourceTokenizerTest(TestCase):
 '',
 'Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque cursus, orci at venenatis posuerel.'], tokens['comment'])
 
+    def test_was_resolved_duplicate(self):
+        tokens = self._get_tokens_from_file('timeline/testassets/fogbugz_emails/was_resolved_duplicate.txt')
+        self.assertEqual('A FogBugz case was Resolved (Duplicate) and assigned to Aardvark Bobcat by Bobcat Goldthwait.', tokens['subject'])
+        self.assertEqual(23808, tokens['case_id'])
+        self.assertEqual(["Status changed from 'Active' to 'Resolved (Duplicate)'.",
+                          'Duplicate of changed from (None) to Case 23792.'], tokens['changes'])
+        self.assertEqual([], tokens['comment'])
+
 class FogBugzEmailSourceParserTest(TestCase):
     def setUp(self):
         self.fb = FogBugzEmailSource()
@@ -412,3 +420,31 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
         self.assertEqual('''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed adipiscing tincidunt imperdiet. Maecenas a bibendum mi. Nulla in enim ni.
 
 Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque cursus, orci at venenatis posuerel.''', a.comment)
+
+    def test_was_resolved_duplicate(self):
+        self._parse_file('timeline/testassets/fogbugz_emails/was_resolved_duplicate.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(2, events.count())
+
+        a = events[0]
+        self.assertEqual('Bobcat', a.protagonist.first_name)
+        self.assertEqual('Goldthwait', a.protagonist.last_name)
+
+        self.assertEqual(None, a.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} marked {{ task_link }} as duplicate.',
+                         a.message)
+
+        self.assertEqual('', a.comment)
+
+        b = events[1]
+        self.assertEqual('Bobcat', b.protagonist.first_name)
+        self.assertEqual('Goldthwait', b.protagonist.last_name)
+
+        self.assertEqual(None, b.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} notes that {{ task_link }} is a duplicate of case 23792.',
+                         b.message)
+
+        self.assertEqual('', b.comment)

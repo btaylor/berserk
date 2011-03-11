@@ -231,6 +231,10 @@ class FogBugzEmailSource():
                         e = self._add_event(case_id, protagonist, None,
                                             "{{ protagonist }} marked the status of {{ task_link }} as %s." % after,
                                             comment)
+                elif type == 'duplicate of':
+                    e = self._add_event(case_id, protagonist, None,
+                                        '{{ protagonist }} notes that {{ task_link }} is a duplicate of %s.' % after.lower(),
+                                        comment)
                 else:
                     e = self._add_event(case_id, protagonist, None,
                                         "{{ protagonist }} changed the %s of {{ task_link }} from %s to %s." % \

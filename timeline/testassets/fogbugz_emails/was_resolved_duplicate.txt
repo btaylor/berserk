@@ -1,0 +1,23 @@
+A FogBugz case was Resolved (Duplicate) and assigned to Aardvark Bobcat by Bobcat Goldthwait.
+
+Case ID:      23808
+Title:        lorem ips -> um dolor sit amet, consectetur adipiscing el
+Status:       Resolved (Duplicate)
+Category:     Bug
+Duplicate of: https://aardvark.fogbugz.com/default.asp?23792
+Project:      Aardvark Aardvark
+Area:         Aardvark Aardvark Aardvark
+Priority:     4 - Medium
+Milestone:    Undecided
+Assigned To:  Aardvark Bobcat
+
+URL:          https://aardvark.fogbugz.com/default.asp?23808
+
+
+Changes: 
+Status changed from 'Active' to 'Resolved (Duplicate)'.
+Duplicate of changed from (None) to Case 23792.
+
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D23808) from this case.
