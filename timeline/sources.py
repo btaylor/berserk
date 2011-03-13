@@ -266,6 +266,15 @@ class FogBugzEmailSource():
                     e = self._add_event(case_id, protagonist, None,
                                         '{{ protagonist }} set the parent of {{ task_link }} to #%d.' % self._get_case_id(after),
                                         comment)
+                elif type == 'qa assignee':
+                    if protagonist == after:
+                        e = self._add_event(case_id, protagonist, None,
+                                            '{{ protagonist }} assigned {{ proto_self }} as the QA resource for {{ task_link }}.',
+                                            comment)
+                    else:
+                        e = self._add_event(case_id, protagonist, after,
+                                            '{{ protagonist }} assigned {{ deuteragonist }} as the QA resource for {{ task_link }}.',
+                                            comment)
                 else:
                     if before == '(No Value)':
                         e = self._add_event(case_id, protagonist, None,

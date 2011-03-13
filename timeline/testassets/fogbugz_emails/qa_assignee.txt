@@ -1,0 +1,21 @@
+A FogBugz case was edited by Aardvark Bobcat.
+
+Case ID:      24107
+Title:        Proin id eros a lorem veneena natis
+Status:       Active
+Category:     Bug
+Project:      Aardvark Aardvark Aardvark Aardvark
+Area:         Aardvark Aardvark
+Priority:     2 - Urgent
+Milestone:    Undecided
+Assigned To:  Unspecified Aardvark Limbo
+
+URL:          https://aardvark.fogbugz.com/default.asp?24107
+
+
+Changes: 
+QA Assignee changed from Bobcat Goldthwait to Aardvark Bobcat
+
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D24107) from this case.

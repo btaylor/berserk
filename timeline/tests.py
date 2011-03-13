@@ -151,6 +151,13 @@ class FogBugzEmailSourceTokenizerTest(TestCase):
 '',
 'Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metus orci. Proin in erat a felis accumsan adipiscing ac in dolor. Donec quis est turpis, venenatis cursus sapien. Vivamus id gravida nisl. Vestibulum est nunc, varius vitae sagittis eu, tincidunt sed diam. Sed semper risus malesuada diam molestie volutpat. Donec naisi.'], tokens['comment'])
 
+    def test_qa_assignee(self):
+        tokens = self._get_tokens_from_file('timeline/testassets/fogbugz_emails/qa_assignee.txt')
+        self.assertEqual('A FogBugz case was edited by Aardvark Bobcat.', tokens['subject'])
+        self.assertEqual(24107, tokens['case_id'])
+        self.assertEqual(["QA Assignee changed from Bobcat Goldthwait to Aardvark Bobcat"], tokens['changes'])
+        self.assertEqual([], tokens['comment'])
+
 class FogBugzEmailSourceParserTest(TestCase):
     def setUp(self):
         self.fb = FogBugzEmailSource()
@@ -477,3 +484,20 @@ Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque curs
         self.assertEqual('''Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla q.
 
 Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metus orci. Proin in erat a felis accumsan adipiscing ac in dolor. Donec quis est turpis, venenatis cursus sapien. Vivamus id gravida nisl. Vestibulum est nunc, varius vitae sagittis eu, tincidunt sed diam. Sed semper risus malesuada diam molestie volutpat. Donec naisi.''', a.comment)
+
+    def test_qa_assignee(self):
+        self._parse_file('timeline/testassets/fogbugz_emails/qa_assignee.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(1, events.count())
+
+        a = events[0]
+        self.assertEqual('Aardvark', a.protagonist.first_name)
+        self.assertEqual('Bobcat', a.protagonist.last_name)
+
+        self.assertEqual(None, a.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} assigned {{ proto_self }} as the QA resource for {{ task_link }}.',
+                         a.message)
+
+        self.assertEqual('', a.comment)
