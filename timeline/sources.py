@@ -49,6 +49,13 @@ class FogBugzEmailSource():
         Runs a single iteration of the source, in this case, polling for the
         first set of unread messages.
         """
+        def get_charset(msg, default="ascii"):
+            if msg.get_content_charset():
+                return msg.get_content_charset()
+            if msg.get_charset():
+                return msg.get_charset()
+            return default
+
         c = imaplib.IMAP4_SSL(settings.FB_EMAIL_SOURCE_HOST)
         c.login(settings.FB_EMAIL_SOURCE_USER, settings.FB_EMAIL_SOURCE_PASSWORD)
         try:
@@ -63,9 +70,15 @@ class FogBugzEmailSource():
                 for response_part in msg_data:
                     if isinstance(response_part, tuple):
                         msg = email.message_from_string(response_part[1])
-                        body = msg.get_payload(decode=True)
+
+                        payload = msg.get_payload(decode=True)
+                        if not payload:
+                            continue
+
+                        body = unicode(payload, get_charset(msg), 'replace')
                         if not body:
                             continue
+
                         self._parse_body(self._tokenize_body(body.split('\r\n')))
         finally:
             try:
@@ -283,7 +296,7 @@ class FogBugzEmailSource():
         if deuteragonist:
             deuteragonist, created = Actor.objects.get_or_create_by_full_name(deuteragonist)
 
-        comments = '\n'.join(comment)
+        comments = u'\n'.join(comment)
 
         return Event.objects.create(
             source=self.name, protagonist=protagonist, deuteragonist=deuteragonist,
