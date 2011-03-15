@@ -21,9 +21,12 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-import imaplib
-import email
 import re
+import time
+import email
+import imaplib
+
+from datetime import datetime
 
 from django.utils.html import escape
 
@@ -43,6 +46,16 @@ class FogBugzEmailSource():
         return settings.FB_EMAIL_SOURCE_HOST != '' \
                and settings.FB_EMAIL_SOURCE_USER != '' \
                and settings.FB_EMAIL_SOURCE_USER != ''
+
+    def _parse_date(self, str):
+        """
+        Parses a date found in an email message and returns a localized
+        datetime.  If not found, returns datetime.now().
+        """
+        tuple = email.utils.parsedate(str)
+        if tuple:
+            return datetime.fromtimestamp(time.mktime(tuple))
+        return datetime.now()
 
     def run(self):
         """
@@ -70,6 +83,7 @@ class FogBugzEmailSource():
                 for response_part in msg_data:
                     if isinstance(response_part, tuple):
                         msg = email.message_from_string(response_part[1])
+                        date = self._parse_date(msg['date'])
 
                         payload = msg.get_payload(decode=True)
                         if not payload:
@@ -79,7 +93,8 @@ class FogBugzEmailSource():
                         if not body:
                             continue
 
-                        self._parse_body(self._tokenize_body(body.split('\r\n')))
+                        self._parse_body(self._tokenize_body(body.split('\r\n')),
+                                         date)
         finally:
             try:
                 c.close()
@@ -145,7 +160,7 @@ class FogBugzEmailSource():
             return int(m.group('case_id'))
         return None
 
-    def _parse_body(self, tokens):
+    def _parse_body(self, tokens, date=datetime.now()):
         e = None
         message = ''
         protagonist = ''
@@ -165,19 +180,19 @@ class FogBugzEmailSource():
         # Some emails are formatted such that the action is embedded inside of
         # the subject line:
         if subject.startswith('A new case'):
-            e = self._add_event(case_id, protagonist, None,
+            e = self._add_event(case_id, protagonist, None, date,
                                 '{{ protagonist }} opened a new case {{ task_link }}.', comment)
         elif subject.startswith('A FogBugz case was assigned to'):
             m = re.search('A FogBugz case was assigned to (.*) by', subject)
             deuteragonist = m.group(1)
             if protagonist == deuteragonist:
-                e = self._add_event(case_id, protagonist, None,
+                e = self._add_event(case_id, protagonist, None, date,
                                     '{{ protagonist }} assigned {{ task_link }} to {{ proto_self }}.', comment)
             else:
-                e = self._add_event(case_id, protagonist, deuteragonist,
+                e = self._add_event(case_id, protagonist, deuteragonist, date,
                                     '{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}.', comment)
         elif subject.startswith('A FogBugz case was closed by'):
-            e = self._add_event(case_id, protagonist, None,
+            e = self._add_event(case_id, protagonist, None, date,
                                 '{{ protagonist }} closed {{ task_link }}.', comment)
 
         # Others have actions listed out nicely:
@@ -187,7 +202,7 @@ class FogBugzEmailSource():
                 if m:
                     hours = float(m.group('hours'))
                     plural = 'hour' if hours == 1 else 'hours'
-                    e = self._add_event(case_id, protagonist, None,
+                    e = self._add_event(case_id, protagonist, None, date,
                                         "{{ protagonist }} estimates {{ task_link }} will require %g %s to complete." % (hours, plural),
                                         comment)
                     continue
@@ -207,91 +222,91 @@ class FogBugzEmailSource():
                 before = m.group('before').strip("'")
                 after = m.group('after').strip("'")
                 if type == 'milestone':
-                    e = self._add_event(case_id, protagonist, None,
+                    e = self._add_event(case_id, protagonist, None, date,
                                         "{{ protagonist }} moved {{ task_link }} to the '%s' milestone." % after,
                                         comment)
                 elif type == 'title':
-                    e = self._add_event(case_id, protagonist, None,
+                    e = self._add_event(case_id, protagonist, None, date,
                                         "{{ protagonist }} changed the title of {{ task_link }} to '%s'." % escape(after),
                                         comment)
                 elif type == 'estimate':
                     hours = float(after.split(' ', 1)[0])
                     plural = 'hour' if hours == 1 else 'hours'
-                    e = self._add_event(case_id, protagonist, None,
+                    e = self._add_event(case_id, protagonist, None, date,
                                         "{{ protagonist }} estimates {{ task_link }} will require %g %s to complete." % (hours, plural),
                                         comment)
                 elif type == 'non-timesheet elapsed time':
                     hours = float(after.split(' ', 1)[0])
                     plural = 'hour has' if hours == 1 else 'hours have'
-                    e = self._add_event(case_id, protagonist, None,
+                    e = self._add_event(case_id, protagonist, None, date,
                                         "{{ protagonist }} reports that %g %s been spent on {{ task_link }}." % (hours, plural),
                                         comment)
                 elif type == 'status':
                     if before.startswith('Resolved') and after == 'Active':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} reopened {{ task_link }}.", comment)
                     elif after == 'Resolved (Fixed)':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} marked {{ task_link }} as fixed.", comment)
                     elif after == 'Resolved (Not Reproducible)':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} marked {{ task_link }} as not reproducible.", comment)
                     elif after == 'Resolved (Duplicate)':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} marked {{ task_link }} as duplicate.", comment)
                     elif after == 'Resolved (Postpooned)':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} marked {{ task_link }} as postponed.", comment)
                     elif after == 'Resolved (By Design)':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} marked {{ task_link }} as by design.", comment)
                     elif after == 'Resolved (Won\'t Fix)':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} marked {{ task_link }} as won't fix.", comment)
                     elif after == 'Resolved (Implemented)':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} marked {{ task_link }} as implemented.", comment)
                     elif after == 'Resolved (Completed)':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} marked {{ task_link }} as completed.", comment)
                     else:
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} marked the status of {{ task_link }} as %s." % after,
                                             comment)
                 elif type == 'duplicate of':
-                    e = self._add_event(case_id, protagonist, None,
+                    e = self._add_event(case_id, protagonist, None, date,
                                         '{{ protagonist }} notes that {{ task_link }} is a duplicate of #%d.' % self._get_case_id(after),
                                         comment)
                 elif type == 'parent':
-                    e = self._add_event(case_id, protagonist, None,
+                    e = self._add_event(case_id, protagonist, None, date,
                                         '{{ protagonist }} set the parent of {{ task_link }} to #%d.' % self._get_case_id(after),
                                         comment)
                 elif type == 'qa assignee':
                     if protagonist == after:
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             '{{ protagonist }} assigned {{ proto_self }} as the QA resource for {{ task_link }}.',
                                             comment)
                     else:
-                        e = self._add_event(case_id, protagonist, after,
+                        e = self._add_event(case_id, protagonist, after, date,
                                             '{{ protagonist }} assigned {{ deuteragonist }} as the QA resource for {{ task_link }}.',
                                             comment)
                 else:
                     if before == '(No Value)':
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} set the %s of {{ task_link }} to %s." % (type, after),
                                             comment)
                     else:
-                        e = self._add_event(case_id, protagonist, None,
+                        e = self._add_event(case_id, protagonist, None, date,
                                             "{{ protagonist }} changed the %s of {{ task_link }} from %s to %s." % \
                                             (type, before, after), comment)
 
         # Last resort: if nothing else, the user just commented
         if e == None and len(changes) == 0 and len(comment) > 0:
-            self._add_event(case_id, protagonist, None,
+            self._add_event(case_id, protagonist, None, date,
                             '{{ protagonist }} commented on {{ task_link }}.', comment)
 
 
-    def _add_event(self, case_id, protagonist, deuteragonist, message, comment):
+    def _add_event(self, case_id, protagonist, deuteragonist, date, message, comment):
         task = None
         trackers = BugTracker.objects.all()
         if trackers.count() > 0:
@@ -309,5 +324,5 @@ class FogBugzEmailSource():
 
         return Event.objects.create(
             source=self.name, protagonist=protagonist, deuteragonist=deuteragonist,
-            message=message, comment=comments, task=task
+            message=message, comment=comments, task=task, date=date
         )
