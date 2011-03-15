@@ -253,14 +253,20 @@ class Task(models.Model):
     def get_absolute_url(self):
         return self.bug_tracker.get_remote_task_url(self)
 
-    def get_latest_snapshot(self):
+    def get_latest_snapshot(self, refresh_if_old=False):
         """
         Returns the most recent snapshot of the Task.  If no snapshots found,
         returns None.
         """
         try:
-            return TaskSnapshot.objects.filter(task=self).latest('date')
+            snap = TaskSnapshot.objects.filter(task=self).latest('date')
+            if refresh_if_old \
+               and (datetime.now() - snap.date) > timedelta(hours=1):
+                snap = self.snapshot()
+            return snap
         except ObjectDoesNotExist:
+            if refresh_if_old:
+                return self.snapshot()
             return None
 
     def snapshot(self):

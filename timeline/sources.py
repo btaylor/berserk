@@ -315,6 +315,7 @@ class FogBugzEmailSource():
             # TODO: Grab default bug tracker from the currently active sprint
             task, created = Task.objects.get_or_create(remote_tracker_id=case_id,
                                                        bug_tracker=trackers[0])
+            task.get_latest_snapshot(refresh_if_old=True)
 
         if protagonist:
             protagonist, created = Actor.objects.get_or_create_by_full_name(protagonist)
