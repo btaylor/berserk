@@ -183,6 +183,9 @@ class FogBugzBug:
             return dateutil.parser.parse(str)
 
         case = xml.find('case')
+        if not case:
+            return
+
         for e in case.findChildren():
             # Would love to replace this with a lambda construction, but python
             # lambdas aren't anywhere as useful as the ones in C#...
