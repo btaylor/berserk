@@ -138,6 +138,12 @@ INSTALLED_APPS = (
     # External Apps
     'djangoflash',
     'south',
+
+    # Uncomment these if you want Sentry support
+    #'indexer',
+    #'paging',
+    #'sentry',
+    #'sentry.client',
 )
 
 # local_settings.py can be used to override environment-specific settings

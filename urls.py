@@ -55,3 +55,8 @@ if settings.DEBUG:
             'document_root': settings.MEDIA_ROOT,
             'show_indexes': True
         }))
+
+if 'sentry' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('',
+        (r'^sentry/$', include('sentry.urls')),
+    )

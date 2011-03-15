@@ -15,6 +15,7 @@ To install:
     - simplejson
     - beautifulsoup
     - dateutil
+    - sentry (optional)
     - twill (for Bugzilla Novell backend only)
 
  * Copy local_settings.py.in to local_settings.py.  Configure your settings in
