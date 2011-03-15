@@ -58,5 +58,5 @@ if settings.DEBUG:
 
 if 'sentry' in settings.INSTALLED_APPS:
     urlpatterns += patterns('',
-        (r'^sentry/$', include('sentry.urls')),
+        (r'^sentry/', include('sentry.urls')),
     )
