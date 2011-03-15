@@ -31,6 +31,7 @@ from django.template.defaultfilters import linebreaksbr
 from django.shortcuts import render_to_response, get_object_or_404
 
 from berserk2.timeline.models import Event
+from berserk2.timeline.sources import GitHubPushSource
 from berserk2.timeline.templatetags.utcunixtimestamp import utcunixtimestamp
 
 def timeline_index(request,
