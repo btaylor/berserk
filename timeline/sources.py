@@ -25,6 +25,8 @@ import re
 import time
 import email
 import imaplib
+import simplejson
+import dateutil.parser
 
 from datetime import datetime
 
@@ -326,3 +328,46 @@ class FogBugzEmailSource():
             source=self.name, protagonist=protagonist, deuteragonist=deuteragonist,
             message=message, comment=comments, task=task, date=date
         )
+
+class GitHubPushSource:
+    def __init__(self):
+        self.name = 'GitHub'
+
+    @staticmethod
+    def enabled():
+        """
+        Returns true if the source is configured properly and should be run.
+        """
+        return False
+
+    def process_payload(self, payload):
+        data = simplejson.loads(payload)
+
+        repo = data.get('repository')
+        repo_name = repo.get('name') if repo else 'Unknown'
+        ref = data.get('ref')
+
+        for commit in data.get('commits'):
+            author = commit.get('author')
+            protagonist = author.get('name')
+
+            if protagonist:
+                protagonist, created = Actor.objects.get_or_create_by_full_name(protagonist)
+
+            if ref == 'refs/heads/master':
+                message = '{{ protagonist }} pushed <a href="%s" target="_blank">%s</a> to %s.' \
+                          % (commit.get('url'), commit['id'][:7], repo_name)
+            else:
+                branch = ref.rsplit('/', 1)[1] if ref.startswith('refs/heads/') else ref
+                message = '{{ protagonist }} pushed <a href="%s" target="_blank">%s</a> to %s\'s %s branch.' \
+                          % (commit.get('url'), commit['id'][:7], repo_name, branch)
+
+            date = datetime.now()
+            timestamp = commit['timestamp']
+            if timestamp:
+                date = dateutil.parser.parse(timestamp).replace(tzinfo=None)
+
+            Event.objects.create(
+                source=self.name, protagonist=protagonist, date=date,
+                message=message, comment=escape(commit.get('message'))
+            )

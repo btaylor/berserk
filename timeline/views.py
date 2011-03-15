@@ -26,7 +26,7 @@ import simplejson
 from datetime import datetime
 
 from django.template import RequestContext
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.template.defaultfilters import linebreaksbr
 from django.shortcuts import render_to_response, get_object_or_404
 
@@ -95,3 +95,18 @@ def timeline_previous_events_json(request, earlier_than):
         'events': data,
         'new_earlier_than': new_earlier_than,
     }))
+
+def timeline_github_hook(request):
+    """
+    Accepts a POST request from GitHub when a user git pushes to a repository
+    we're monitorring.
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+
+    if not 'payload' in request.POST:
+        return HttpResponseBadRequest()
+
+    g = GitHubPushSource()
+    g.process_payload(request.POST['payload'])
+    return HttpResponse()

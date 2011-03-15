@@ -21,10 +21,12 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+from datetime import datetime
+
 from django.test import TestCase
 
 from berserk2.timeline.models import Event, Actor
-from berserk2.timeline.sources import FogBugzEmailSource
+from berserk2.timeline.sources import FogBugzEmailSource, GitHubPushSource
 
 class FogBugzEmailSourceTokenizerTest(TestCase):
     def setUp(self):
@@ -501,3 +503,44 @@ Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metu
                          a.message)
 
         self.assertEqual('', a.comment)
+
+class GitHubPushSourceTest(TestCase):
+    def setUp(self):
+        self.gh = GitHubPushSource()
+
+    def _process_payload(self, file):
+        f = open(file, 'r')
+        self.gh.process_payload('\n'.join(f.readlines()))
+        f.close()
+
+    def test_github_example(self):
+        self._process_payload('timeline/testassets/github_payloads/github_example.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(2, events.count())
+
+        a = events[0]
+        self.assertEqual(datetime(2008, 2, 15, 14, 57, 17), a.date)
+
+        self.assertEqual('Chris', a.protagonist.first_name)
+        self.assertEqual('Wanstrath', a.protagonist.last_name)
+
+        self.assertEqual(None, a.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} pushed <a href="http://github.com/defunkt/github/commit/41a212ee83ca127e3c8cf465891ab7216a705f59" target="_blank">41a212e</a> to github.',
+                         a.message)
+
+        self.assertEqual('okay i give in', a.comment)
+
+        b = events[1]
+        self.assertEqual(datetime(2008, 2, 15, 14, 36, 34), b.date)
+
+        self.assertEqual('Chris', b.protagonist.first_name)
+        self.assertEqual('Wanstrath', b.protagonist.last_name)
+
+        self.assertEqual(None, b.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} pushed <a href="http://github.com/defunkt/github/commit/de8251ff97ee194a289832576287d6f8ad74e3d0" target="_blank">de8251f</a> to github.',
+                         b.message)
+
+        self.assertEqual('update pricing a tad', b.comment)
