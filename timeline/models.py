@@ -88,9 +88,11 @@ class Event(models.Model):
         if self.deuteragonist:
             deuter_self = self.deuteragonist.get_reflexive_gender_pronoun()
 
-        snap = self.task.get_latest_snapshot()
-        task_link = '<a href="%s" target="_blank">#%s</a>' \
-                    % (self.task.get_absolute_url(), self.task.remote_tracker_id)
+        task_link = ''
+        if self.task:
+            snap = self.task.get_latest_snapshot()
+            task_link = '<a href="%s" target="_blank">#%s</a>' \
+                        % (self.task.get_absolute_url(), self.task.remote_tracker_id)
 
         t = Template(self.message)
         return t.render(Context({
