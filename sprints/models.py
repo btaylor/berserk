@@ -29,6 +29,7 @@ from django.db import models
 from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.utils.translation import ugettext as _
 
@@ -221,7 +222,7 @@ class Sprint(models.Model):
         """
         try:
             return self.get_previous_by_end_date()
-        except models.DoesNotExist:
+        except ObjectDoesNotExist:
             pass
         return None
 
@@ -231,7 +232,7 @@ class Sprint(models.Model):
         """
         try:
             return self.get_next_by_end_date()
-        except models.DoesNotExist:
+        except ObjectDoesNotExist:
             pass
         return None
 
@@ -259,7 +260,7 @@ class Task(models.Model):
         """
         try:
             return TaskSnapshot.objects.filter(task=self).latest('date')
-        except DoesNotExist:
+        except ObjectDoesNotExist:
             return None
 
     def snapshot(self):
