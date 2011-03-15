@@ -60,7 +60,7 @@ class Actor(models.Model):
             return 'itself'
 
 class Event(models.Model):
-    date = models.DateTimeField(auto_now_add=True, db_index=True)
+    date = models.DateTimeField(editable=False, db_index=True)
     source = models.CharField(max_length=32)
     protagonist = models.ForeignKey(Actor, related_name='protagonist',
                                     null=True, db_index=True)
@@ -73,6 +73,11 @@ class Event(models.Model):
 
     def __unicode__(self):
         return self.message
+
+    def save(self, *args, **kwargs):
+        if not self.id and not self.date:
+            self.date = datetime.now()
+        super(Event, self).save(*args, **kwargs)
 
     def get_message_for_display(self):
         proto_self = ''
