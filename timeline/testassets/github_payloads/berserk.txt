@@ -1,0 +1,89 @@
+{
+    "after": "c59fcedbd8783336223ec57a17baa3e390299b4d",
+    "base": null,
+    "before": "1e6800a5403dd8167cef813b126f52ebc4e367e6",
+    "commits": [
+        {
+            "added": [],
+            "author": {
+                "email": "btaylor@litl.com",
+                "name": "Brad Taylor",
+                "username": "btaylor"
+            },
+            "distinct": false,
+            "id": "1398bb563b416b5121f23cbc8108c69b011baa94",
+            "message": "Forgot to add import",
+            "modified": [
+                "bugtracker/fogbugz/__init__.py"
+            ],
+            "removed": [],
+            "timestamp": "2011-03-01T12:30:53-08:00",
+            "url": "https://github.com/btaylor/berserk/commit/1398bb563b416b5121f23cbc8108c69b011baa94"
+        },
+        {
+            "added": [],
+            "author": {
+                "email": "btaylor@litl.com",
+                "name": "Brad Taylor",
+                "username": "btaylor"
+            },
+            "distinct": false,
+            "id": "eb0a4dc458c4213bd0d8daaee23c5e940cecff58",
+            "message": "South and djangoflash should be loaded last",
+            "modified": [
+                "settings.py"
+            ],
+            "removed": [],
+            "timestamp": "2011-03-01T12:31:32-08:00",
+            "url": "https://github.com/btaylor/berserk/commit/eb0a4dc458c4213bd0d8daaee23c5e940cecff58"
+        },
+        {
+            "added": [],
+            "author": {
+                "email": "btaylor@litl.com",
+                "name": "Brad Taylor",
+                "username": "btaylor"
+            },
+            "distinct": false,
+            "id": "c59fcedbd8783336223ec57a17baa3e390299b4d",
+            "message": "Switch order of args",
+            "modified": [
+                "sprints/models.py"
+            ],
+            "removed": [],
+            "timestamp": "2011-03-01T13:40:16-08:00",
+            "url": "https://github.com/btaylor/berserk/commit/c59fcedbd8783336223ec57a17baa3e390299b4d"
+        }
+    ],
+    "compare": "https://github.com/btaylor/berserk/compare/1e6800a...c59fced",
+    "created": false,
+    "deleted": false,
+    "forced": false,
+    "pusher": {
+        "name": "none"
+    },
+    "ref": "refs/heads/master",
+    "repository": {
+        "created_at": "2011/03/01 18:53:57 -0800",
+        "description": "Berserk is a Scrum tracking tool used by the Mono Accessibility project to track sprint backlog, integrating with Bugzilla to track these tasks. The workflow of Berserk is heavily influenced by Overlord developed by Medsphere.",
+        "fork": false,
+        "forks": 2,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_wiki": true,
+        "homepage": "",
+        "language": "JavaScript",
+        "name": "berserk",
+        "open_issues": 0,
+        "owner": {
+            "email": "brad@getcoded.net",
+            "name": "btaylor"
+        },
+        "private": false,
+        "pushed_at": "2011/03/15 12:01:31 -0700",
+        "size": 2180,
+        "url": "https://github.com/btaylor/berserk",
+        "watchers": 2
+    }
+}
+
