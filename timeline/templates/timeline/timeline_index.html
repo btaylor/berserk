@@ -3,23 +3,35 @@
 {% load i18n %}
 {% load utcunixtimestamp %}
 
+{% block extra_head %}
+    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.cookie.js" charset="utf-8"></script>
+{% endblock %}
+
 {% block banner-container %}
 {% endblock %}
 
 {% block body %}
-<ul id="timeline-event-container" data-start-after="{{ new_start_after }}"
-    data-earlier-than="{{ new_earlier_than }}">
+<div id="timeline-content-container">
+    <div id="timeline-top-bar">
+        <label for="notifications">
+            <input id="timeline-notify-checkbox" type="checkbox" />
+            Notify me on update
+        </label>
+    </div>
+    <ul id="timeline-event-container" data-start-after="{{ new_start_after }}"
+        data-earlier-than="{{ new_earlier_than }}">
 {% for e in events %}
-    <li class="timeline-event" data-id="{{ e.pk }}" data-timestamp="{{ e.date|utcunixtimestamp }}">
-	<p class="timeline-date"></p>
-        <p>{{ e.get_message_for_display|safe }}</p>
-        <p class="timeline-event-task">{{ e.get_task_for_display }}</p>
+        <li class="timeline-event" data-id="{{ e.pk }}" data-timestamp="{{ e.date|utcunixtimestamp }}">
+            <p class="timeline-date"></p>
+            <p>{{ e.get_message_for_display|safe }}</p>
+            <p class="timeline-event-task">{{ e.get_task_for_display }}</p>
 {% if e.comment %}
-        <p class="timeline-event-comment">{{ e.comment|linebreaksbr }}</p>
+            <p class="timeline-event-comment">{{ e.comment|linebreaksbr }}</p>
 {% endif %}
-    </li>
+        </li>
 {% endfor %}
-</ul>
+    </ul>
+</div>
 {% endblock %}
 
 {% block extra_body %}
@@ -33,6 +45,25 @@ var MONTHS = [
 // I've got 99 problems and a URL ain't one.
 var latest_events_url = '{% url timeline_latest_events_json 99 %}';
 var previous_events_url = '{% url timeline_previous_events_json 99 %}';
+var event_popup_url = '{% url timeline_event_popup 99 %}';
+
+var notification_enabled = $.cookie('notification_enabled') == "true";
+$('#timeline-notify-checkbox').attr('checked', notification_enabled);
+
+$('#timeline-notify-checkbox').change(function () {
+	var c = $(this);
+	var checked = c.attr('checked');
+	if (!notification_enabled && checked && window.webkitNotifications
+	    && window.webkitNotifications.checkPermission() > 0) {
+		window.webkitNotifications.requestPermission(function () {
+			notification_enabled =
+				window.webkitNotifications.checkPermission() == 0;
+			$.cookie('notification_enabled', notification_enabled);
+		});
+	}
+	$.cookie('notification_enabled', checked);
+	notification_enabled = checked;
+});
 
 function get_relative_date_string (date) {
 	var curr = new Date().getTime() / 1000;
@@ -58,6 +89,15 @@ function get_relative_date_string (date) {
 }
 
 function add_hidden_event (e, prepend) {
+	if (prepend && notification_enabled) {
+		var popup = window.webkitNotifications.createHTMLNotification(
+			event_popup_url.replace('99', e.pk)
+		);
+		popup.show();
+
+		setTimeout(function () { popup.cancel(); }, 5000);
+	}
+
 	var li = $('<li>').addClass('timeline-event').attr('data-id', e.pk)
 	                  .attr('data-timestamp', e.date)
 	                  .append($('<p>').addClass('timeline-date')

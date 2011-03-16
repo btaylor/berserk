@@ -98,6 +98,17 @@ def timeline_previous_events_json(request, earlier_than):
         'new_earlier_than': new_earlier_than,
     }))
 
+def timeline_event_popup(request, event_id,
+                         template_name='timeline/event_popup.html'):
+    """
+    Returns a popup-sized HTML page which describes the given event, otherwise
+    raises Http404.
+    """
+    event = get_object_or_404(Event, pk=event_id)
+    return render_to_response(template_name,
+                              {'e': event},
+                              context_instance=RequestContext(request))
+
 @csrf_exempt
 def timeline_github_hook(request):
     """

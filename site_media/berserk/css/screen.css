@@ -274,7 +274,7 @@ img a {
     text-decoration: none;
 }
 
-#timeline-event-container {
+#timeline-content-container {
     max-width: 55em;
     margin: 0 auto;
     padding-left: 0;
@@ -282,9 +282,12 @@ img a {
 
 .timeline-event {
     list-style: none;
-    margin: 3px;
     padding: 12px 12px 12px 12px;
     background-color: #FFF6D9;
+}
+
+.timeline-event + .timeline-event {
+    margin-top: 3px;
 }
 
 .timeline-event p {
@@ -322,4 +325,8 @@ img a {
     font-size: 0.8em;
     color: #666666;
     padding-top: 0.3em;
+}
+
+#timeline-top-bar {
+    text-align: right;
 }

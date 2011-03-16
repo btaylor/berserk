@@ -1,0 +1,17 @@
+{% load utcunixtimestamp %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}berserk/css/screen.css" media="screen">
+</head>
+<body>
+    <li class="timeline-event" data-id="{{ e.pk }}" data-timestamp="{{ e.date|utcunixtimestamp }}">
+            <p class="timeline-date"></p>
+            <p>{{ e.get_message_for_display|safe }}</p>
+            <p class="timeline-event-task">{{ e.get_task_for_display }}</p>
+{% if e.comment %}
+            <p class="timeline-event-comment">{{ e.comment|linebreaksbr }}</p>
+{% endif %}
+    </li>
+</body>
+</html>
