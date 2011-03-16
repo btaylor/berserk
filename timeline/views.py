@@ -36,7 +36,7 @@ from berserk2.timeline.sources import GitHubPushSource
 from berserk2.timeline.templatetags.utcunixtimestamp import utcunixtimestamp
 
 def timeline_index(request,
-                   template_name='timeline/timeline_index.html'):
+                   template_name='timeline/index.html'):
     events = Event.objects.order_by('-date')[:50]
 
     new_start_after = 0
