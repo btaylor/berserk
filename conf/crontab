@@ -16,3 +16,6 @@ BERSERK_PATH = "/path/to/berserk2/"
 
 # Test if we should send out estimation accuracy emails every day at midnight
 0 0 * * *	(cd $BERSERK_PATH && python manage.py estimationaccuracyemail)
+
+# Sync sources (poll FogBugz emails, etc) every 3 minutes
+*/3 * * * *     (cd $BERSERK_PATH && python manage.py syncsources)
