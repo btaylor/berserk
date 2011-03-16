@@ -544,3 +544,48 @@ class GitHubPushSourceTest(TestCase):
                          b.message)
 
         self.assertEqual('update pricing a tad', b.comment)
+
+    def test_berserk(self):
+        self._process_payload('timeline/testassets/github_payloads/berserk.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(3, events.count())
+
+        a = events[0]
+        self.assertEqual(datetime(2011, 3, 1, 12, 30, 53), a.date)
+
+        self.assertEqual('Brad', a.protagonist.first_name)
+        self.assertEqual('Taylor', a.protagonist.last_name)
+
+        self.assertEqual(None, a.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} pushed <a href="https://github.com/btaylor/berserk/commit/1398bb563b416b5121f23cbc8108c69b011baa94" target="_blank">1398bb5</a> to berserk.',
+                         a.message)
+
+        self.assertEqual('Forgot to add import', a.comment)
+
+        b = events[1]
+        self.assertEqual(datetime(2011, 3, 1, 12, 31, 32), b.date)
+
+        self.assertEqual('Brad', b.protagonist.first_name)
+        self.assertEqual('Taylor', b.protagonist.last_name)
+
+        self.assertEqual(None, b.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} pushed <a href="https://github.com/btaylor/berserk/commit/eb0a4dc458c4213bd0d8daaee23c5e940cecff58" target="_blank">eb0a4dc</a> to berserk.',
+                         b.message)
+
+        self.assertEqual('South and djangoflash should be loaded last', b.comment)
+
+        c = events[2]
+        self.assertEqual(datetime(2011, 3, 1, 13, 40, 16), c.date)
+
+        self.assertEqual('Brad', c.protagonist.first_name)
+        self.assertEqual('Taylor', c.protagonist.last_name)
+
+        self.assertEqual(None, c.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} pushed <a href="https://github.com/btaylor/berserk/commit/c59fcedbd8783336223ec57a17baa3e390299b4d" target="_blank">c59fced</a> to berserk.',
+                         c.message)
+
+        self.assertEqual('Switch order of args', c.comment)
