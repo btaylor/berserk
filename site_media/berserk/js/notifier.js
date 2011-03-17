@@ -62,8 +62,16 @@ Notifier.prototype = {
 			return;
 		}
 
+		var klass = this;
 		window.webkitNotifications.requestPermission(function () {
-			this._setCookie(this._allowed());
+			klass._setCookie(klass._allowed());
+
+			// If we've been denied once, we're denied forever,
+			// even if we re-request permission.  Alert the user to
+			// that fact, so they don't get stabby.
+			if (!klass._allowed()) {
+				alert("Sorry, we can't show notifications because you've denied us in the past. You can re-enable notifications in your browser settings.");
+			}
 		});
 	},
 
