@@ -40,6 +40,11 @@ Timeline.prototype = {
 		'September', 'October', 'November', 'December'
 	],
 
+	_DAYS : [
+		'Sunday', 'Monday', 'Tuesday', 'Wednesday',
+		'Thursday', 'Friday', 'Saturday'
+	],
+
 	_init : function (options) {
 		this._options = $.extend({}, this._options, options);
 		this._fetchingDown = false;
@@ -76,6 +81,11 @@ Timeline.prototype = {
 		} else if (diff < 43200) {
 			var hours = Math.round(diff / 3600);
 			mesg = hours + ' hour' + (hours == 1 ? '' : 's') + ' ago';
+		} else if (diff < 172800) {
+			mesg = "Yesterday";
+		} else if (diff < 518400) {
+			var dt = new Date(date * 1000);
+			mesg = this._DAYS[dt.getDay()];
 		} else {
 			var dt = new Date(date * 1000);
 			if (dt.year == curr.year)
