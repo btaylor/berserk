@@ -52,6 +52,10 @@ Notifier.prototype = {
 			this._options.enabledChanged(val);
 	},
 
+	supported : function () {
+		return window.webkitNotifications;
+	},
+
 	enabled : function () {
 		return (this._cookie() && this._allowed());
 	},

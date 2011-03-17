@@ -14,7 +14,7 @@
 
 {% block body %}
 <div id="timeline-content-container">
-    <div id="timeline-top-bar">
+    <div id="timeline-top-bar" style="display: none">
         <label for="notifications">
             <input id="timeline-notify-checkbox" type="checkbox" />
             Notify me when new items are added
@@ -44,6 +44,10 @@ var notifier = new Notifier({
 		$('#timeline-notify-checkbox').attr('checked', val);
 	}
 });
+
+if (notifier.supported()) {
+	$('#timeline-top-bar').show();
+}
 
 $('#timeline-notify-checkbox').change(function () {
 	notifier.toggleEnabled();
