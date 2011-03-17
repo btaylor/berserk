@@ -145,8 +145,8 @@ Timeline.prototype = {
 
 			// Update the earlier-than for subsequent runs
 			$('#timeline-event-container').attr('data-earlier-than',
-							    data.new_earlier_than);
-			this._fetchingDown = false;
+			                                    data.new_earlier_than);
+			klass._fetchingDown = false;
 		});
 	},
 
