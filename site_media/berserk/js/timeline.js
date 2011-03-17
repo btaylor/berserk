@@ -59,6 +59,7 @@ Timeline.prototype = {
 		                   this._options.updateFrequency);
 
 		$(window).scroll(function () {
+			// Fetch down starting when we're viewing the last 20% of the page
 			var startFetching = $(document).height() - $(window).height()
 					    - ($('#timeline-event-container').height() * 0.2);
 			if ($(window).scrollTop() < startFetching)
@@ -166,7 +167,7 @@ Timeline.prototype = {
 
 			// Update the start-after for subsequent runs
 			$('#timeline-event-container').attr('data-start-after',
-							    data.new_start_after);
+			                                    data.new_start_after);
 		});
 	},
 };
