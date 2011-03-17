@@ -6,6 +6,7 @@
 {% block extra_head %}
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.cookie.js" charset="utf-8"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/notifier.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/timeline.js" charset="utf-8"></script>
 {% endblock %}
 
 {% block banner-container %}
@@ -37,17 +38,6 @@
 
 {% block extra_body %}
 <script type="text/javascript">
-var MONTHS = [
-	'January', 'Feburary', 'March', 'April',
- 	'May', 'June', 'July', 'August',
-	'September', 'October', 'November', 'December'
-];
-
-// I've got 99 problems and a URL ain't one.
-var latest_events_url = '{% url timeline_latest_events_json 99 %}';
-var previous_events_url = '{% url timeline_previous_events_json 99 %}';
-var event_popup_url = '{% url timeline_event_popup 99 %}';
-
 var notifier = new Notifier({
 	cookie_name : 'timeline_notification_enabled',
 	enabledChanged : function (val) {
@@ -59,108 +49,18 @@ $('#timeline-notify-checkbox').change(function () {
 	notifier.toggleEnabled();
 });
 
-function get_relative_date_string (date) {
-	var curr = new Date().getTime() / 1000;
-	var diff = curr - date;
+// I've got 99 problems and a URL ain't one.
+var event_popup_url = '{% url timeline_event_popup 99 %}';
 
-	var mesg = '';
-	if (diff < 60) {
-		mesg = 'moments ago';
-	} else if (diff < 3600) {
-		var mins = Math.round(diff / 60);
-		mesg = mins + ' minute' + (mins == 1 ? '' : 's') + ' ago';
-	} else if (diff < 43200) {
-		var hours = Math.round(diff / 3600);
-		mesg = hours + ' hour' + (hours == 1 ? '' : 's') + ' ago';
-	} else {
-		var dt = new Date(date * 1000);
-		if (dt.year == curr.year)
-			mesg = MONTHS[dt.getMonth()] + ' ' + dt.getDate();
-		else
-			mesg = MONTHS[dt.getMonth()] + ' ' + dt.getDate() + ' ' + dt.getFullYear();
-	}
-	return mesg;
-}
-
-function add_hidden_event (e, prepend) {
-	if (prepend) {
+var timeline = new Timeline({
+	latestEventsUrl : '{% url timeline_latest_events_json 99 %}',
+	previousEventsUrl :'{% url timeline_previous_events_json 99 %}',
+	newEventAdded : function (e) {
 		notifier.htmlNotify({
 			url : event_popup_url.replace('99', e.pk),
 			timeout : 8000
 		});
 	}
-
-	var li = $('<li>').addClass('timeline-event').attr('data-id', e.pk)
-	                  .attr('data-timestamp', e.date)
-	                  .append($('<p>').addClass('timeline-date')
-	                                  .text(get_relative_date_string(e.date)))
-	                  .append($('<p>').html(e.message));
-	if (e.task != '')
-		li.append($('<p>').addClass('timeline-event-task').html(e.task));
-	if (e.comment != '')
-		li.append($('<p>').addClass('timeline-event-comment').html(e.comment));
-
-	li.hide();
-	if (prepend) {
-		$('#timeline-event-container').prepend(li);
-	} else {
-		$('#timeline-event-container').append(li);
-	}
-	return li;
-}
-
-function update_relative_times () {
-	$('.timeline-event').each(function () {
-		var date = $(this).attr('data-timestamp');
-		$(this).children('.timeline-date').first()
-		       .text(get_relative_date_string(date));
-	});
-}
-
-update_relative_times();
-window.setInterval(update_relative_times, 30000);
-
-var fetchingMoreData = false;
-
-$(window).scroll(function () {
-	if (fetchingMoreData)
-		return;
-
-	var startFetching = $(document).height() - $(window).height()
-	                    - ($('#timeline-event-container').height() * 0.2);
-	if ($(window).scrollTop() < startFetching)
-		return;
-
-	var earlier_than = $('#timeline-event-container').attr('data-earlier-than');
-	if (earlier_than < 0)
-		return;
-
-	fetchingMoreData = true;
-	$.getJSON(previous_events_url.replace('99', earlier_than), function (data) {
-		$.each(data.events, function (i, e) {
-			var li = add_hidden_event(e, false);
-			li.slideDown();
-		});
-
-		// Update the earlier-than for subsequent runs
-		$('#timeline-event-container').attr('data-earlier-than',
-		                                    data.new_earlier_than);
-		fetchingMoreData = false;
-	});
 });
-
-window.setInterval(function () {
-	var start_after = $('#timeline-event-container').attr('data-start-after');
-	$.getJSON(latest_events_url.replace('99', start_after), function (data) {
-		$.each(data.events, function (i, e) {
-			var li = add_hidden_event(e, true);
-			li.delay(i * 800).slideDown();
-		});
-
-		// Update the start-after for subsequent runs
-		$('#timeline-event-container').attr('data-start-after',
-		                                    data.new_start_after);
-	});
-}, 5000);
 </script>
 {% endblock %}
