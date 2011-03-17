@@ -31,6 +31,8 @@ Timeline.prototype = {
 		previousEventsUrl : null,
 		timeUpdateFrequency : 30000,
 		updateFrequency : 5000,
+		cullFrequency : 30000,
+		timelineEventCount : 50,
 		newEventAdded : null
 	},
 
@@ -57,6 +59,9 @@ Timeline.prototype = {
 
 		window.setInterval(function () { klass.update(); },
 		                   this._options.updateFrequency);
+
+		window.setInterval(function () { klass.cullEventList(); },
+		                   this._options.cullFrequency);
 
 		$(window).scroll(function () {
 			// Fetch down starting when we're viewing the last 20% of the page
@@ -169,5 +174,30 @@ Timeline.prototype = {
 			$('#timeline-event-container').attr('data-start-after',
 			                                    data.new_start_after);
 		});
+	},
+
+	cullEventList : function () {
+		var events = $('.timeline-event');
+		var maxEvents = this._options.timelineEventCount;
+
+		if (events.length <= maxEvents)
+			return;
+
+		// Don't cull items if we're currently fetching
+		if (this._fetchingDown)
+			return;
+
+		// Only cull items if we're at the top, or close to the top so
+		// we don't cull items if we're in the middle of scrolling down
+		if ($(window).scrollTop() > 300)
+			return;
+
+		// Make sure earlier-than is updated so that fetchDown will
+		// continue to operate properly.
+		var newEarlierThan = $(events[maxEvents - 1]).attr('data-id');
+		$('#timeline-event-container').attr('data-earlier-than',
+                                                    newEarlierThan);
+
+		events.slice(maxEvents).remove();
 	},
 };
