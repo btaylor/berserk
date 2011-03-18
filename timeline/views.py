@@ -39,13 +39,13 @@ def timeline_index(request,
                    template_name='timeline/index.html'):
     events = Event.objects.order_by('-date')[:50]
 
-    new_start_after = 0
+    new_start_after = datetime.now()
     if events.count() > 0:
-        new_start_after = events[0].pk
+        new_start_after = utcunixtimestamp(events[0].date)
 
     new_earlier_than = 0
     if events.count() > 0:
-        new_earlier_than = events[events.count()-1].pk
+        new_earlier_than = utcunixtimestamp(events[events.count()-1].date)
 
     return render_to_response(template_name,
                               {'events': events,
@@ -57,7 +57,8 @@ def timeline_latest_events_json(request, start_after):
     """
     Returns a list of events newer than start_after (a event pk) in json format.
     """
-    events = Event.objects.filter(pk__gt=start_after) \
+    after = datetime.utcfromtimestamp(float(start_after))
+    events = Event.objects.filter(date__gt=after) \
                           .order_by('date')
     data = map(lambda e: {
         'pk': e.pk, 'date': utcunixtimestamp(e.date),
@@ -68,7 +69,7 @@ def timeline_latest_events_json(request, start_after):
 
     new_start_after = start_after
     if events.count() > 0:
-        new_start_after = events[events.count()-1].pk
+        new_start_after = utcunixtimestamp(events[events.count()-1].date)
 
     return HttpResponse(simplejson.dumps({
         'events': data,
@@ -80,7 +81,8 @@ def timeline_previous_events_json(request, earlier_than):
     Returns a list of 25 events older than earlier_than (a event pk) in json
     format.
     """
-    events = Event.objects.filter(pk__lt=earlier_than) \
+    before = datetime.utcfromtimestamp(float(earlier_than))
+    events = Event.objects.filter(date__lt=before) \
                           .order_by('-date')[:25]
     data = map(lambda e: {
         'pk': e.pk, 'date': utcunixtimestamp(e.date),
@@ -91,7 +93,7 @@ def timeline_previous_events_json(request, earlier_than):
 
     new_earlier_than = -1 # signal end of data
     if events.count() > 0:
-        new_earlier_than = events[events.count()-1].pk
+        new_earlier_than = utcunixtimestamp(events[events.count()-1].date)
 
     return HttpResponse(simplejson.dumps({
         'events': data,
