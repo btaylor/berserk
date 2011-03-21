@@ -57,7 +57,7 @@ def timeline_latest_events_json(request, start_after):
     """
     Returns a list of events newer than start_after (a event pk) in json format.
     """
-    after = datetime.utcfromtimestamp(float(start_after))
+    after = datetime.fromtimestamp(float(start_after))
     events = Event.objects.filter(date__gt=after) \
                           .order_by('date')
     data = map(lambda e: {
@@ -81,7 +81,7 @@ def timeline_previous_events_json(request, earlier_than):
     Returns a list of 25 events older than earlier_than (a event pk) in json
     format.
     """
-    before = datetime.utcfromtimestamp(float(earlier_than))
+    before = datetime.fromtimestamp(float(earlier_than))
     events = Event.objects.filter(date__lt=before) \
                           .order_by('-date')[:25]
     data = map(lambda e: {
