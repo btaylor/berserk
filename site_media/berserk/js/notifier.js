@@ -98,9 +98,16 @@ Notifier.prototype = {
 			return;
 
 		var p = window.webkitNotifications.createHTMLNotification(options.url);
-		p.show();
 
-		setTimeout(function () { p.cancel (); },
-		           'timeout' in options ? options.timeout : 5000);
+		// We're only allowed to have 4 notifications up at one time.
+		// Any further notifications will be queued until one or more
+		// of the other notifications are hidden, so wait until we've
+		// been shown to start the timer.
+		p.ondisplay = function () {
+			setTimeout(function () { p.cancel (); },
+			           'timeout' in options ? options.timeout : 5000);
+		};
+
+		p.show();
 	},
 };

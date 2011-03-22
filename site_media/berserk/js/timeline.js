@@ -164,10 +164,13 @@ Timeline.prototype = {
 		$.getJSON(url, function (data) {
 			$.each(data.events, function (i, e) {
 				var li = klass._addHiddenEvent(e, true);
-				li.delay(i * 800).slideDown();
 
-				if (klass._options.newEventAdded)
-					klass._options.newEventAdded(e);
+				// Don't fire newEventAdded until it's actually
+				// shown on screen.
+				li.delay(i * 800).slideDown(400, function () {
+					if (klass._options.newEventAdded)
+						klass._options.newEventAdded(e);
+				});
 			});
 
 			// Update the start-after for subsequent runs
