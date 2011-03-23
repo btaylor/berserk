@@ -472,6 +472,23 @@ Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metu
 
         self.assertEqual('', a.comment)
 
+    def test_edited_removed_tag(self):
+        self._parse_file('timeline/testassets/fogbugz_emails/edited_removed_tag.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(1, events.count())
+
+        a = events[0]
+        self.assertEqual('Aardvark', a.protagonist.first_name)
+        self.assertEqual('Bobcat', a.protagonist.last_name)
+
+        self.assertEqual(None, a.deuteragonist)
+
+        self.assertEqual("{{ protagonist }} removed tag 'aar' from {{ task_link }}.",
+                         a.message)
+
+        self.assertEqual('', a.comment)
+
 class GitHubPushSourceTest(TestCase):
     def setUp(self):
         self.gh = GitHubPushSource()

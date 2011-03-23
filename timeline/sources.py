@@ -221,6 +221,12 @@ class FogBugzEmailSource():
                     events.append('{{ protagonist }} added #%d as a subcase of {{ task_link }}.' % subcase)
                     continue
 
+                m = re.match("Removed tag '(?P<tag>.*)'.", change)
+                if m:
+                    tag = m.group('tag')
+                    events.append("{{ protagonist }} removed tag '%s' from {{ task_link }}." % tag)
+                    continue
+
                 # The change line may or may not end in a period
                 # Don't you just love their consistentcy?
                 change = change.rstrip('.')
