@@ -33,6 +33,7 @@ Timeline.prototype = {
 		updateFrequency : 5000,
 		cullFrequency : 30000,
 		timelineEventCount : 50,
+		hotkeys : true,
 		newEventAdded : null
 	},
 
@@ -72,6 +73,14 @@ Timeline.prototype = {
 
 			klass.fetchDown();
 		});
+
+		if (this._options.hotkeys) {
+			$(document).bind('keydown', 'j', function () { klass.moveSelectionDown(); });
+			$(document).bind('keydown', 'k', function () { klass.moveSelectionUp(); });
+			$('.timeline-event').click(function () {
+				klass.select($(this));
+			});
+		}
 	},
 
 	_getRelativeDateString : function (date) {
@@ -113,6 +122,11 @@ Timeline.prototype = {
 		if (e.comment != '')
 			li.append($('<p>').addClass('timeline-event-comment').html(e.comment));
 
+		if (this._options.hotkeys) {
+			var klass = this;
+			li.click(function () { klass.select($(this)); });
+		}
+
 		li.hide();
 		if (prepend) {
 			$('#timeline-event-container').prepend(li);
@@ -131,7 +145,7 @@ Timeline.prototype = {
 		});
 	},
 
-	fetchDown : function () {
+	fetchDown : function (success) {
 		if (this._fetchingDown)
 			return;
 
@@ -153,10 +167,12 @@ Timeline.prototype = {
 			$('#timeline-event-container').attr('data-earlier-than',
 			                                    data.new_earlier_than);
 			klass._fetchingDown = false;
+			if (success)
+				success();
 		});
 	},
 
-	update : function () {
+	update : function (success) {
 		var start_after = $('#timeline-event-container').attr('data-start-after');
 		var url = this._options.latestEventsUrl.replace('99', start_after);
 
@@ -176,6 +192,8 @@ Timeline.prototype = {
 			// Update the start-after for subsequent runs
 			$('#timeline-event-container').attr('data-start-after',
 			                                    data.new_start_after);
+			if (success)
+				success();
 		});
 	},
 
@@ -202,5 +220,85 @@ Timeline.prototype = {
                                                     newEarlierThan);
 
 		events.slice(maxEvents).remove();
+	},
+
+	selectFirstEvent : function () {
+		var events = $('.timeline-event');
+		if (events.length == 0)
+			return;
+
+		this.select($(events[0]));
+	},
+
+	select : function (elm) {
+		if (!elm.hasClass('timeline-event'))
+			return;
+
+		if (elm.hasClass('selected'))
+			return;
+
+		var sel = $('.selected');
+		if (sel.length)
+			sel.removeClass('selected');
+
+		elm.addClass('selected');
+		this.ensureVisible(elm);
+	},
+
+	ensureVisible : function (elm) {
+		var elm_top = elm.offset().top,
+		    elm_bottom = elm_top + elm.height(),
+		    window_top = $(window).scrollTop(),
+		    window_bottom = window_top + $(window).height();
+
+		if (window_top <= elm_top
+		    && window_bottom >= elm_bottom)
+			return;
+
+		$(window).scrollTop(elm_top);
+	},
+
+	moveSelectionDown : function () {
+		var sel = $('.selected');
+		if (sel.length == 0) {
+			this.selectFirstEvent();
+			return;
+		}
+
+		if (sel.length > 1)
+			sel = sel[0];
+
+		var next = sel.next();
+		if (next.length == 0) {
+			var klass = this;
+			this.fetchDown(function () {
+				klass.select(sel.next());
+			});
+			return;
+		}
+
+		this.select(next);
+	},
+
+	moveSelectionUp : function () {
+		var sel = $('.selected');
+		if (sel.length == 0) {
+			this.selectFirstEvent();
+			return;
+		}
+
+		if (sel.length > 1)
+			sel = sel[0];
+
+		var prev = sel.prev();
+		if (prev.length == 0) {
+			var klass = this;
+			this.update(function () {
+				klass.select(sel.prev());
+			});
+			return;
+		}
+
+		this.select(prev);
 	},
 };
