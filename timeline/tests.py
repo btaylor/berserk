@@ -193,7 +193,7 @@ class FogBugzEmailSourceParserTest(TestCase):
         self._parse_file('timeline/testassets/fogbugz_emails/assigned_to_with_estimate.txt')
 
         events = Event.objects.all()
-        self.assertEqual(2, events.count())
+        self.assertEqual(1, events.count())
 
         a = events[0]
         self.assertEqual('Aardvark', a.protagonist.first_name)
@@ -201,21 +201,10 @@ class FogBugzEmailSourceParserTest(TestCase):
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} assigned {{ task_link }} to {{ proto_self }}.',
+        self.assertEqual('{{ protagonist }} assigned {{ task_link }} to {{ proto_self }}. {{ proto_caps_third }} estimates it will require 1 hour to complete.',
                          a.message)
 
         self.assertEqual('', a.comment)
-
-        b = events[1]
-        self.assertEqual('Aardvark', b.protagonist.first_name)
-        self.assertEqual('Bobcat', b.protagonist.last_name)
-
-        self.assertEqual(None, b.deuteragonist)
-
-        self.assertEqual('{{ protagonist }} estimates {{ task_link }} will require 1 hour to complete.',
-                         b.message)
-
-        self.assertEqual('', b.comment)
 
     def test_assigned_with_long_comment(self):
         self._parse_file('timeline/testassets/fogbugz_emails/assigned_with_long_comment.txt')
@@ -275,7 +264,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
         self._parse_file('timeline/testassets/fogbugz_emails/closed_with_severity_change_no_value.txt')
 
         events = Event.objects.all()
-        self.assertEqual(2, events.count())
+        self.assertEqual(1, events.count())
 
         a = events[0]
         self.assertEqual('Aardvark', a.protagonist.first_name)
@@ -283,19 +272,8 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} closed {{ task_link }}.',
+        self.assertEqual('{{ protagonist }} closed {{ task_link }}. {{ proto_caps_third }} set the severity of it to 4 - Minor (Default).',
                          a.message)
-
-        self.assertEqual('verified', a.comment)
-
-        b = events[1]
-        self.assertEqual('Aardvark', b.protagonist.first_name)
-        self.assertEqual('Bobcat', b.protagonist.last_name)
-
-        self.assertEqual(None, b.deuteragonist)
-
-        self.assertEqual('{{ protagonist }} set the severity of {{ task_link }} to 4 - Minor (Default).',
-                         b.message)
 
         self.assertEqual('verified', a.comment)
 
@@ -303,7 +281,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
         self._parse_file('timeline/testassets/fogbugz_emails/edit_with_estimate_and_elapsed_change_no_comment.txt')
 
         events = Event.objects.all()
-        self.assertEqual(2, events.count())
+        self.assertEqual(1, events.count())
 
         a = events[0]
         self.assertEqual('Aardvark', a.protagonist.first_name)
@@ -311,27 +289,16 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} estimates {{ task_link }} will require 0 hours to complete.',
+        self.assertEqual('{{ protagonist }} estimates {{ task_link }} will require 0 hours to complete. {{ proto_caps_third }} reports that 0 hours have been spent on it.',
                          a.message)
 
         self.assertEqual('', a.comment)
-
-        b = events[1]
-        self.assertEqual('Aardvark', b.protagonist.first_name)
-        self.assertEqual('Bobcat', b.protagonist.last_name)
-
-        self.assertEqual(None, b.deuteragonist)
-
-        self.assertEqual('{{ protagonist }} reports that 0 hours have been spent on {{ task_link }}.',
-                         b.message)
-
-        self.assertEqual('', b.comment)
 
     def test_milestone_change_with_comment(self):
         self._parse_file('timeline/testassets/fogbugz_emails/milestone_change_with_comment.txt')
 
         events = Event.objects.all()
-        self.assertEqual(2, events.count())
+        self.assertEqual(1, events.count())
 
         a = events[0]
         self.assertEqual('Aardvark', a.protagonist.first_name)
@@ -340,24 +307,11 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
         self.assertEqual('Unspecified Aardvark', a.deuteragonist.first_name)
         self.assertEqual('Limbo', a.deuteragonist.last_name)
 
-        self.assertEqual('{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}.',
+        self.assertEqual("{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}. {{ proto_caps_third }} moved it to the '11.12 Classy' milestone.",
                          a.message)
 
         self.assertEqual('Lorem ipsum dolor sit amet, consectetur adipiscing el (#999999) ectetur nulla nec eros. -Aardvark.',
                          a.comment)
-
-
-        b = events[1]
-        self.assertEqual('Aardvark', b.protagonist.first_name)
-        self.assertEqual('Bobcat', b.protagonist.last_name)
-
-        self.assertEqual(None, b.deuteragonist)
-
-        self.assertEqual("{{ protagonist }} moved {{ task_link }} to the '11.12 Classy' milestone.",
-                         b.message)
-
-        self.assertEqual('Lorem ipsum dolor sit amet, consectetur adipiscing el (#999999) ectetur nulla nec eros. -Aardvark.',
-                         b.comment)
 
     def test_parent_change_no_comment(self):
         self._parse_file('timeline/testassets/fogbugz_emails/parent_change_no_comment.txt')
@@ -397,7 +351,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
         self._parse_file('timeline/testassets/fogbugz_emails/status_and_severity_change_no_comment.txt')
 
         events = Event.objects.all()
-        self.assertEqual(2, events.count())
+        self.assertEqual(1, events.count())
 
         a = events[0]
         self.assertEqual('Aardvark', a.protagonist.first_name)
@@ -405,21 +359,10 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} set the severity of {{ task_link }} to 4 - Minor (Default).',
+        self.assertEqual('{{ protagonist }} set the severity of {{ task_link }} to 4 - Minor (Default). {{ proto_caps_third }} marked it as fixed.',
                          a.message)
 
         self.assertEqual('', a.comment)
-
-        b = events[1]
-        self.assertEqual('Aardvark', b.protagonist.first_name)
-        self.assertEqual('Bobcat', b.protagonist.last_name)
-
-        self.assertEqual(None, b.deuteragonist)
-
-        self.assertEqual('{{ protagonist }} marked {{ task_link }} as fixed.',
-                         b.message)
-
-        self.assertEqual('', b.comment)
 
     def test_last_message(self):
         self._parse_file('timeline/testassets/fogbugz_emails/last_message.txt')
@@ -444,7 +387,7 @@ Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque curs
         self._parse_file('timeline/testassets/fogbugz_emails/was_resolved_duplicate.txt')
 
         events = Event.objects.all()
-        self.assertEqual(2, events.count())
+        self.assertEqual(1, events.count())
 
         a = events[0]
         self.assertEqual('Bobcat', a.protagonist.first_name)
@@ -452,21 +395,10 @@ Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque curs
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} marked {{ task_link }} as duplicate.',
+        self.assertEqual('{{ protagonist }} marked {{ task_link }} as duplicate. {{ proto_caps_third }} notes that it is a duplicate of #23792.',
                          a.message)
 
         self.assertEqual('', a.comment)
-
-        b = events[1]
-        self.assertEqual('Bobcat', b.protagonist.first_name)
-        self.assertEqual('Goldthwait', b.protagonist.last_name)
-
-        self.assertEqual(None, b.deuteragonist)
-
-        self.assertEqual('{{ protagonist }} notes that {{ task_link }} is a duplicate of #23792.',
-                         b.message)
-
-        self.assertEqual('', b.comment)
 
     def test_float_estimate(self):
         self._parse_file('timeline/testassets/fogbugz_emails/float_estimate.txt')
