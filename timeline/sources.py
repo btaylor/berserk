@@ -221,6 +221,12 @@ class FogBugzEmailSource():
                     events.append('{{ protagonist }} added #%d as a subcase of {{ task_link }}.' % subcase)
                     continue
 
+                m = re.match("Added tag '(?P<tag>.*)'.", change)
+                if m:
+                    tag = m.group('tag')
+                    events.append("{{ protagonist }} added tag '%s' to {{ task_link }}." % tag)
+                    continue
+
                 m = re.match("Removed tag '(?P<tag>.*)'.", change)
                 if m:
                     tag = m.group('tag')

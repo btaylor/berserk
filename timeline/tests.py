@@ -472,6 +472,24 @@ Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metu
 
         self.assertEqual('', a.comment)
 
+    def test_edited_added_tag(self):
+        self._parse_file('timeline/testassets/fogbugz_emails/edited_added_tag.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(1, events.count())
+
+        a = events[0]
+        self.assertEqual('Aardvark', a.protagonist.first_name)
+        self.assertEqual('Bobcat', a.protagonist.last_name)
+
+        self.assertEqual('Unspecified Aardvark', a.deuteragonist.first_name)
+        self.assertEqual('Limbo', a.deuteragonist.last_name)
+
+        self.assertEqual("{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}. {{ proto_caps_third }} added tag 'aar' to it.",
+                         a.message)
+
+        self.assertEqual(u'Lorem:1.2\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ultricies mattis ligula, at congue diam porttitor ut. Nulla fringilla mi id dui pharetra tincidunt. Etiam velit nisi, congue ut ullamcorper at, dictum ut elit. Proin rhoncus bibendum est in cursus.\nIpsumd OL:orsitametconsec\n(To get this information press "CTRL+ALT+Shift+3")\nRepro: 3/3\n\nSummary:\n\nSteps to Reproduce:\n1. Te tu rad ipiscing elit ves ibu lu multric ies matt isli gul aatcongu / ediampor (00000) tti torut nulla\n\nExpected Results: fri ngil lamiid duipha retr at inci dun tetiamv el itnisic ong ueu tu LL\n\nActual Results:\namcorpe rat di ctumutel.\nsee also case: 22439', a.comment)
+
     def test_edited_removed_tag(self):
         self._parse_file('timeline/testassets/fogbugz_emails/edited_removed_tag.txt')
 

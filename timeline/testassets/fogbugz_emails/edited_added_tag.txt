@@ -1,0 +1,37 @@
+A FogBugz case was assigned to Unspecified Aardvark Limbo by Aardvark Bobcat.
+
+Case ID:      24307
+Title:        lor emip sumdol orsita me tcon secte turad ip iscinge lit ve stibulu
+Status:       Active
+Category:     Bug
+Project:      Aardvark Aardvark Aardvark Aardvark
+Area:         Settings
+Priority:     4 - Medium
+Milestone:    Undecided
+Assigned To:  Unspecified Aardvark Limbo
+
+URL:          https://aardvark.fogbugz.com/default.asp?24307
+
+
+Changes: 
+Added tag 'aar'.
+
+Lorem:1.2
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ultricies mattis ligula, at congue diam porttitor ut. Nulla fringilla mi id dui pharetra tincidunt. Etiam velit nisi, congue ut ullamcorper at, dictum ut elit. Proin rhoncus bibendum est in cursus.
+Ipsumd OL:orsitametconsec
+(To get this information press "CTRL+ALT+Shift+3")
+Repro: 3/3
+
+Summary:
+
+Steps to Reproduce:
+1. Te tu rad ipiscing elit ves ibu lu multric ies matt isli gul aatcongu / ediampor (00000) tti torut nulla
+
+Expected Results: fri ngil lamiid duipha retr at inci dun tetiamv el itnisic ong ueu tu LL
+
+Actual Results:
+amcorpe rat di ctumutel.
+see also case: 22439
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D24307) from this case.
