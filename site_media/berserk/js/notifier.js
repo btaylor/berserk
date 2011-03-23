@@ -28,6 +28,7 @@ function Notifier (args) {
 Notifier.prototype = {
 	_options : {
 		cookie_name : 'notification_enabled',
+		cookie_expiry_days : 1000,
 		enabledChanged : null
 	},
 
@@ -47,7 +48,8 @@ Notifier.prototype = {
 	},
 
 	_setCookie : function (val) {
-		$.cookie(this._options.cookie_name, val);
+		$.cookie(this._options.cookie_name, val,
+                         { expires: this._options.cookie_expiry_days } );
 		if (this._options.enabledChanged)
 			this._options.enabledChanged(val);
 	},
