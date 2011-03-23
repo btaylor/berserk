@@ -287,7 +287,7 @@ img a {
 }
 
 .selected {
-    background-color: #FFFFFF;
+    background-color: #FFFDF5;
 
     -webkit-transition: background-color .1s ease-in;
 }
