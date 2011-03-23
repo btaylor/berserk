@@ -455,6 +455,23 @@ Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metu
         self.assertEqual('Lore ip umdolo si tametc ON1 11.10 sec tetur adi pisci ngelitve.\n\nLor emips umdo lor sitame tco nse ctetu radip.\nLoremip su mdolor sitamet.',
                          a.comment)
 
+    def test_edited_added_subcase(self):
+        self._parse_file('timeline/testassets/fogbugz_emails/edited_added_subcase.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(1, events.count())
+
+        a = events[0]
+        self.assertEqual('Aardvark', a.protagonist.first_name)
+        self.assertEqual('Bobcat', a.protagonist.last_name)
+
+        self.assertEqual(None, a.deuteragonist)
+
+        self.assertEqual('{{ protagonist }} added #23368 as a subcase of {{ task_link }}.',
+                         a.message)
+
+        self.assertEqual('', a.comment)
+
 class GitHubPushSourceTest(TestCase):
     def setUp(self):
         self.gh = GitHubPushSource()

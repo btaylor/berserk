@@ -1,0 +1,22 @@
+A FogBugz case was edited by Aardvark Bobcat.
+
+Case ID:      15310
+Title:        Loremip sumdolo: Rsitametc onsectetura, di pisc in gelitin tege rvehi cula.
+
+Status:       Active
+Category:     Bug
+Project:      Aardvark Aardvark
+Area:         Aardvark Aardvark
+Priority:     4 - Medium
+Milestone:    Amber: Release 12: 2/15/2011 (Past)
+Assigned To:  Unspecified Aardvark Limbo
+
+URL:          https://aardvark.fogbugz.com/default.asp?15310
+
+
+Changes: 
+Added subcase 23368.
+
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D15310) from this case.

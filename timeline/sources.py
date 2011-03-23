@@ -215,6 +215,12 @@ class FogBugzEmailSource():
                     events.append("{{ protagonist }} estimates {{ task_link }} will require %g %s to complete." % (hours, plural))
                     continue
 
+                m = re.match("Added subcase (?P<subcase>\d+).", change)
+                if m:
+                    subcase = int(m.group('subcase'))
+                    events.append('{{ protagonist }} added #%d as a subcase of {{ task_link }}.' % subcase)
+                    continue
+
                 # The change line may or may not end in a period
                 # Don't you just love their consistentcy?
                 change = change.rstrip('.')
