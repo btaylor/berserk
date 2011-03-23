@@ -34,7 +34,8 @@ Timeline.prototype = {
 		cullFrequency : 30000,
 		timelineEventCount : 50,
 		hotkeys : true,
-		newEventAdded : null
+		newEventAdded : null,
+		eventOpened : null
 	},
 
 	_MONTHS : [
@@ -77,6 +78,7 @@ Timeline.prototype = {
 		if (this._options.hotkeys) {
 			$(document).bind('keydown', 'j', function () { klass.moveSelectionDown(); });
 			$(document).bind('keydown', 'k', function () { klass.moveSelectionUp(); });
+			$(document).bind('keydown', 'v', function () { klass.openSelectedEvent(); });
 			$('.timeline-event').click(function () {
 				klass.select($(this));
 			});
@@ -245,6 +247,13 @@ Timeline.prototype = {
 		this.ensureVisible(elm);
 	},
 
+	selected : function () {
+		var sel = $('.selected');
+		if (sel.length > 0)
+			return $(sel[0]);
+		return null;
+	},
+
 	ensureVisible : function (elm) {
 		var elm_top = elm.offset().top,
 		    elm_bottom = elm_top + elm.height(),
@@ -259,14 +268,11 @@ Timeline.prototype = {
 	},
 
 	moveSelectionDown : function () {
-		var sel = $('.selected');
-		if (sel.length == 0) {
+		var sel = this.selected();
+		if (!sel) {
 			this.selectFirstEvent();
 			return;
 		}
-
-		if (sel.length > 1)
-			sel = sel[0];
 
 		var next = sel.next();
 		if (next.length == 0) {
@@ -281,14 +287,11 @@ Timeline.prototype = {
 	},
 
 	moveSelectionUp : function () {
-		var sel = $('.selected');
-		if (sel.length == 0) {
+		var sel = this.selected();
+		if (!sel) {
 			this.selectFirstEvent();
 			return;
 		}
-
-		if (sel.length > 1)
-			sel = sel[0];
 
 		var prev = sel.prev();
 		if (prev.length == 0) {
@@ -301,4 +304,13 @@ Timeline.prototype = {
 
 		this.select(prev);
 	},
+
+	openSelectedEvent : function () {
+		var sel = this.selected();
+		if (!sel)
+			return;
+
+		if (this._options.eventOpened)
+			this._options.eventOpened(sel);
+	}
 };

@@ -29,7 +29,7 @@ from django.template import RequestContext
 from django.contrib.csrf.middleware import csrf_exempt
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.template.defaultfilters import linebreaksbr
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 
 from berserk2.timeline.models import Event
 from berserk2.timeline.sources import GitHubPushSource
@@ -110,6 +110,17 @@ def timeline_event_popup(request, event_id,
     return render_to_response(template_name,
                               {'e': event},
                               context_instance=RequestContext(request))
+
+def timeline_jump(request, event_id):
+    """
+    Redirects the browser to the URL associated with a given event.  If there
+    are more than one related URLs, jumps to the first one.
+    """
+    event = get_object_or_404(Event, pk=event_id)
+    url = None
+    if event.task:
+        url = event.task.get_absolute_url()
+    return redirect(url)
 
 @csrf_exempt
 def timeline_github_hook(request):
