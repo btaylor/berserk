@@ -309,7 +309,7 @@ class FogBugzEmailSource():
 
         return Event.objects.create(
             source=self.name, protagonist=protag, deuteragonist=deuter,
-            message=' '.join(events),
+            message=u' '.join(events),
             comment=comments, task=task, date=date
         )
 
