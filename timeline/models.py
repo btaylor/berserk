@@ -78,7 +78,7 @@ class Event(models.Model):
                                     null=True, db_index=True)
     deuteragonist = models.ForeignKey(Actor, related_name='deuteragonist',
                                       null=True, db_index=True)
-    message = models.CharField(max_length=256)
+    message = models.CharField(max_length=512)
     comment = models.TextField()
     task = models.ForeignKey(Task, related_name='task',
                              blank=True, null=True)

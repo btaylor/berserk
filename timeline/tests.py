@@ -436,6 +436,25 @@ Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metu
 
         self.assertEqual('', a.comment)
 
+    def test_reopened_with_many_changes(self):
+        self._parse_file('timeline/testassets/fogbugz_emails/reopened_with_many_changes.txt')
+
+        events = Event.objects.all()
+        self.assertEqual(1, events.count())
+
+        a = events[0]
+        self.assertEqual('Aardvark', a.protagonist.first_name)
+        self.assertEqual('Bobcat', a.protagonist.last_name)
+
+        self.assertEqual('--', a.deuteragonist.first_name)
+        self.assertEqual('', a.deuteragonist.last_name)
+
+        self.assertEqual("{{ protagonist }} assigned {{ deuteragonist }} as the QA resource for {{ task_link }}. {{ proto_caps_third }} changed the title of it to 'Lorem ipsum dolor sit amet, consectetura /   adipis ing elit'. {{ proto_caps_third }} reopened it. {{ proto_caps_third }} moved it to the 'Undecided' milestone.",
+                         a.message)
+
+        self.assertEqual('Lore ip umdolo si tametc ON1 11.10 sec tetur adi pisci ngelitve.\n\nLor emips umdo lor sitame tco nse ctetu radip.\nLoremip su mdolor sitamet.',
+                         a.comment)
+
 class GitHubPushSourceTest(TestCase):
     def setUp(self):
         self.gh = GitHubPushSource()

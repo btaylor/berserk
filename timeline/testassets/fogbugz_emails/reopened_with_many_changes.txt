@@ -1,0 +1,28 @@
+A FogBugz case was reopened (assigned to Unspecified Aardvark Limbo) by Aardvark Bobcat.
+
+Case ID:      17985
+Title:        Lorem ipsum dolor sit amet, consectetura /   adipis ing elit
+Status:       Active
+Category:     Bug
+Project:      Aardvark Aardvark Aardvark Aardvark
+Area:         Browser
+Priority:     4 - Medium
+Milestone:    Undecided
+Assigned To:  Unspecified Aardvark Limbo
+
+URL:          https://aardvark.fogbugz.com/default.asp?17985
+
+
+Changes: 
+QA Assignee changed from (No Value) to '--'
+Title changed from 'Loremi ps umdolorsita.com  metcon sec tetu' to 'Lorem ipsum dolor sit amet, consectetura /   adipis ing elit'.
+Status changed from 'Resolved (Fixed)' to 'Active'.
+Milestone changed from 'The Foreseeable Future: 8/15/2014' to 'Undecided'.
+
+Lore ip umdolo si tametc ON1 11.10 sec tetur adi pisci ngelitve.
+
+Lor emips umdo lor sitame tco nse ctetu radip.
+Loremip su mdolor sitamet.
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D17985) from this case.
