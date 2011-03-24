@@ -93,10 +93,10 @@ class Event(models.Model):
 
     def get_message_for_display(self):
         proto_self = ''
-        proto_caps_third = ''
+        proto_third = ''
         if self.protagonist:
             proto_self = self.protagonist.get_reflexive_gender_pronoun()
-            proto_caps_third = self.protagonist.get_third_person_pronoun().title()
+            proto_third = self.protagonist.get_third_person_pronoun()
 
         deuter_self = ''
         if self.deuteragonist:
@@ -111,7 +111,7 @@ class Event(models.Model):
         t = Template(self.message)
         return t.render(Context({
             'protagonist': self.protagonist, 'proto_self': proto_self,
-            'proto_caps_third': proto_caps_third,
+            'proto_third': proto_third,
             'deuteragonist': self.deuteragonist, 'deuter_self': deuter_self,
             'task_link': task_link,
         }, autoescape=False))

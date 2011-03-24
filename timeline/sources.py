@@ -162,7 +162,7 @@ class FogBugzEmailSource():
             return int(m.group('case_id'))
         return None
 
-    def _make_subevent(self, message, position=1):
+    def _make_subevent(self, message, position=1, inline=False):
         """
         Converts an event message (which uses the protagonist's full name and
         task link) to a subevent, intended follows immediately after the event
@@ -180,7 +180,10 @@ class FogBugzEmailSource():
                   moved it to the 'Undecided' milestone.
         """
         if position == 1:
-            message = message.replace('{{ protagonist }} ', '{{ proto_caps_third }} ')
+            if inline:
+                message = message.replace('{{ protagonist }} ', '{{ proto_third }} ')
+            else:
+                message = message.replace('{{ protagonist }} ', '{{ proto_third|capfirst }} ')
         else:
             message = message.replace('{{ protagonist }} ', '')
 
@@ -356,8 +359,9 @@ class FogBugzEmailSource():
 
         # If we have more than one event, make the other events subevents by
         # changing a few template variables around.
+        inline = len(events) == 2
         for i in range(1, len(events)):
-            events[i] = self._make_subevent(events[i], i)
+            events[i] = self._make_subevent(events[i], i, inline)
 
         return Event.objects.create(
             source=self.name, protagonist=protag, deuteragonist=deuter,
