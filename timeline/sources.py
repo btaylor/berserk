@@ -162,7 +162,7 @@ class FogBugzEmailSource():
             return int(m.group('case_id'))
         return None
 
-    def _make_subevent(self, message):
+    def _make_subevent(self, message, position=1):
         """
         Converts an event message (which uses the protagonist's full name and
         task link) to a subevent, intended follows immediately after the event
@@ -170,9 +170,43 @@ class FogBugzEmailSource():
 
             e.g.: Brad Taylor assigned #41346 to himself.
          becomes: He assigned it to himself.
+
+        When position > 1, {{ protagonist }} is replaced with blank so that
+        multiple long clauses make more sense grammatically:
+
+            e.g.: Brad Taylor assigned Aardvark Bobcat as the QA resource for
+                  #23456. He changed the title of it to 'Lorem ipsum dolor sit
+                  amet, consectetura /   adipis ing elit', reopened it and
+                  moved it to the 'Undecided' milestone.
         """
-        return message.replace('{{ protagonist }}', '{{ proto_caps_third }}') \
-                      .replace('{{ task_link }}', 'it')
+        if position == 1:
+            message = message.replace('{{ protagonist }} ', '{{ proto_caps_third }} ')
+        else:
+            message = message.replace('{{ protagonist }} ', '')
+
+        return message.replace('{{ task_link }}', 'it')
+
+    def _clause_join(self, clauses):
+        """
+        Joins n independent clauses, n-1 with commas and n with and, followed
+        by a period.
+
+           e.g.: ['apples', 'bananas']
+        becomes: 'apples and bananas.'
+
+        If there are more than two clauses, it becomes:
+
+           e.g.: ['apples', 'bananas', 'currants', 'durian']
+        becomes: 'apples. bananas, currants and durian.'
+        """
+        n = len(clauses)
+        if n == 1:
+            return clauses[0] + '.'
+        elif n == 2:
+            return '%s and %s.' % (clauses[0], clauses[1])
+        elif n > 2:
+            return '%s. %s and %s.' % (clauses[0], ', '.join(clauses[1:n-1]), clauses[n-1])
+        return ''
 
     def _parse_body(self, tokens, date=datetime.now()):
         events = []
@@ -193,17 +227,17 @@ class FogBugzEmailSource():
         # Some emails are formatted such that the action is embedded inside of
         # the subject line:
         if subject.startswith('A new case'):
-            events.append('{{ protagonist }} opened a new case {{ task_link }}.')
+            events.append('{{ protagonist }} opened a new case {{ task_link }}')
         elif subject.startswith('A FogBugz case was assigned to'):
             m = re.search('A FogBugz case was assigned to (?P<deuteragonist>.*) by', subject)
             assigned_to = m.group('deuteragonist')
             if protagonist == assigned_to:
-                events.append('{{ protagonist }} assigned {{ task_link }} to {{ proto_self }}.')
+                events.append('{{ protagonist }} assigned {{ task_link }} to {{ proto_self }}')
             else:
                 deuteragonist = assigned_to
-                events.append('{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}.')
+                events.append('{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}')
         elif subject.startswith('A FogBugz case was closed by'):
-            events.append('{{ protagonist }} closed {{ task_link }}.')
+            events.append('{{ protagonist }} closed {{ task_link }}')
 
         # Others have actions listed out nicely:
         if len(changes) > 0:
@@ -212,25 +246,25 @@ class FogBugzEmailSource():
                 if m:
                     hours = float(m.group('hours'))
                     plural = 'hour' if hours == 1 else 'hours'
-                    events.append("{{ protagonist }} estimates {{ task_link }} will require %g %s to complete." % (hours, plural))
+                    events.append("{{ protagonist }} estimates {{ task_link }} will require %g %s to complete" % (hours, plural))
                     continue
 
                 m = re.match("Added subcase (?P<subcase>\d+).", change)
                 if m:
                     subcase = int(m.group('subcase'))
-                    events.append('{{ protagonist }} added #%d as a subcase of {{ task_link }}.' % subcase)
+                    events.append('{{ protagonist }} added #%d as a subcase of {{ task_link }}' % subcase)
                     continue
 
                 m = re.match("Added tag '(?P<tag>.*)'.", change)
                 if m:
                     tag = m.group('tag')
-                    events.append("{{ protagonist }} added tag '%s' to {{ task_link }}." % tag)
+                    events.append("{{ protagonist }} added tag '%s' to {{ task_link }}" % tag)
                     continue
 
                 m = re.match("Removed tag '(?P<tag>.*)'.", change)
                 if m:
                     tag = m.group('tag')
-                    events.append("{{ protagonist }} removed tag '%s' from {{ task_link }}." % tag)
+                    events.append("{{ protagonist }} removed tag '%s' from {{ task_link }}" % tag)
                     continue
 
                 # The change line may or may not end in a period
@@ -248,57 +282,57 @@ class FogBugzEmailSource():
                 before = m.group('before').strip("'")
                 after = m.group('after').strip("'")
                 if type == 'milestone':
-                    events.append("{{ protagonist }} moved {{ task_link }} to the '%s' milestone." % after)
+                    events.append("{{ protagonist }} moved {{ task_link }} to the '%s' milestone" % after)
                 elif type == 'title':
-                    events.append("{{ protagonist }} changed the title of {{ task_link }} to '%s'." % escape(after))
+                    events.append("{{ protagonist }} changed the title of {{ task_link }} to '%s'" % escape(after))
                 elif type == 'estimate':
                     hours = float(after.split(' ', 1)[0])
                     plural = 'hour' if hours == 1 else 'hours'
-                    events.append("{{ protagonist }} estimates {{ task_link }} will require %g %s to complete." % (hours, plural))
+                    events.append("{{ protagonist }} estimates {{ task_link }} will require %g %s to complete" % (hours, plural))
                 elif type == 'non-timesheet elapsed time':
                     hours = float(after.split(' ', 1)[0])
                     plural = 'hour has' if hours == 1 else 'hours have'
-                    events.append("{{ protagonist }} reports that %g %s been spent on {{ task_link }}." % (hours, plural))
+                    events.append("{{ protagonist }} reports that %g %s been spent on {{ task_link }}" % (hours, plural))
                 elif type == 'status':
                     if before.startswith('Resolved') and after == 'Active':
-                        events.append("{{ protagonist }} reopened {{ task_link }}.")
+                        events.append("{{ protagonist }} reopened {{ task_link }}")
                     elif after == 'Resolved (Fixed)':
-                        events.append("{{ protagonist }} marked {{ task_link }} as fixed.")
+                        events.append("{{ protagonist }} marked {{ task_link }} as fixed")
                     elif after == 'Resolved (Not Reproducible)':
-                        events.append("{{ protagonist }} marked {{ task_link }} as not reproducible.")
+                        events.append("{{ protagonist }} marked {{ task_link }} as not reproducible")
                     elif after == 'Resolved (Duplicate)':
-                        events.append("{{ protagonist }} marked {{ task_link }} as duplicate.")
+                        events.append("{{ protagonist }} marked {{ task_link }} as duplicate")
                     elif after == 'Resolved (Postpooned)':
-                        events.append("{{ protagonist }} marked {{ task_link }} as postponed.")
+                        events.append("{{ protagonist }} marked {{ task_link }} as postponed")
                     elif after == 'Resolved (By Design)':
-                        events.append("{{ protagonist }} marked {{ task_link }} as by design.")
+                        events.append("{{ protagonist }} marked {{ task_link }} as by design")
                     elif after == 'Resolved (Won\'t Fix)':
-                        events.append("{{ protagonist }} marked {{ task_link }} as won't fix.")
+                        events.append("{{ protagonist }} marked {{ task_link }} as won't fix")
                     elif after == 'Resolved (Implemented)':
-                        events.append("{{ protagonist }} marked {{ task_link }} as implemented.")
+                        events.append("{{ protagonist }} marked {{ task_link }} as implemented")
                     elif after == 'Resolved (Completed)':
-                        events.append("{{ protagonist }} marked {{ task_link }} as completed.")
+                        events.append("{{ protagonist }} marked {{ task_link }} as completed")
                     else:
-                        events.append("{{ protagonist }} marked the status of {{ task_link }} as %s." % after)
+                        events.append("{{ protagonist }} marked the status of {{ task_link }} as %s" % after)
                 elif type == 'duplicate of':
-                    events.append('{{ protagonist }} notes that {{ task_link }} is a duplicate of #%d.' % self._get_case_id(after))
+                    events.append('{{ protagonist }} notes that {{ task_link }} is a duplicate of #%d' % self._get_case_id(after))
                 elif type == 'parent':
-                    events.append('{{ protagonist }} set the parent of {{ task_link }} to #%d.' % self._get_case_id(after))
+                    events.append('{{ protagonist }} set the parent of {{ task_link }} to #%d' % self._get_case_id(after))
                 elif type == 'qa assignee':
                     if protagonist == after:
-                        events.append('{{ protagonist }} assigned {{ proto_self }} as the QA resource for {{ task_link }}.')
+                        events.append('{{ protagonist }} assigned {{ proto_self }} as the QA resource for {{ task_link }}')
                     else:
                         deuteragonist = after
-                        events.append('{{ protagonist }} assigned {{ deuteragonist }} as the QA resource for {{ task_link }}.')
+                        events.append('{{ protagonist }} assigned {{ deuteragonist }} as the QA resource for {{ task_link }}')
                 else:
                     if before == '(No Value)':
-                        events.append("{{ protagonist }} set the %s of {{ task_link }} to %s." % (type, after))
+                        events.append("{{ protagonist }} set the %s of {{ task_link }} to %s" % (type, after))
                     else:
-                        events.append("{{ protagonist }} changed the %s of {{ task_link }} from %s to %s." % (type, before, after))
+                        events.append("{{ protagonist }} changed the %s of {{ task_link }} from %s to %s" % (type, before, after))
 
         # Last resort: if nothing else, the user just commented
         if len(events) == 0 and len(changes) == 0 and len(comment) > 0:
-            events.append('{{ protagonist }} commented on {{ task_link }}.')
+            events.append('{{ protagonist }} commented on {{ task_link }}')
 
         # One mail will produce just one event, but messages will be merged.
         task = None
@@ -323,11 +357,11 @@ class FogBugzEmailSource():
         # If we have more than one event, make the other events subevents by
         # changing a few template variables around.
         for i in range(1, len(events)):
-            events[i] = self._make_subevent(events[i])
+            events[i] = self._make_subevent(events[i], i)
 
         return Event.objects.create(
             source=self.name, protagonist=protag, deuteragonist=deuter,
-            message=u' '.join(events),
+            message=self._clause_join(events),
             comment=comments, task=task, date=date
         )
 
