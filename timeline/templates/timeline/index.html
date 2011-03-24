@@ -5,6 +5,7 @@
 
 {% block extra_head %}
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.cookie.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.hotkeys.js" charset="utf-8"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/notifier.js" charset="utf-8"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/timeline.js" charset="utf-8"></script>
 {% endblock %}
@@ -53,17 +54,22 @@ $('#timeline-notify-checkbox').change(function () {
 	notifier.toggleEnabled();
 });
 
-// I've got 99 problems and a URL ain't one.
-var event_popup_url = '{% url timeline_event_popup 99 %}';
-
 var timeline = new Timeline({
+	// I've got 99 problems and a URL ain't one.
 	latestEventsUrl : '{% url timeline_latest_events_json 99 %}',
 	previousEventsUrl :'{% url timeline_previous_events_json 99 %}',
 	newEventAdded : function (e) {
 		notifier.htmlNotify({
-			url : event_popup_url.replace('99', e.pk),
+			url : '{% url timeline_event_popup 99 %}'.replace('99', e.pk),
 			timeout : 8000
 		});
+	},
+	eventOpened : function (e) {
+		var pk = e.attr('data-id');
+		if (!pk)
+			return;
+
+		window.open('{% url timeline_jump 99 %}'.replace('99', pk));
 	}
 });
 </script>

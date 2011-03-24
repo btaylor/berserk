@@ -28,6 +28,7 @@ function Notifier (args) {
 Notifier.prototype = {
 	_options : {
 		cookie_name : 'notification_enabled',
+		cookie_expiry_days : 1000,
 		enabledChanged : null
 	},
 
@@ -47,7 +48,8 @@ Notifier.prototype = {
 	},
 
 	_setCookie : function (val) {
-		$.cookie(this._options.cookie_name, val);
+		$.cookie(this._options.cookie_name, val,
+                         { expires: this._options.cookie_expiry_days } );
 		if (this._options.enabledChanged)
 			this._options.enabledChanged(val);
 	},
@@ -98,9 +100,16 @@ Notifier.prototype = {
 			return;
 
 		var p = window.webkitNotifications.createHTMLNotification(options.url);
-		p.show();
 
-		setTimeout(function () { p.cancel (); },
-		           'timeout' in options ? options.timeout : 5000);
+		// We're only allowed to have 4 notifications up at one time.
+		// Any further notifications will be queued until one or more
+		// of the other notifications are hidden, so wait until we've
+		// been shown to start the timer.
+		p.ondisplay = function () {
+			setTimeout(function () { p.cancel (); },
+			           'timeout' in options ? options.timeout : 5000);
+		};
+
+		p.show();
 	},
 };

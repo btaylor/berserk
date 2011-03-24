@@ -286,6 +286,12 @@ img a {
     background-color: #FFF6D9;
 }
 
+.selected {
+    background-color: #FFFFFF;
+
+    -webkit-transition: background-color .1s ease-in;
+}
+
 .timeline-event + .timeline-event {
     margin-top: 3px;
 }
@@ -297,7 +303,7 @@ img a {
 .timeline-date {
     float: right;
     text-align: right;
-    padding-left: 3px;
+    padding-left: 5px;
 
     font-size: 0.8em;
     color: #D2AF77;
@@ -314,7 +320,7 @@ img a {
     cursor: pointer;
 }
 
-.timeline-event-comment:hover {
+.timeline-event-comment:hover, .selected .timeline-event-comment {
     height: auto !important;
     white-space: normal;
     text-overflow: clip;

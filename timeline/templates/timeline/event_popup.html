@@ -6,7 +6,6 @@
 </head>
 <body>
     <li class="timeline-event" data-id="{{ e.pk }}" data-timestamp="{{ e.date|utcunixtimestamp }}">
-            <p class="timeline-date"></p>
             <p>{{ e.get_message_for_display|safe }}</p>
             <p class="timeline-event-task">{{ e.get_task_for_display }}</p>
 {% if e.comment %}

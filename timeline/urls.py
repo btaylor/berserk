@@ -28,5 +28,6 @@ urlpatterns = patterns('berserk2.timeline.views',
     url(r'^latest_events_json/(?P<start_after>\d+)$', 'timeline_latest_events_json', name="timeline_latest_events_json"),
     url(r'^previous_events_json/(?P<earlier_than>\d+)$', 'timeline_previous_events_json', name="timeline_previous_events_json"),
     url(r'^event_popup/(?P<event_id>\d+)$', 'timeline_event_popup', name="timeline_event_popup"),
+    url(r'^jump/(?P<event_id>\d+)$', 'timeline_jump', name="timeline_jump"),
     url(r'^github_hook/$', 'timeline_github_hook'),
 )

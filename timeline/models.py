@@ -59,6 +59,18 @@ class Actor(models.Model):
         else:
             return 'itself'
 
+    def get_third_person_pronoun(self):
+        """
+        Returns the lowercase third-person gender pronoun (e.g.: He, She) for
+        the actor's gender.
+        """
+        if self.gender == 'M':
+            return 'he'
+        elif self.gender == 'F':
+            return 'her'
+        else:
+            return 'it'
+
 class Event(models.Model):
     date = models.DateTimeField(editable=False, db_index=True)
     source = models.CharField(max_length=32)
@@ -66,7 +78,7 @@ class Event(models.Model):
                                     null=True, db_index=True)
     deuteragonist = models.ForeignKey(Actor, related_name='deuteragonist',
                                       null=True, db_index=True)
-    message = models.CharField(max_length=256)
+    message = models.CharField(max_length=512)
     comment = models.TextField()
     task = models.ForeignKey(Task, related_name='task',
                              blank=True, null=True)
@@ -82,8 +94,10 @@ class Event(models.Model):
 
     def get_message_for_display(self):
         proto_self = ''
+        proto_caps_third = ''
         if self.protagonist:
             proto_self = self.protagonist.get_reflexive_gender_pronoun()
+            proto_caps_third = self.protagonist.get_third_person_pronoun().title()
 
         deuter_self = ''
         if self.deuteragonist:
@@ -98,6 +112,7 @@ class Event(models.Model):
         t = Template(self.message)
         return t.render(Context({
             'protagonist': self.protagonist, 'proto_self': proto_self,
+            'proto_caps_third': proto_caps_third,
             'deuteragonist': self.deuteragonist, 'deuter_self': deuter_self,
             'task_link': task_link,
         }, autoescape=False))

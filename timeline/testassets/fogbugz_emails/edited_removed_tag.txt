@@ -1,0 +1,22 @@
+A FogBugz case was edited by Aardvark Bobcat.
+
+Case ID:      24066
+Title:        Fullscreen broken when watching certain videos on youtube
+Title:        Loremipsum dolors itam etconsec teturad ipisci ng elitves
+Status:       Closed (Fixed)
+Category:     Bug
+Project:      Aardvark Aardvark Aardvark Aardvark
+Area:         Aardvark Aardvark
+Priority:     3 - High
+Milestone:    11.10 Bobcat: 4/1/2011
+Assigned To:  CLOSED
+
+URL:          https://aardvark.fogbugz.com/default.asp?24066
+
+
+Changes: 
+Removed tag 'aar'.
+
+
+
+You are subscribed to this case.  If you do not want to receive automatic notifications in the future, unsubscribe (https://aardvark.fogbugz.com/default.asp?pre=3DpreUnsubscribe&pg=3DpgEditBug&command=3Dview&ixBug=3D24066) from this case.
