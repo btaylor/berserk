@@ -29,16 +29,16 @@ import imaplib
 from datetime import datetime
 
 from django.utils.html import escape
+from django.http import HttpResponse
+from django.template import RequestContext
+from django.shortcuts import render_to_response
 
 from berserk2 import settings
 from berserk2.timeline.models import Actor, Event
 from berserk2.sprints.models import Task, BugTracker
-from berserk2.timeline.plugins import BasePeriodicPollSource
+from berserk2.timeline.plugins import BaseEventDetailView, BasePeriodicPollSource
 
-class PeriodicPollSource(BasePeriodicPollSource):
-    def __init__(self):
-        self.name = 'FogBugz'
-
+class FogBugzMixin():
     @staticmethod
     def enabled():
         """
@@ -47,6 +47,27 @@ class PeriodicPollSource(BasePeriodicPollSource):
         return settings.FB_EMAIL_SOURCE_HOST != '' \
                and settings.FB_EMAIL_SOURCE_USER != '' \
                and settings.FB_EMAIL_SOURCE_USER != ''
+
+class EventDetailView(FogBugzMixin, BaseEventDetailView):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def can_render(event):
+        return event.source == 'FogBugz' and event.task
+
+    def render(self, request, event,
+               template_name='timeline/fogbugz_event_detail.html'):
+        # TODO: fetch all of the event data from FogBugz
+        # XXX: This won't be the data at the time of the update.  Problem?
+        snap = event.task.get_latest_snapshot()
+        return render_to_response(template_name,
+                                  {'task': event.task, 'snap': snap},
+                                  context_instance=RequestContext(request))
+
+class PeriodicPollSource(FogBugzMixin, BasePeriodicPollSource):
+    def __init__(self):
+        self.name = 'FogBugz'
 
     def _parse_date(self, str):
         """

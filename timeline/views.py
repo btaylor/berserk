@@ -111,6 +111,20 @@ def timeline_event_popup(request, event_id,
                               {'e': event},
                               context_instance=RequestContext(request))
 
+@csrf_exempt
+def timeline_event_detail(request, event_id):
+    """
+    Returns a partial HTML page which describes the event in detail if
+    available, otherwise returns a blank page.
+    """
+    event = get_object_or_404(Event, pk=event_id)
+    viewer = PluginFactory.get_detailed_viewer_for(event)
+    if not viewer:
+        return HttpResponse('Bad!')
+
+    view = viewer()
+    return view.render(request, event)
+
 def timeline_jump(request, event_id):
     """
     Redirects the browser to the URL associated with a given event.  If there

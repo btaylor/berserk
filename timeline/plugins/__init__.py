@@ -73,6 +73,37 @@ class PluginFactory:
                 matches.append(source)
         return matches
 
+    @staticmethod
+    def get_detailed_viewers():
+        """
+        Returns all BaseEventDetailView subclasses in
+        settings.TIMELINE_SOURCES.
+        """
+        viewers = []
+        for source in settings.TIMELINE_SOURCES:
+            try:
+                klass = get_callable(source + '.EventDetailView')
+                print klass
+                if issubclass(klass, BaseEventDetailView) \
+                   and klass.enabled():
+                    viewers.append(klass)
+            except:
+                pass
+        return viewers
+
+    @staticmethod
+    def get_detailed_viewer_for(event):
+        """
+        Returns a subclass of BaseEventDetailView in settings.TIMELINE_SOURCES
+        which purports to be responsible for rendering a detailed view for the
+        event.
+        """
+        sources = PluginFactory.get_detailed_viewers()
+        for source in sources:
+            if source.can_render(event):
+                return source
+        return None
+
 class BaseSource:
     @staticmethod
     def enabled():
@@ -91,6 +122,14 @@ class BasePushSource:
         raise NotImplementedError()
 
     def push(self, payload):
+        raise NotImplementedError()
+
+class BaseEventDetailView:
+    @staticmethod
+    def can_render(event):
+        return False
+
+    def render(request, event):
         raise NotImplementedError()
 
 from berserk2.timeline.plugins import fogbugz, github
