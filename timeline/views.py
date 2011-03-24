@@ -27,12 +27,12 @@ from datetime import datetime
 
 from django.template import RequestContext
 from django.contrib.csrf.middleware import csrf_exempt
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.template.defaultfilters import linebreaksbr
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 
 from berserk2.timeline.models import Event
-from berserk2.timeline.sources import GitHubPushSource
+from berserk2.timeline.plugins import PluginFactory
 from berserk2.timeline.templatetags.utcunixtimestamp import utcunixtimestamp
 
 def timeline_index(request,
@@ -123,17 +123,17 @@ def timeline_jump(request, event_id):
     return redirect(url)
 
 @csrf_exempt
-def timeline_github_hook(request):
+def timeline_push(request, source_id):
     """
-    Accepts a POST request from GitHub when a user git pushes to a repository
-    we're monitorring.
+    Accepts any request to this URL and routes it to the correct PushSource
+    based upon name.
     """
-    if request.method != 'POST':
-        return HttpResponseBadRequest()
+    sources = PluginFactory.get_push_source_by_id(source_id)
+    if not sources:
+        raise Http404()
 
-    if not 'payload' in request.POST:
-        return HttpResponseBadRequest()
+    for source in sources:
+        s = source()
+        s.push(request)
 
-    g = GitHubPushSource()
-    g.process_payload(request.POST['payload'])
     return HttpResponse()
