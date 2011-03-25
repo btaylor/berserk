@@ -32,11 +32,12 @@ NEW_TASK_BOOKMARKLET_URL = "javascript:(function(){window.open('%s?url=' + encod
 # Permitted values are 'bugzilla.BugzillaClient' or 'fogbugz.FogBugzClient'
 BUG_TRACKER_TYPE = "fogbugz.FogBugzClient"
 
-# List all the data sources (rooted at berserk2.timeline.sources) that should
-# be run on scheduled intervals for the timeline app.  If you don't want to use
-# timeline, just comment out the sources below.
+# List all the data sources that should be run on scheduled intervals for
+# the timeline app.  If you don't want to use timeline, just comment out
+# the sources below.
 TIMELINE_SOURCES = (
-#    'FogBugzEmailSource',
+#    'berserk2.timeline.plugins.fogbugz',
+#    'berserk2.timeline.plugins.github',
 )
 
 # Settings for the FogBugz email source for berserk's timeline
