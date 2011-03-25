@@ -275,9 +275,16 @@ img a {
 }
 
 #timeline-content-container {
-    max-width: 55em;
+    width: 960px;
     margin: 0 auto;
-    padding-left: 0;
+    padding: 0;
+}
+
+#timeline-event-container {
+    width: 480px;
+    float: left;
+    padding: 0;
+    margin: 0;
 }
 
 .timeline-event {
@@ -287,9 +294,13 @@ img a {
 }
 
 .selected {
-    background-color: #FFFDF5;
+    background-color: #9FB87A;
 
     -webkit-transition: background-color .1s ease-in;
+}
+
+.selected .timeline-message {
+    color: #FFFFFF;
 }
 
 .timeline-event + .timeline-event {
@@ -309,6 +320,10 @@ img a {
     color: #D2AF77;
 }
 
+.selected .timeline-date {
+    color: #4D593C;
+}
+
 .timeline-event-comment {
     height: 1.2em;
     color: #D2AF77;
@@ -320,11 +335,8 @@ img a {
     cursor: pointer;
 }
 
-.timeline-event-comment:hover, .selected .timeline-event-comment {
-    height: auto !important;
-    white-space: normal;
-    text-overflow: clip;
-    overflow: visible;
+.selected .timeline-event-comment {
+    color: #000000;
 }
 
 .timeline-event-task {
@@ -333,6 +345,85 @@ img a {
     padding-top: 0.3em;
 }
 
+.selected .timeline-event-task {
+    color: #4D593C;
+}
+
 #timeline-top-bar {
     text-align: right;
+    margin-bottom: 5px;
 }
+
+#timeline-sidebar {
+    width: 480px;
+    float: left;
+    background-color: #9FB87A;
+    padding: 0;
+}
+
+#timeline-sidebar-event {
+    padding: 15px 25px 10px 25px;
+    color: #FFFFFF;
+    min-height: 5em;
+}
+
+#timeline-sidebar-event h1 {
+    font: 2.0em Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    text-transform: none;
+    margin: 1.25em 0 0 0;
+}
+
+#timeline-sidebar-event p {
+    float: right;
+    margin: 0;
+    color: #4D593C;
+    font-size: 0.8em;
+}
+
+#timeline-sidebar-event blockquote {
+    margin-left: 1em;
+    color: #000000;
+}
+
+#timeline-sidebar-detail {
+    background: #FFFFFF url('../images/timeline-detail-arrow.png') top left no-repeat;
+    min-height: 40em;
+    margin: 0;
+    padding: 10px;
+}
+
+#timeline-sidebar-detail p {
+    margin: 0;
+    padding: 0;
+}
+
+#fogbugz-detail-header {
+    margin: 10px 0 0 0;
+}
+
+#fogbugz-detail-header td {
+    vertical-align: top;
+}
+
+#fogbugz-detail-header h2 {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: normal;
+
+    margin: 0;
+}
+
+#fogbugz-detail-header h3 {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: normal;
+
+    margin: 0;
+    color: #000000;
+    text-transform: none;
+}
+
+#timeline-fogbugz-title {
+    float: left;
+}
+
+
