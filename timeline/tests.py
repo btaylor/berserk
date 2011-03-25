@@ -201,7 +201,7 @@ class FogBugzEmailSourceParserTest(TestCase):
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} assigned {{ task_link }} to {{ proto_self }}. {{ proto_caps_third }} estimates it will require 1 hour to complete.',
+        self.assertEqual('{{ protagonist }} assigned {{ task_link }} to {{ proto_self }} and {{ proto_third }} estimates it will require 1 hour to complete.',
                          a.message)
 
         self.assertEqual('', a.comment)
@@ -272,7 +272,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} closed {{ task_link }}. {{ proto_caps_third }} set the severity of it to 4 - Minor (Default).',
+        self.assertEqual('{{ protagonist }} closed {{ task_link }} and {{ proto_third }} set the severity of it to 4 - Minor (Default).',
                          a.message)
 
         self.assertEqual('verified', a.comment)
@@ -289,7 +289,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} estimates {{ task_link }} will require 0 hours to complete. {{ proto_caps_third }} reports that 0 hours have been spent on it.',
+        self.assertEqual('{{ protagonist }} estimates {{ task_link }} will require 0 hours to complete and {{ proto_third }} reports that 0 hours have been spent on it.',
                          a.message)
 
         self.assertEqual('', a.comment)
@@ -307,7 +307,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
         self.assertEqual('Unspecified Aardvark', a.deuteragonist.first_name)
         self.assertEqual('Limbo', a.deuteragonist.last_name)
 
-        self.assertEqual("{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}. {{ proto_caps_third }} moved it to the '11.12 Classy' milestone.",
+        self.assertEqual("{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }} and {{ proto_third }} moved it to the '11.12 Classy' milestone.",
                          a.message)
 
         self.assertEqual('Lorem ipsum dolor sit amet, consectetur adipiscing el (#999999) ectetur nulla nec eros. -Aardvark.',
@@ -359,7 +359,7 @@ Maecenas sed nisi eu ligula interdum porttitor ut quis sem.""", a.comment)
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} set the severity of {{ task_link }} to 4 - Minor (Default). {{ proto_caps_third }} marked it as fixed.',
+        self.assertEqual('{{ protagonist }} set the severity of {{ task_link }} to 4 - Minor (Default) and {{ proto_third }} marked it as fixed.',
                          a.message)
 
         self.assertEqual('', a.comment)
@@ -395,7 +395,7 @@ Maecenas a bibendum mi. Nulla in enim nibh, vitae cursus enim. Pellentesque curs
 
         self.assertEqual(None, a.deuteragonist)
 
-        self.assertEqual('{{ protagonist }} marked {{ task_link }} as duplicate. {{ proto_caps_third }} notes that it is a duplicate of #23792.',
+        self.assertEqual('{{ protagonist }} marked {{ task_link }} as duplicate and {{ proto_third }} notes that it is a duplicate of #23792.',
                          a.message)
 
         self.assertEqual('', a.comment)
@@ -449,7 +449,7 @@ Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metu
         self.assertEqual('--', a.deuteragonist.first_name)
         self.assertEqual('', a.deuteragonist.last_name)
 
-        self.assertEqual("{{ protagonist }} assigned {{ deuteragonist }} as the QA resource for {{ task_link }}. {{ proto_caps_third }} changed the title of it to 'Lorem ipsum dolor sit amet, consectetura /   adipis ing elit'. {{ proto_caps_third }} reopened it. {{ proto_caps_third }} moved it to the 'Undecided' milestone.",
+        self.assertEqual("{{ protagonist }} assigned {{ deuteragonist }} as the QA resource for {{ task_link }}. {{ proto_third|capfirst }} changed the title of it to 'Lorem ipsum dolor sit amet, consectetura /   adipis ing elit', reopened it and moved it to the 'Undecided' milestone.",
                          a.message)
 
         self.assertEqual('Lore ip umdolo si tametc ON1 11.10 sec tetur adi pisci ngelitve.\n\nLor emips umdo lor sitame tco nse ctetu radip.\nLoremip su mdolor sitamet.',
@@ -485,7 +485,7 @@ Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metu
         self.assertEqual('Unspecified Aardvark', a.deuteragonist.first_name)
         self.assertEqual('Limbo', a.deuteragonist.last_name)
 
-        self.assertEqual("{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }}. {{ proto_caps_third }} added tag 'aar' to it.",
+        self.assertEqual("{{ protagonist }} assigned {{ task_link }} to {{ deuteragonist }} and {{ proto_third }} added tag 'aar' to it.",
                          a.message)
 
         self.assertEqual(u'Lorem:1.2\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ultricies mattis ligula, at congue diam porttitor ut. Nulla fringilla mi id dui pharetra tincidunt. Etiam velit nisi, congue ut ullamcorper at, dictum ut elit. Proin rhoncus bibendum est in cursus.\nIpsumd OL:orsitametconsec\n(To get this information press "CTRL+ALT+Shift+3")\nRepro: 3/3\n\nSummary:\n\nSteps to Reproduce:\n1. Te tu rad ipiscing elit ves ibu lu multric ies matt isli gul aatcongu / ediampor (00000) tti torut nulla\n\nExpected Results: fri ngil lamiid duipha retr at inci dun tetiamv el itnisic ong ueu tu LL\n\nActual Results:\namcorpe rat di ctumutel.\nsee also case: 22439', a.comment)
