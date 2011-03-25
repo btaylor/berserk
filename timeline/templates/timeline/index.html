@@ -26,6 +26,7 @@
         data-earlier-than="{{ new_earlier_than }}">
 {% for e in events %}
         <li class="timeline-event" data-id="{{ e.pk }}" data-timestamp="{{ e.date|utcunixtimestamp }}">
+            <div class="timeline-event-arrow"></div>
             <p class="timeline-date"></p>
             <p class="timeline-message">{{ e.get_message_for_display|safe }}</p>
             <p class="timeline-event-task">{{ e.get_task_for_display }}</p>
