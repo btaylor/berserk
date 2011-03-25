@@ -35,7 +35,8 @@ Timeline.prototype = {
 		timelineEventCount : 50,
 		hotkeys : true,
 		newEventAdded : null,
-		eventOpened : null
+		eventOpened : null,
+		selected : null
 	},
 
 	_MONTHS : [
@@ -118,7 +119,8 @@ Timeline.prototype = {
 				  .attr('data-timestamp', e.date)
 				  .append($('<p>').addClass('timeline-date')
 						  .text(this._getRelativeDateString(e.date)))
-				  .append($('<p>').html(e.message));
+				  .append($('<p>').addClass('timeline-message')
+		                                  .html(e.message));
 		if (e.task != '')
 			li.append($('<p>').addClass('timeline-event-task').html(e.task));
 		if (e.comment != '')
@@ -245,6 +247,9 @@ Timeline.prototype = {
 
 		elm.addClass('selected');
 		this.ensureVisible(elm);
+
+		if (this._options.selected)
+			this._options.selected(elm);
 	},
 
 	selected : function () {

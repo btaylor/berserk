@@ -25,21 +25,20 @@ import re
 import time
 import email
 import imaplib
-import simplejson
-import dateutil.parser
 
 from datetime import datetime
 
 from django.utils.html import escape
+from django.http import HttpResponse
+from django.template import RequestContext
+from django.shortcuts import render_to_response
 
 from berserk2 import settings
 from berserk2.timeline.models import Actor, Event
 from berserk2.sprints.models import Task, BugTracker
+from berserk2.timeline.plugins import BaseEventDetailView, BasePeriodicPollSource
 
-class FogBugzEmailSource():
-    def __init__(self):
-        self.name = 'FogBugz'
-
+class FogBugzMixin():
     @staticmethod
     def enabled():
         """
@@ -48,6 +47,27 @@ class FogBugzEmailSource():
         return settings.FB_EMAIL_SOURCE_HOST != '' \
                and settings.FB_EMAIL_SOURCE_USER != '' \
                and settings.FB_EMAIL_SOURCE_USER != ''
+
+class EventDetailView(FogBugzMixin, BaseEventDetailView):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def can_render(event):
+        return event.source == 'FogBugz' and event.task
+
+    def render(self, request, event,
+               template_name='timeline/fogbugz_event_detail.html'):
+        # TODO: fetch all of the event data from FogBugz
+        # XXX: This won't be the data at the time of the update.  Problem?
+        snap = event.task.get_latest_snapshot()
+        return render_to_response(template_name,
+                                  {'task': event.task, 'snap': snap},
+                                  context_instance=RequestContext(request))
+
+class PeriodicPollSource(FogBugzMixin, BasePeriodicPollSource):
+    def __init__(self):
+        self.name = 'FogBugz'
 
     def _parse_date(self, str):
         """
@@ -59,7 +79,7 @@ class FogBugzEmailSource():
             return datetime.fromtimestamp(time.mktime(tuple))
         return datetime.now()
 
-    def run(self):
+    def poll(self):
         """
         Runs a single iteration of the source, in this case, polling for the
         first set of unread messages.
@@ -368,46 +388,3 @@ class FogBugzEmailSource():
             message=self._clause_join(events),
             comment=comments, task=task, date=date
         )
-
-class GitHubPushSource:
-    def __init__(self):
-        self.name = 'GitHub'
-
-    @staticmethod
-    def enabled():
-        """
-        Returns true if the source is configured properly and should be run.
-        """
-        return False
-
-    def process_payload(self, payload):
-        data = simplejson.loads(payload)
-
-        repo = data.get('repository')
-        repo_name = repo.get('name') if repo else 'Unknown'
-        ref = data.get('ref')
-
-        for commit in data.get('commits'):
-            author = commit.get('author')
-            protagonist = author.get('name')
-
-            if protagonist:
-                protagonist, created = Actor.objects.get_or_create_by_full_name(protagonist)
-
-            if ref == 'refs/heads/master':
-                message = '{{ protagonist }} pushed <a href="%s" target="_blank">%s</a> to %s.' \
-                          % (commit.get('url'), commit['id'][:7], repo_name)
-            else:
-                branch = ref.rsplit('/', 1)[1] if ref.startswith('refs/heads/') else ref
-                message = '{{ protagonist }} pushed <a href="%s" target="_blank">%s</a> to %s\'s %s branch.' \
-                          % (commit.get('url'), commit['id'][:7], repo_name, branch)
-
-            date = datetime.now()
-            timestamp = commit['timestamp']
-            if timestamp:
-                date = dateutil.parser.parse(timestamp).replace(tzinfo=None)
-
-            Event.objects.create(
-                source=self.name, protagonist=protagonist, date=date,
-                message=message, comment=escape(commit.get('message'))
-            )

@@ -8,6 +8,7 @@
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/jquery.hotkeys.js" charset="utf-8"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/notifier.js" charset="utf-8"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/timeline.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}berserk/js/sidebar.js" charset="utf-8"></script>
 {% endblock %}
 
 {% block banner-container %}
@@ -26,7 +27,7 @@
 {% for e in events %}
         <li class="timeline-event" data-id="{{ e.pk }}" data-timestamp="{{ e.date|utcunixtimestamp }}">
             <p class="timeline-date"></p>
-            <p>{{ e.get_message_for_display|safe }}</p>
+            <p class="timeline-message">{{ e.get_message_for_display|safe }}</p>
             <p class="timeline-event-task">{{ e.get_task_for_display }}</p>
 {% if e.comment %}
             <p class="timeline-event-comment">{{ e.comment|linebreaksbr }}</p>
@@ -34,6 +35,13 @@
         </li>
 {% endfor %}
     </ul>
+    <div id="timeline-sidebar">
+        <div id="timeline-sidebar-event">
+        </div>
+        <div id="timeline-sidebar-detail">
+        </div>
+    </div>
+    <div style="clear: both;"></div>
 </div>
 {% endblock %}
 
@@ -54,8 +62,12 @@ $('#timeline-notify-checkbox').change(function () {
 	notifier.toggleEnabled();
 });
 
-var timeline = new Timeline({
+var sidebar = new Sidebar({
 	// I've got 99 problems and a URL ain't one.
+	eventDetailUrl : '{% url timeline_event_detail 99 %}'
+});
+
+var timeline = new Timeline({
 	latestEventsUrl : '{% url timeline_latest_events_json 99 %}',
 	previousEventsUrl :'{% url timeline_previous_events_json 99 %}',
 	newEventAdded : function (e) {
@@ -63,6 +75,9 @@ var timeline = new Timeline({
 			url : '{% url timeline_event_popup 99 %}'.replace('99', e.pk),
 			timeout : 8000
 		});
+	},
+	selected : function (e) {
+		sidebar.select(e);
 	},
 	eventOpened : function (e) {
 		var pk = e.attr('data-id');

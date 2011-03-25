@@ -26,20 +26,16 @@
 from django.conf import settings
 from django.core.management.base import NoArgsCommand
 
-from berserk2.sprints.models import *
-from berserk2.timeline import sources
+from berserk2.timeline.plugins import PluginFactory
 
 class Command(NoArgsCommand):
     help = "Syncs the timeline sources"
 
     def handle(self, *args, **options):
-        for source in settings.TIMELINE_SOURCES:
-            if not hasattr(sources, source):
+        sources = PluginFactory.get_periodic_poll_sources()
+        for source in sources:
+            if not source.enabled():
                 continue
 
-            cls = getattr(sources, source)
-            if not cls.enabled():
-                continue
-
-            s = cls()
-            s.run()
+            s = source()
+            s.poll()

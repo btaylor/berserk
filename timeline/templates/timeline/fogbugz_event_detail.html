@@ -1,0 +1,22 @@
+<table id="fogbugz-detail-header" cellpadding="3" cellspacing="0">
+    <tr>
+        <td><h2>#{{ task.remote_tracker_id }}</h2></td>
+        <td>
+            <h3>{{ snap.title }}</h3>
+            <p>in {{ snap.component }}</p>
+{% if task.sprints.count %}
+            <p>part of
+    {% for s in task.sprints.all %}
+        {% if not forloop.first %}
+                ,
+        {% endif %}
+                <a href="{{ s.get_absolute_url }}">Sprint #{{ s.pk }}</a>
+    {% endfor %}
+            </p>
+{% endif %}
+{% if snap.assigned_to %}
+            <p>Assigned to {{ snap.assigned_to }}</p>
+{% endif %}
+        </td>
+    </tr>
+</table>
