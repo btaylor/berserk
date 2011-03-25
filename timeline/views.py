@@ -120,7 +120,7 @@ def timeline_event_detail(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     viewer = PluginFactory.get_detailed_viewer_for(event)
     if not viewer:
-        return HttpResponse('Bad!')
+        return HttpResponse()
 
     view = viewer()
     return view.render(request, event)
