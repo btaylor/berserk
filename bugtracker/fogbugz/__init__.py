@@ -94,6 +94,27 @@ class FogBugzClient:
         assert int(bug_id) > 0
         return FogBugzBug(self.backend, bug_id)
 
+    def get_events_for_bug(self, bug_id):
+        """
+        Returns a list of dicts containing event details for the given bug
+        number.
+        """
+    	# I really hate that I'm doing this here and not in FogBugzBug
+        data = []
+        xml = self.backend.search(q=bug_id, cols='events')
+        if not xml:
+            return data
+
+        events = xml.find('events')
+        for event in events:
+            data.append({
+                'date': dateutil.parser.parse(event.find('dt').text),
+                'html': unicode(event.find('shtml').text),
+                'changes': unicode(event.find('schanges').text),
+                'description': unicode(event.find('evtdescription').text),
+        	})
+        return data
+
     def get_stats_for_milestone(self, project, milestone):
         """
         Returns a tuple containing the number of open bugs, total estimated

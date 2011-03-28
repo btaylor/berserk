@@ -103,6 +103,13 @@ class BugzillaClient:
         else:
             return True
 
+    def get_events_for_bug(self, bug_id):
+        """
+        Returns a list of dicts containing event details for the given bug
+        number.
+        """
+        return []
+
     def get_bug(self, bug_id):
         """
         Returns a BugzillaBug instance or a blank instance if bug_id could not
