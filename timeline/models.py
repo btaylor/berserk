@@ -82,7 +82,6 @@ class Event(models.Model):
     comment = models.TextField()
     task = models.ForeignKey(Task, related_name='task',
                              blank=True, null=True)
-    parent = models.ForeignKey('self', blank=True, null=True)
 
     def __unicode__(self):
         return self.message
