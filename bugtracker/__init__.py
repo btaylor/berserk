@@ -38,3 +38,17 @@ class BugTrackerFactory:
             return mod
         except:
             return None
+
+    @staticmethod
+    def get_bug_tracker_instance(bug_tracker):
+        tracker = BugTrackerFactory.get_bug_tracker()
+        try:
+            client = tracker(bug_tracker.base_url, bug_tracker.backend)
+        except AttributeError:
+            logging.error('Backend %s not found' % bug_tracker.backend)
+            return None
+
+        if not client.login(bug_tracker.username, bug_tracker.password):
+            logging.error('Could not authenticate with bug tracker')
+            return None
+        return client

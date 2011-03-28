@@ -85,17 +85,8 @@ class Milestone(models.Model):
         Fetches the latest statistics about the milestone from the remote
         tracker.
         """
-        tracker = BugTrackerFactory.get_bug_tracker()
-        try:
-            client = tracker(self.bug_tracker.base_url,
-                             self.bug_tracker.backend)
-        except AttributeError:
-            logging.error('Backend %s not found' % self.bug_tracker.backend)
-            return None
-
-        if not client.login(self.bug_tracker.username,
-                            self.bug_tracker.password):
-            logging.error('Could not authenticate with bug tracker')
+        client = BugTrackerFactory.get_bug_tracker_instance(self.bug_tracker)
+        if not client:
             return None
 
         stats = client.get_stats_for_milestone(self.bug_tracker.product,
@@ -278,17 +269,8 @@ class Task(models.Model):
             users = User.objects.filter(email=email)
             return users[0] if users.count() > 0 else None
 
-        tracker = BugTrackerFactory.get_bug_tracker()
-        try:
-            client = tracker(self.bug_tracker.base_url,
-                             self.bug_tracker.backend)
-        except AttributeError:
-            logging.error('Backend %s not found' % self.bug_tracker.backend)
-            return None
-
-        if not client.login(self.bug_tracker.username,
-                            self.bug_tracker.password):
-            logging.error('Could not authenticate with bug tracker')
+        client = BugTrackerFactory.get_bug_tracker_instance(self.bug_tracker)
+        if not client:
             return None
 
         bug = client.get_bug(self.remote_tracker_id)
