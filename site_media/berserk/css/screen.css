@@ -358,6 +358,9 @@ img a {
     width: 479px;
     background-color: #9FB87A;
     padding: 0;
+
+    position: relative;
+    top: 0;
 }
 
 #timeline-sidebar-event {

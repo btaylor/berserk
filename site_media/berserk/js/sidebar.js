@@ -37,6 +37,24 @@ Sidebar.prototype = {
 	_init : function (options) {
 		this._options = $.extend({}, this._options, options);
 		this._dateFormatter = new DateFormatter();
+
+		// Make the sidebar follow the user as they scroll
+		var klass = this;
+		var activeScrollTimeout = null;
+		$(window).scroll(function () {
+			if (activeScrollTimeout)
+				clearTimeout(activeScrollTimeout);
+
+			var activeScrollTimeout = setTimeout(function () {
+				activeScrollTimeout = null;
+
+				var min = $('#timeline-content-container').offset().top;
+				if ($(window).scrollTop() > min)
+					$('#timeline-sidebar').css('top', $(window).scrollTop() - min);
+				else
+					$('#timeline-sidebar').css('top', 0);
+			}, 300);
+		});
 	},
 
 	_updateEventDisplay : function (id, time, message, task, comment) {
