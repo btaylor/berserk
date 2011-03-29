@@ -27,8 +27,12 @@ function Sidebar (args) {
 
 Sidebar.prototype = {
 	_options : {
+		updateDelay : 200,
 		eventDetailUrl : null
 	},
+
+	_selectedId : -1,
+	_activeTimeout : null,
 
 	_init : function (options) {
 		this._options = $.extend({}, this._options, options);
@@ -47,13 +51,30 @@ Sidebar.prototype = {
 		if (!this._options.eventDetailUrl)
 			return;
 
+		// Rate limit requests so we don't spam the server if someone
+		// mashes the j key.
+		if (this._activeTimeout) {
+			console.log('rate-limiting activated');
+			clearTimeout(this._activeTimeout);
+		}
+
 		// TODO: show loading spinner
 		$('#timeline-sidebar-detail').empty();
 
 		var url = this._options.eventDetailUrl.replace('99', id);
-		$.get(url, function (data) {
-			$('#timeline-sidebar-detail').html(data);
-		});
+
+		var klass = this;
+		this._activeTimeout = setTimeout(function () {
+			klass._activeTimeout = null;
+			$.get(url, function (data) {
+				// If our selection has changed while the request was
+				// active, dump it
+				if (klass._selectedId != id)
+					return;
+
+				$('#timeline-sidebar-detail').html(data);
+			});
+		}, this._options.updateDelay);
 	},
 
 	select : function (evt) {
@@ -63,6 +84,7 @@ Sidebar.prototype = {
 		    task = $(evt).children('.timeline-event-task').html(),
 		    comment = $(evt).children('.timeline-event-comment').html();
 
+		this._selectedId = id;
 		this._updateEventDisplay(id, time, message, task, comment);
 		this._updateDetailDisplay(id);
 	},
