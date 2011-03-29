@@ -49,8 +49,11 @@ Sidebar.prototype = {
 				activeScrollTimeout = null;
 
 				var min = $('#timeline-content-container').offset().top;
+				var max = min + $('#timeline-content-container').height();
 				if ($(window).scrollTop() > min)
-					$('#timeline-sidebar').css('top', $(window).scrollTop() - min);
+					$('#timeline-sidebar').css(
+						'top', Math.min($(window).scrollTop() - min, max)
+					);
 				else
 					$('#timeline-sidebar').css('top', 0);
 			}, 300);
