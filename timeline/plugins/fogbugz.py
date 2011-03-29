@@ -34,6 +34,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 
 from berserk2 import settings
+from berserk2.bugtracker import BugTrackerFactory
 from berserk2.timeline.models import Actor, Event
 from berserk2.sprints.models import Task, BugTracker
 from berserk2.timeline.plugins import BaseEventDetailView, BasePeriodicPollSource
@@ -58,11 +59,18 @@ class EventDetailView(FogBugzMixin, BaseEventDetailView):
 
     def render(self, request, event,
                template_name='timeline/fogbugz_event_detail.html'):
-        # TODO: fetch all of the event data from FogBugz
-        # XXX: This won't be the data at the time of the update.  Problem?
+        if not event.task:
+            return HttpResponse()
+
+        events = None
+        c = BugTrackerFactory.get_bug_tracker_instance(event.task.bug_tracker)
+        if c:
+            events = c.get_events_for_bug(event.task.remote_tracker_id)
+
         snap = event.task.get_latest_snapshot()
         return render_to_response(template_name,
-                                  {'task': event.task, 'snap': snap},
+                                  {'task': event.task, 'snap': snap,
+                                   'events': events},
                                   context_instance=RequestContext(request))
 
 class PeriodicPollSource(FogBugzMixin, BasePeriodicPollSource):

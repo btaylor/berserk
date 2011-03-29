@@ -20,3 +20,12 @@
         </td>
     </tr>
 </table>
+{% for event in events %}
+<div class="fogbugz-detail-event">
+    <div class="fogbugz-detail-description">{{ event.description }} <small>{{ event.date }}</small></div>
+    <div class="fogbugz-detail-change">{{ event.changes }}</div>
+    <div class="fogbugz-detail-html">
+    {{ event.html|safe }}
+    </div>
+</div>
+{% endfor %}
