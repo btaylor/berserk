@@ -392,9 +392,9 @@ img a {
 
 #timeline-sidebar-detail {
     background: #FFFFFF url('../images/timeline-detail-arrow.png') top left no-repeat;
-    min-height: 40em;
     margin: 0;
     padding: 10px;
+    overflow: auto;
 }
 
 #timeline-sidebar-detail p {

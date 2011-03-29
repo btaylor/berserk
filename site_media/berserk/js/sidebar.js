@@ -38,6 +38,8 @@ Sidebar.prototype = {
 		this._options = $.extend({}, this._options, options);
 		this._dateFormatter = new DateFormatter();
 
+		this._updateSidebarHeight();
+
 		// Make the sidebar follow the user as they scroll
 		var klass = this;
 		var activeScrollTimeout = null;
@@ -56,8 +58,23 @@ Sidebar.prototype = {
 					);
 				else
 					$('#timeline-sidebar').css('top', 0);
+
+				klass._updateSidebarHeight();
 			}, 300);
 		});
+	},
+
+	_updateSidebarHeight : function () {
+		var min = $('#timeline-content-container').offset().top;
+		var top = $(window).scrollTop();
+		var mod = 45; // TODO: find out why 45 exactly?  margins/padding?
+
+		if (top < min)
+			mod += min - top;
+
+		$('#timeline-sidebar-detail').css(
+			'height', $(window).height() - $('#timeline-sidebar-event').height() - mod
+		);
 	},
 
 	_updateEventDisplay : function (id, time, message, task, comment) {
@@ -65,7 +82,8 @@ Sidebar.prototype = {
 		$('#timeline-sidebar-event').empty()
 		                            .append($('<p>').html(timestr))
 		                            .append($('<h1>').html(message))
-                                            .append($('<blockquote>').html(comment));
+		                            .append($('<blockquote>').html(comment));
+		this._updateSidebarHeight();
 	},
 
 	_updateDetailDisplay : function (id) {
