@@ -53,10 +53,8 @@ Sidebar.prototype = {
 
 		// Rate limit requests so we don't spam the server if someone
 		// mashes the j key.
-		if (this._activeTimeout) {
-			console.log('rate-limiting activated');
+		if (this._activeTimeout)
 			clearTimeout(this._activeTimeout);
-		}
 
 		// TODO: show loading spinner
 		$('#timeline-sidebar-detail').empty();
