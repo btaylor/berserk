@@ -39,19 +39,9 @@ Timeline.prototype = {
 		selected : null
 	},
 
-	_MONTHS : [
-		'January', 'Feburary', 'March', 'April',
-		'May', 'June', 'July', 'August',
-		'September', 'October', 'November', 'December'
-	],
-
-	_DAYS : [
-		'Sunday', 'Monday', 'Tuesday', 'Wednesday',
-		'Thursday', 'Friday', 'Saturday'
-	],
-
 	_init : function (options) {
 		this._options = $.extend({}, this._options, options);
+		this._dateFormatter = new DateFormatter();
 		this._fetchingDown = false;
 
 		var klass = this;
@@ -86,39 +76,11 @@ Timeline.prototype = {
 		}
 	},
 
-	_getRelativeDateString : function (date) {
-		var curr = new Date().getTime() / 1000;
-		var diff = curr - date;
-
-		var mesg = '';
-		if (diff < 60) {
-			mesg = 'moments ago';
-		} else if (diff < 3600) {
-			var mins = Math.round(diff / 60);
-			mesg = mins + ' minute' + (mins == 1 ? '' : 's') + ' ago';
-		} else if (diff < 43200) {
-			var hours = Math.round(diff / 3600);
-			mesg = hours + ' hour' + (hours == 1 ? '' : 's') + ' ago';
-		} else if (diff < 172800) {
-			mesg = "Yesterday";
-		} else if (diff < 518400) {
-			var dt = new Date(date * 1000);
-			mesg = this._DAYS[dt.getDay()];
-		} else {
-			var dt = new Date(date * 1000);
-			if (dt.year == curr.year)
-				mesg = this._MONTHS[dt.getMonth()] + ' ' + dt.getDate();
-			else
-				mesg = this._MONTHS[dt.getMonth()] + ' ' + dt.getDate() + ' ' + dt.getFullYear();
-		}
-		return mesg;
-	},
-
 	_addHiddenEvent : function (e, prepend) {
 		var li = $('<li>').addClass('timeline-event').attr('data-id', e.pk)
 				  .attr('data-timestamp', e.date)
 				  .append($('<p>').addClass('timeline-date')
-						  .text(this._getRelativeDateString(e.date)))
+						  .text(this._dateFormatter.getRelativeDateString(e.date)))
 				  .append($('<p>').addClass('timeline-message')
 		                                  .html(e.message));
 		if (e.task != '')
@@ -145,7 +107,7 @@ Timeline.prototype = {
 		$.each($('.timeline-event'), function (i, e) {
 			var date = $(e).attr('data-timestamp');
 			$(e).children('.timeline-date').first()
-			    .text(klass._getRelativeDateString(date));
+			    .text(klass._dateFormatter.getRelativeDateString(date));
 		});
 	},
 
