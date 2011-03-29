@@ -36,11 +36,11 @@ Sidebar.prototype = {
 
 	_init : function (options) {
 		this._options = $.extend({}, this._options, options);
+		this._dateFormatter = new DateFormatter();
 	},
 
 	_updateEventDisplay : function (id, time, message, task, comment) {
-		var timestr = new Date(time * 1000).toString();
-		timestr = "Yesterday, 10:34pm";
+		var timestr = this._dateFormatter.getDateTimeString(new Date(time * 1000));
 		$('#timeline-sidebar-event').empty()
 		                            .append($('<p>').html(timestr))
 		                            .append($('<h1>').html(message))
