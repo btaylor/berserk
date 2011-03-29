@@ -83,7 +83,6 @@ class PluginFactory:
         for source in settings.TIMELINE_SOURCES:
             try:
                 klass = get_callable(source + '.EventDetailView')
-                print klass
                 if issubclass(klass, BaseEventDetailView) \
                    and klass.enabled():
                     viewers.append(klass)
