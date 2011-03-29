@@ -282,7 +282,6 @@ img a {
 
 #timeline-event-container {
     width: 480px;
-    float: left;
     padding: 0;
     margin: 0 1px 0 0;
 }
@@ -357,7 +356,6 @@ img a {
 
 #timeline-sidebar {
     width: 479px;
-    float: left;
     background-color: #9FB87A;
     padding: 0;
 }
