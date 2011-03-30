@@ -392,10 +392,14 @@ img a {
     color: #000000;
 }
 
-#timeline-sidebar-detail {
+#timeline-sidebar-spacebox {
     background: #FFFFFF url('../images/timeline-detail-arrow.png') top left no-repeat;
+    height: 20px;
+}
+
+#timeline-sidebar-detail {
+    background: #FFFFFF;
     margin: 0;
-    padding: 10px;
     overflow: auto;
 }
 
@@ -453,7 +457,7 @@ img a {
 /* iOS-style scrollbar using jquery.scroll */
 
 .scrollbar-pane {
-    padding: 10px 18px 10px 10px;
+    padding: 0 18px 10px 10px;
 }
 
 .scrollbar-handle {

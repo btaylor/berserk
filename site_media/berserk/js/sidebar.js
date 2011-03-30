@@ -71,13 +71,13 @@ Sidebar.prototype = {
 	_updateSidebarHeight : function () {
 		var min = $('#timeline-event-container').offset().top;
 		var top = $(window).scrollTop();
-		var mod = 45; // TODO: find out why 45 exactly?  margins/padding?
+		var mod = 26; // TODO: find out why 26?  margins/padding?
 
 		if (top < min)
 			mod += min - top;
 
 		$('#timeline-sidebar-detail').css(
-			'height', $(window).height() - $('#timeline-sidebar-event').height() - mod
+			'height', $(window).height() - $('#timeline-sidebar-event').height() - $('#timeline-sidebar-spacebox').height() - mod
 		);
 
 		// let the scrollbar know that we've resized its container
