@@ -89,6 +89,14 @@ Sidebar.prototype = {
 			data.update();
 	},
 
+	_setLoading : function (isLoading) {
+		var detail = $('#timeline-sidebar-detail');
+		if (isLoading)
+			detail.empty().addClass('loading');
+		else
+			detail.removeClass('loading');
+	},
+
 	_updateEventDisplay : function (id, time, message, task, comment) {
 		var timestr = this._dateFormatter.getDateTimeString(new Date(time * 1000));
 		$('#timeline-sidebar-event').empty()
@@ -107,8 +115,7 @@ Sidebar.prototype = {
 		if (this._activeTimeout)
 			clearTimeout(this._activeTimeout);
 
-		// TODO: show loading spinner
-		$('#timeline-sidebar-detail').empty();
+		this._setLoading(true);
 
 		var url = this._options.eventDetailUrl.replace('99', id);
 
@@ -121,6 +128,7 @@ Sidebar.prototype = {
 				if (klass._selectedId != id)
 					return;
 
+				klass._setLoading(false);
 				$('#timeline-sidebar-detail').html(data.detail);
 				$('#timeline-sidebar-commands').html(data.commands);
 

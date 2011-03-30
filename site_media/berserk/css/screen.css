@@ -403,6 +403,10 @@ img a {
     overflow: auto;
 }
 
+#timeline-sidebar-detail.loading {
+    background: #FFFFFF url('../images/spinner-white.gif') center center no-repeat;
+}
+
 #timeline-sidebar-detail p {
     margin: 0;
     padding: 0;
