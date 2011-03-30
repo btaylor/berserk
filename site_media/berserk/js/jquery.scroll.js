@@ -265,6 +265,12 @@
             // if handle has a border (always be aware of the css box-model), we need to correct the handle height.
             this.handle.height(2 * this.handle.height() - this.handle.outerHeight(true));
 
+            // if this is not the first update, save the handle position as a
+            // percentage of the previous max and min
+            var ratio = 0;
+            if (this.handle.top && this.props.handleTop)
+                ratio = (this.handle.top - this.props.handleTop.min) / this.props.handleTop.max;
+
             // min- and max-range for handle
             this.props.handleTop = {
                 min: 0,
@@ -274,8 +280,13 @@
             // ratio of handle-container-height to content-container-height (to calculate position of content related to position of handle)
             this.props.handleContentRatio = (this.props.contentHeight - this.props.containerHeight) / (this.props.handleContainerHeight - this.props.handleHeight);
 
-            // initial position of handle at top
+            // position of handle at top, reset it if it was set before
             this.handle.top = 0;
+            if (ratio > 0)
+                this.handle.top = (ratio * this.props.handleTop.max) + this.props.handleTop.min;
+
+            this.setHandlePosition();
+            this.setContentPosition();
         },
 
 
