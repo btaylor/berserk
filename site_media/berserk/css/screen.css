@@ -408,8 +408,25 @@ img a {
     padding: 0;
 }
 
+#timeline-sidebar-commands {
+    position: relative;
+    bottom: 0;
+    padding: 5px;
+
+    background: #9FB87A;
+    min-height: 1em;
+
+    text-align: right;
+}
+
+#timeline-sidebar-commands a {
+    padding-left: 0.5em;
+    font-weight: bold;
+    text-decoration: none;
+}
+
 #fogbugz-detail-header {
-    margin: 10px 0 15px 0;
+    margin: 10px 18px 15px 10px;
 }
 
 #fogbugz-detail-header td {
@@ -434,6 +451,7 @@ img a {
 
 .fogbugz-detail-event {
     margin-bottom: 2em;
+    margin: 0 18px 2em 10px;
 }
 
 .fogbugz-detail-description {
@@ -457,7 +475,6 @@ img a {
 /* iOS-style scrollbar using jquery.scroll */
 
 .scrollbar-pane {
-    padding: 0 18px 10px 10px;
 }
 
 .scrollbar-handle {

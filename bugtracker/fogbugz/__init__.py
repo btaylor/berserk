@@ -94,9 +94,13 @@ class FogBugzClient:
         assert int(bug_id) > 0
         return FogBugzBug(self.backend, bug_id)
 
-    def get_events_for_bug(self, bug_id):
+    def _get_command_url(self, base_url, bug_id, cmd):
+        return '%s/default.asp?ixBug=%s&command=%s&pg=pgEditBug' % (base_url, bug_id, cmd)
+
+    def get_events_for_bug(self, base_url, bug_id):
         """
-        Returns a list of dicts containing event details for the given bug
+        Returns two arguments, a list of commands that can be performed on the
+        bug and a list of dicts containing event details for the given bug
         number.
         """
     	# I really hate that I'm doing this here and not in FogBugzBug
@@ -104,6 +108,14 @@ class FogBugzClient:
         xml = self.backend.search(q=bug_id, cols='events')
         if not xml:
             return data
+
+        commands = []
+        case = xml.find('case')
+        if case:
+            commands = case['operations'].split(',')
+            commands = map(lambda cmd : { \
+                'command': cmd, 'url': self._get_command_url(base_url, bug_id, cmd) \
+            }, commands)
 
         events = xml.find('events')
         for event in events:
@@ -113,7 +125,7 @@ class FogBugzClient:
                 'changes': unicode(event.find('schanges').text),
                 'description': unicode(event.find('evtdescription').text),
         	})
-        return data
+        return commands, data
 
     def get_stats_for_milestone(self, project, milestone):
         """

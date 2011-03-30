@@ -25,13 +25,14 @@ import re
 import time
 import email
 import imaplib
+import simplejson
 
 from datetime import datetime
 
 from django.utils.html import escape
 from django.http import HttpResponse
 from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.template.loader import render_to_string
 
 from berserk2 import settings
 from berserk2.bugtracker import BugTrackerFactory
@@ -58,20 +59,28 @@ class EventDetailView(FogBugzMixin, BaseEventDetailView):
         return event.source == 'FogBugz' and event.task
 
     def render(self, request, event,
-               template_name='timeline/fogbugz_event_detail.html'):
-        if not event.task:
+               detail_template_name='timeline/fogbugz_event_detail.html',
+               commands_template_name='timeline/fogbugz_event_commands.html'):
+        task = event.task
+        if not task:
             return HttpResponse()
 
-        events = None
-        c = BugTrackerFactory.get_bug_tracker_instance(event.task.bug_tracker)
-        if c:
-            events = c.get_events_for_bug(event.task.remote_tracker_id)
+        cmds = []
+        events = []
 
-        snap = event.task.get_latest_snapshot()
-        return render_to_response(template_name,
-                                  {'task': event.task, 'snap': snap,
-                                   'events': events},
-                                  context_instance=RequestContext(request))
+        tracker = BugTrackerFactory.get_bug_tracker_instance(task.bug_tracker)
+        if tracker:
+            cmds, events = tracker.get_events_for_bug(task.bug_tracker.base_url,
+                                                      task.remote_tracker_id)
+
+        return HttpResponse(simplejson.dumps({
+            'commands': render_to_string(commands_template_name,
+                                         {'commands': cmds}),
+            'detail': render_to_string(detail_template_name,
+                                       {'events': events,
+                                        'task': task,
+                                        'snap': task.get_latest_snapshot()})
+        }))
 
 class PeriodicPollSource(FogBugzMixin, BasePeriodicPollSource):
     def __init__(self):

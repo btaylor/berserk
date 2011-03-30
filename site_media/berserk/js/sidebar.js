@@ -71,13 +71,16 @@ Sidebar.prototype = {
 	_updateSidebarHeight : function () {
 		var min = $('#timeline-event-container').offset().top;
 		var top = $(window).scrollTop();
-		var mod = 26; // TODO: find out why 26?  margins/padding?
+		var mod = 0;
 
 		if (top < min)
-			mod += min - top;
+			mod = min - top;
 
-		$('#timeline-sidebar-detail').css(
-			'height', $(window).height() - $('#timeline-sidebar-event').height() - $('#timeline-sidebar-spacebox').height() - mod
+		$('#timeline-sidebar-detail').css('height',
+			$(window).height()
+				- $('#timeline-sidebar-event').outerHeight()
+				- $('#timeline-sidebar-spacebox').outerHeight()
+				- $('#timeline-sidebar-commands').outerHeight() - mod
 		);
 
 		// let the scrollbar know that we've resized its container
@@ -112,13 +115,14 @@ Sidebar.prototype = {
 		var klass = this;
 		this._activeTimeout = setTimeout(function () {
 			klass._activeTimeout = null;
-			$.get(url, function (data) {
+			$.getJSON(url, function (data) {
 				// If our selection has changed while the request was
 				// active, dump it
 				if (klass._selectedId != id)
 					return;
 
-				$('#timeline-sidebar-detail').html(data);
+				$('#timeline-sidebar-detail').html(data.detail);
+				$('#timeline-sidebar-commands').html(data.commands);
 
 				// This needs to be re-inited every time since
 				// we empty the container
