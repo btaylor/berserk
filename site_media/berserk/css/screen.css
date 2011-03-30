@@ -296,7 +296,9 @@ img a {
 .timeline-event.selected {
     background: #9FB87A;
 
+    transition: background-color .1s ease-in;
     -webkit-transition: background-color .1s ease-in;
+    -moz-transition: background-color .1s ease-in;
 }
 
 .selected .timeline-message {
