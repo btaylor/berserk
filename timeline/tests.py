@@ -24,13 +24,14 @@
 from datetime import datetime
 
 from django.test import TestCase
+from django.test.client import Client
 
 from berserk2.timeline.models import Event, Actor
-from berserk2.timeline.sources import FogBugzEmailSource, GitHubPushSource
 
 class FogBugzEmailSourceTokenizerTest(TestCase):
     def setUp(self):
-        self.fb = FogBugzEmailSource()
+        from berserk2.timeline.plugins.fogbugz import PeriodicPollSource
+        self.fb = PeriodicPollSource()
 
     def _get_tokens_from_file(self, file):
         f = open(file, 'r')
@@ -162,7 +163,8 @@ class FogBugzEmailSourceTokenizerTest(TestCase):
 
 class FogBugzEmailSourceParserTest(TestCase):
     def setUp(self):
-        self.fb = FogBugzEmailSource()
+        from berserk2.timeline.plugins.fogbugz import PeriodicPollSource
+        self.fb = PeriodicPollSource()
 
     def _parse_file(self, file):
         f = open(file, 'r')
@@ -509,11 +511,15 @@ Sed consectetur quam vel metus hendrerit ac porta nisl placerat. Nulla quis metu
 
 class GitHubPushSourceTest(TestCase):
     def setUp(self):
-        self.gh = GitHubPushSource()
+        from berserk2.timeline.plugins.github import PushSource
+        self.gh = PushSource()
+        self.client = Client()
 
     def _process_payload(self, file):
         f = open(file, 'r')
-        self.gh.process_payload('\n'.join(f.readlines()))
+        self.client.post('/timeline/push/github', {
+            'payload': '\n'.join(f.readlines())
+        })
         f.close()
 
     def test_github_example(self):
