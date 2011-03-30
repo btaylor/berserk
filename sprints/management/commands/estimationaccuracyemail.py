@@ -64,9 +64,9 @@ class Command(NoArgsCommand):
             cached_snaps = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
                                                             task_snapshot__assigned_to=user,
                                                             date=sprint.end_date) \
-                                                    .filter(Q(task_snapshot__status='RESOLVED') \
-                                                            | Q(task_snapshot__status='CLOSED') \
-                                                            | Q(task_snapshot__status='VERIFIED')) \
+                                                    .filter(Q(task_snapshot__status__istartswith='RESOLVED') \
+                                                            | Q(task_snapshot__status__istartswith='CLOSED') \
+                                                            | Q(task_snapshot__status__istartswith='VERIFIED')) \
                                                     .order_by('-date') \
                                                     .select_related()
             if cached_snaps.count() == 0:

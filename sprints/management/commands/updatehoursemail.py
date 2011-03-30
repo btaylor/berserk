@@ -57,8 +57,8 @@ class Command(NoArgsCommand):
 
             if TaskSnapshot.objects.filter(task__sprints=sprint,
                                            assigned_to=user) \
-                                   .exclude(Q(status='RESOLVED') | Q(status='CLOSED') \
-                                            | Q(status='VERIFIED')) \
+                                   .exclude(Q(status__istartswith='RESOLVED') | Q(status__istartswith='CLOSED') \
+                                            | Q(status__istartswith='VERIFIED')) \
                                    .count() == 0:
                 log('   - User has no tasks assigned this sprint.')
                 continue
