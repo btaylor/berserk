@@ -96,5 +96,7 @@ var timeline = new Timeline({
 		window.open('{% url timeline_jump 99 %}'.replace('99', pk));
 	}
 });
+
+timeline.selectFirstEvent();
 </script>
 {% endblock %}
