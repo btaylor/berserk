@@ -47,7 +47,7 @@ Sidebar.prototype = {
 			if (activeScrollTimeout)
 				clearTimeout(activeScrollTimeout);
 
-			var activeScrollTimeout = setTimeout(function () {
+			activeScrollTimeout = setTimeout(function () {
 				activeScrollTimeout = null;
 
 				var min = $('#timeline-event-container').offset().top;
