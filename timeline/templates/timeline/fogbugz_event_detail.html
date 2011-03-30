@@ -23,7 +23,7 @@
 {% for event in events %}
 <div class="fogbugz-detail-event">
     <div class="fogbugz-detail-description">{{ event.description }} <small>{{ event.date }}</small></div>
-    <div class="fogbugz-detail-change">{{ event.changes }}</div>
+    <div class="fogbugz-detail-change">{{ event.changes|linebreaks }}</div>
     <div class="fogbugz-detail-html">
     {{ event.html|safe }}
     </div>
