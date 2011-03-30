@@ -17,13 +17,15 @@
 {% endblock %}
 
 {% block body %}
-<div id="timeline-top-bar" style="display: none">
-    <label for="notifications">
-        <input id="timeline-notify-checkbox" type="checkbox" />
-        Notify me when new items are added
-    </label>
-</div>
 <table id="timeline-content-container" cellpadding="0" cellspacing="0">
+    <tr>
+        <td id="timeline-top-bar" colspan="2">
+            <label for="notifications">
+                <input id="timeline-notify-checkbox" type="checkbox" />
+                Notify me when new items are added
+            </label>
+        </td>
+    </tr>
     <tr>
         <td>
             <ul id="timeline-event-container" data-start-after="{{ new_start_after }}"
