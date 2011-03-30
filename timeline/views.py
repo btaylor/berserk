@@ -26,10 +26,12 @@ import simplejson
 from datetime import datetime
 
 from django.template import RequestContext
+from django.views.decorators.cache import cache_page
 from django.contrib.csrf.middleware import csrf_exempt
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.template.defaultfilters import linebreaksbr
 from django.shortcuts import render_to_response, get_object_or_404, redirect
+
 
 from berserk2.timeline.models import Event
 from berserk2.timeline.plugins import PluginFactory
@@ -112,10 +114,14 @@ def timeline_event_popup(request, event_id,
                               context_instance=RequestContext(request))
 
 @csrf_exempt
+@cache_page(60 * 15)
 def timeline_event_detail(request, event_id):
     """
     Returns a partial HTML page which describes the event in detail if
     available, otherwise returns a blank page.
+
+    This page is cached for 15 minutes, as it is likely to be expensive to
+    generate.
     """
     event = get_object_or_404(Event, pk=event_id)
     viewer = PluginFactory.get_detailed_viewer_for(event)
