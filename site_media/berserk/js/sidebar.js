@@ -69,7 +69,7 @@ Sidebar.prototype = {
 	},
 
 	_updateSidebarHeight : function () {
-		var min = $('#timeline-content-container').offset().top;
+		var min = $('#timeline-event-container').offset().top;
 		var top = $(window).scrollTop();
 		var mod = 45; // TODO: find out why 45 exactly?  margins/padding?
 
