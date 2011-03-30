@@ -50,7 +50,7 @@ Sidebar.prototype = {
 			var activeScrollTimeout = setTimeout(function () {
 				activeScrollTimeout = null;
 
-				var min = $('#timeline-content-container').offset().top;
+				var min = $('#timeline-event-container').offset().top;
 				var max = min + $('#timeline-content-container').height();
 				if ($(window).scrollTop() > min)
 					$('#timeline-sidebar').css(
