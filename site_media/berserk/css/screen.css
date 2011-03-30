@@ -449,3 +449,35 @@ img a {
 .fogbugz-detail-html {
     margin: 1em 0 0 1em;
 }
+
+/* iOS-style scrollbar using jquery.scroll */
+
+.scrollbar-pane {
+    padding: 10px 18px 10px 10px;
+}
+
+.scrollbar-handle {
+    width: 8px;
+    background: #000000;
+    opacity: 0.1;
+
+    border-radius: 9px;
+    -webkit-border-radius: 9px;
+    -moz-border-radius: 9px;
+
+    transition: opacity 0.3s ease-in-out;
+    -webkit-transition: opacity 0.3s ease-in-out;
+    -moz-transition: opacity 0.3s ease-in-out;
+}
+
+#timeline-sidebar-detail:hover .scrollbar-handle {
+    opacity: 0.3;
+}
+
+.scrollbar-handle:hover {
+    opacity: 0.5 !important;
+}
+
+.scrollbar-handle.move {
+    opacity: 0.6 !important;
+}

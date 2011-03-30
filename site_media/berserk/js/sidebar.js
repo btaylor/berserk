@@ -62,6 +62,10 @@ Sidebar.prototype = {
 				klass._updateSidebarHeight();
 			}, 300);
 		});
+
+		$(window).resize(function () {
+			klass._updateSidebarHeight();
+		});
 	},
 
 	_updateSidebarHeight : function () {
@@ -75,6 +79,11 @@ Sidebar.prototype = {
 		$('#timeline-sidebar-detail').css(
 			'height', $(window).height() - $('#timeline-sidebar-event').height() - mod
 		);
+
+		// let the scrollbar know that we've resized its container
+		var data = $('#timeline-sidebar-detail').data('scrollbar');
+		if (data)
+			data.update();
 	},
 
 	_updateEventDisplay : function (id, time, message, task, comment) {
@@ -110,6 +119,13 @@ Sidebar.prototype = {
 					return;
 
 				$('#timeline-sidebar-detail').html(data);
+
+				// This needs to be re-inited every time since
+				// we empty the container
+				$('#timeline-sidebar-detail').scrollbar({
+					arrows : false,
+					pageFallbackScrolling : false
+				});
 			});
 		}, this._options.updateDelay);
 	},
