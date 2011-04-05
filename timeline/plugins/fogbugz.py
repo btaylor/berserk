@@ -370,9 +370,12 @@ class PeriodicPollSource(FogBugzMixin, BasePeriodicPollSource):
                     else:
                         events.append("{{ protagonist }} changed the %s of {{ task_link }} from %s to %s" % (type, before, after))
 
-        # Last resort: if nothing else, the user just commented
-        if len(events) == 0 and len(changes) == 0 and len(comment) > 0:
-            events.append('{{ protagonist }} commented on {{ task_link }}')
+        # Last resort
+        if len(events) == 0:
+            if len(changes) == 0 and len(comment) > 0:
+                events.append('{{ protagonist }} commented on {{ task_link }}')
+            else:
+                events.append('{{ protagonist }} changed {{ task_link }}')
 
         # One mail will produce just one event, but messages will be merged.
         task = None
