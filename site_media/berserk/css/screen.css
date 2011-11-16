@@ -68,6 +68,35 @@ img a {
     color: #d2af77;
 }
 
+#projects {
+    background-color: #f0dda1;
+    padding-top: 5px;
+}
+
+.project:first-child {
+    margin-left: 8px;
+}
+
+.project {
+    margin: 0 2px 0 0;
+    padding: 0 10px;
+    font: bold 1.4em Verdana, Arial, Helvetica, sans-serif;
+    text-transform: lowercase;
+}
+
+.project a, .project a:hover, .project a:link, .project a:visited {
+    color: #D2AF77;
+    text-decoration: none;
+}
+
+.project:hover, .project.selected {
+    background-color: #FFF6D9;
+}
+
+.project:hover a, .project.selected a {
+    color: #967843;
+}
+
 #navigation {
     border-top: 3px solid #9fb87a;
     background-color: #9fb87a;
@@ -80,8 +109,6 @@ img a {
 .navigation-item {
     margin-right: 2px;
     padding: 0 10px;
-    background: #9fb87a;
-    color: #ffffff;
     font: bold 1.4em Verdana, Arial, Helvetica, sans-serif;
     text-transform: lowercase;
 }

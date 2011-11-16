@@ -69,11 +69,20 @@ class Project(models.Model):
     """
     name = models.CharField(max_length=128)
     slug = models.SlugField(max_length=50)
-    bug_tracker = models.ForeignKey(BugTracker)
+    bug_tracker = models.ForeignKey(BugTracker, null=True, blank=False, default=None)
     users = models.ManyToManyField(User)
 
     def __unicode__(self):
         return self.name
+
+    def get_absolute_url(self):
+        """
+        Gets the URL of the most recent Sprint for this project.
+        """
+        sprint = self.sprints.latest()
+        if sprint:
+            return sprint.get_absolute_url()
+        return None
 
 class Milestone(models.Model):
     """
@@ -138,7 +147,7 @@ class Sprint(models.Model):
     end_date = models.DateField()
     velocity = models.IntegerField(default=6,
         help_text=_('The number of expected work-hours in a day'))
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, related_name="sprints")
     milestone = models.ForeignKey(Milestone, null=True, blank=True)
     objects = SprintManager()
 
@@ -152,7 +161,7 @@ class Sprint(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('sprint_detail', (), {'sprint_id': self.id})
+        return ('sprint_detail', (), {'project_slug': self.project.slug, 'sprint_id': self.id})
 
     def is_active(self):
         """
@@ -224,7 +233,7 @@ class Sprint(models.Model):
         Returns the previous Sprint by end_date, or None if none were found.
         """
         try:
-            return self.get_previous_by_end_date()
+            return self.get_previous_by_end_date(project=self.project)
         except ObjectDoesNotExist:
             pass
         return None
@@ -234,7 +243,7 @@ class Sprint(models.Model):
         Returns the next Sprint by end_date, or None if none were found.
         """
         try:
-            return self.get_next_by_end_date()
+            return self.get_next_by_end_date(project=self.project)
         except ObjectDoesNotExist:
             pass
         return None

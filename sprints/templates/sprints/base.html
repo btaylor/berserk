@@ -20,12 +20,20 @@
 
 {% block title %}viewing sprint {{ sprint }}{% endblock %}
 
+{% block after_header %}
+<div id="projects">
+{% for project in projects %}
+    <span class="project{% if project == sprint.project %} selected{% endif %}"><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></span>
+{% endfor %}
+</div>
+{% endblock %}
+
 {% block navigation %}
 <span class="navigation-item{% block nav-team-tasks %}{% endblock %}">
-<a href="{% url sprints.views.sprint_detail sprint.id %}">{% trans "Team Tasks" %}</a>
+<a href="{% url sprints.views.sprint_detail sprint.project.slug sprint.id %}">{% trans "Team Tasks" %}</a>
 </span>
 <span class="navigation-item{% block nav-your-tasks %}{% endblock %}">
-<a href="{% url sprints.views.sprint_edit sprint.id %}">{% trans "Your Tasks" %}</a>
+<a href="{% url sprints.views.sprint_edit sprint.project.slug sprint.id %}">{% trans "Your Tasks" %}</a>
 </span>
 {% endblock %}
 
@@ -76,6 +84,7 @@
 Ext.onReady(function() {
     {% block js_onReady %}
     {% endblock %}
+
     $.getJSON('{% url sprints.views.sprint_burndown_json sprint.id %}',
         function(json) {
             var markings = [];
@@ -116,7 +125,7 @@ Ext.onReady(function() {
             var data = [
                 { label: "{% trans "Remaining Hours" %}", data: json.remaining_hours },
                 { label: "{% trans "Open Tasks" %}", data: json.open_tasks,
-                  lines: { show: true, fill: true } } 
+                  lines: { show: true, fill: true } }
             ];
             $.plot($("#sprint-milestone-chart"), data, {
                 lines: { show: true, lineWidth: 1 },

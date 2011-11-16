@@ -45,11 +45,28 @@ from berserk2.bugtracker import BugTrackerFactory
 from berserk2.sprints.urls import reverse_full_url
 from berserk2.sprints.models import _workday_diff, _calc_load
 
+@login_required
 def sprint_index(request):
-    sprint = Sprint.objects.current()
+    """
+    Redirect the user to the first project they're a member of.  If they have
+    no projects, 404.
+    """
+    projects = Project.objects.filter(users=request.user)
+    if projects.count() == 0:
+        raise Http404(_('You are not a member of any project.  Ask your administrator to add you.'))
+    return HttpResponseRedirect(projects[0].get_absolute_url())
+
+@login_required
+def sprint_project_index(request, project_slug):
+    """
+    Redirect the user to the latest sprint for this project.  If there are no
+    sprints, 404.
+    """
+    project = get_object_or_404(Project, slug=project_slug, users=request.user)
+    sprint = Sprint.objects.current(project)
     if sprint == None:
         try:
-            sprint = Sprint.objects.latest()
+            sprint = Sprint.objects.latest(project=project)
         except:
             pass
 
@@ -58,25 +75,30 @@ def sprint_index(request):
 
     return HttpResponseRedirect(sprint.get_absolute_url())
 
-def sprint_detail(request, sprint_id,
+@login_required
+def sprint_detail(request, sprint_id, project_slug,
                   template_name='sprints/sprint_detail.html'):
-    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+    project = get_object_or_404(Project, slug=project_slug, users=request.user)
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id), project=project)
     iteration_days = xrange(1, sprint.iteration_days()+2)
 
     return render_to_response(template_name,
                               {'sprint': sprint,
-                               'iteration_days': iteration_days},
+                               'iteration_days': iteration_days,
+                               'projects': Project.objects.all() },
                               context_instance=RequestContext(request))
 
 @login_required
-def sprint_edit(request, sprint_id,
+def sprint_edit(request, sprint_id, project_slug,
                 template_name='sprints/sprint_edit.html'):
-    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+    project = get_object_or_404(Project, slug=project_slug, users=request.user)
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id), project=project)
     bookmarklet_url = settings.NEW_TASK_BOOKMARKLET_URL \
                           % reverse_full_url('sprint_current_bookmarklet')
     return render_to_response(template_name,
                               {'sprint': sprint,
-                               'bookmarklet_url': bookmarklet_url},
+                               'bookmarklet_url': bookmarklet_url,
+                               'projects': Project.objects.all()},
                               context_instance=RequestContext(request))
 
 import urllib
@@ -99,14 +121,14 @@ def sprint_current_bookmarklet(request):
     if not tracker:
         return redirect(error=_('Your bug tracker has not been set up yet.'))
 
-    base_url = sprint.default_bug_tracker.base_url
+    base_url = sprint.project.bug_tracker.base_url
     remote_tracker_id = tracker.get_id_from_url(urllib.unquote(request.GET['url']),
                                                 base_url)
 
     if not remote_tracker_id:
         return redirect(error=_('I don\'t recognize this type of URL.'))
 
-    result = _add_task(request, sprint, sprint.default_bug_tracker,
+    result = _add_task(request, sprint, sprint.project.bug_tracker,
                        remote_tracker_id)
     if 'error' in result:
         return redirect(error=result['error'])
@@ -295,9 +317,10 @@ def sprint_statistics_partial(request, sprint_id,
 @csrf_exempt
 def sprint_delete_task_json(request, sprint_id):
     if not request.user.is_authenticated():
-        return HttpResponse(simplejson.dumps(result))
+        return HttpResponse(simplejson.dumps([]))
 
-    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id),
+                               project__users=request.user)
 
     if 'task_id' not in request.POST:
         return HttpResponseRedirect(sprint.get_absolute_url())
@@ -318,24 +341,24 @@ def sprint_new_json(request, sprint_id):
     if not request.user.is_authenticated():
         return HttpResponse(simplejson.dumps([]))
 
-    sprint = get_object_or_404(Sprint, pk=int(sprint_id))
-
+    sprint = get_object_or_404(Sprint, pk=int(sprint_id),
+                               project__users=request.user)
     if request.method != 'POST':
         return HttpResponseRedirect(sprint.get_absolute_url())
 
     result = _add_task(request, sprint,
-                       sprint.default_bug_tracker,
+                       sprint.project.bug_tracker,
                        request.POST['remote_tracker_id'])
 
     return HttpResponse(simplejson.dumps(result))
 
-def _add_task(request, sprint, default_bug_tracker, remote_tracker_id):
+def _add_task(request, sprint, bug_tracker, remote_tracker_id):
     err, task = None, None
     try:
         if not sprint.is_active():
             raise Exception(_('You cannot edit an inactive sprint.'))
 
-        task, created = Task.objects.get_or_create(bug_tracker=default_bug_tracker,
+        task, created = Task.objects.get_or_create(bug_tracker=bug_tracker,
                                                    remote_tracker_id=remote_tracker_id)
         if created:
             snapshot = task.get_latest_snapshot()

@@ -25,8 +25,9 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('berserk2.sprints.views',
     url(r'^$', 'sprint_index', name="sprint_index"),
-    url(r'^(?P<sprint_id>\d+)/$', 'sprint_detail', name="sprint_detail"),
-    url(r'^(?P<sprint_id>\d+)/edit/$', 'sprint_edit', name="sprint_edit"),
+    url(r'^(?P<project_slug>[-\w]+)/$', 'sprint_project_index', name="sprint_project_index"),
+    url(r'^(?P<project_slug>[-\w]+)/(?P<sprint_id>\d+)/$', 'sprint_detail', name="sprint_detail"),
+    url(r'^(?P<project_slug>[-\w]+)/(?P<sprint_id>\d+)/edit/$', 'sprint_edit', name="sprint_edit"),
     url(r'^current/bookmarklet/$', 'sprint_current_bookmarklet', name='sprint_current_bookmarklet'),
 
     # JSON query methods
