@@ -63,6 +63,18 @@ class BugTracker(models.Model):
         tracker = BugTrackerFactory.get_bug_tracker()
         return tracker.get_url_from_id(task.remote_tracker_id, self.base_url)
 
+class Project(models.Model):
+    """
+    A project.
+    """
+    name = models.CharField(max_length=128)
+    slug = models.SlugField(max_length=50)
+    bug_tracker = models.ForeignKey(BugTracker)
+    users = models.ManyToManyField(User)
+
+    def __unicode__(self):
+        return self.name
+
 class Milestone(models.Model):
     """
     A collection of Sprints with a start date, an end date and a name.
@@ -126,7 +138,7 @@ class Sprint(models.Model):
     end_date = models.DateField()
     velocity = models.IntegerField(default=6,
         help_text=_('The number of expected work-hours in a day'))
-    default_bug_tracker = models.ForeignKey(BugTracker, null=True)
+    project = models.ForeignKey(Project)
     milestone = models.ForeignKey(Milestone, null=True, blank=True)
     objects = SprintManager()
 
