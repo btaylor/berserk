@@ -43,54 +43,52 @@ class Command(NoArgsCommand):
 
         log('Starting up')
 
-        past_sprints = Sprint.objects.filter(end_date__lt=date.today()) \
-                                     .order_by('-end_date')
-        if past_sprints.count() == 0:
-            log('   No past sprints found.  Exiting.')
-            return
+        for project in Project.objects.all():
+            log('   Examining %s...' % project)
 
-        sprint = past_sprints[0]
-        if sprint.end_date + timedelta(1) != date.today():
-            log('   Not the day after the end of the sprint.  Exiting.')
-            return
-
-        for user in User.objects.filter(email__isnull=False):
-            log('   Examining user %s...' % user)
-
-            if user.email == "":
-                log('   - User has no email address.  Aborting.')
+            past_sprints = Sprint.objects.filter(project=project, end_date__lt=date.today()) \
+                                         .order_by('-end_date')
+            if past_sprints.count() == 0:
+                log('       No past sprints found.  Exiting.')
                 continue
 
-            cached_snaps = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
-                                                            task_snapshot__assigned_to=user,
-                                                            date=sprint.end_date) \
-                                                    .filter(Q(task_snapshot__status__istartswith='RESOLVED') \
-                                                            | Q(task_snapshot__status__istartswith='CLOSED') \
-                                                            | Q(task_snapshot__status__istartswith='VERIFIED')) \
-                                                    .order_by('-date') \
-                                                    .select_related()
-            if cached_snaps.count() == 0:
-                log('   - User closed no bugs this iteration or was assigned no tasks.  Aborting.')
+            sprint = past_sprints[0]
+            if sprint.end_date + timedelta(1) != date.today():
+                log('       Not the day after the end of the sprint.  Exiting.')
                 continue
 
-            t = loader.get_template('email/estimation-accuracy-subject.txt')
-            c = Context({
-                'user': user, 'sprint': sprint,
-                'completed': [c.task_snapshot for c in cached_snaps]
-            })
+            for user in User.objects.filter(email__isnull=False):
+                log('       Examining user %s...' % user)
 
-            # Make sure to strip out any trailing newlines as they will cause sendmail
-            # to reject the email
-            subject = t.render(c).rstrip()
+                if user.email == "":
+                    log('       - User has no email address.  Aborting.')
+                    continue
 
-            t = loader.get_template('email/estimation-accuracy.txt')
-            body = t.render(c)
+                cached_snaps = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
+                                                                task_snapshot__assigned_to=user,
+                                                                date=sprint.end_date) \
+                                                        .filter(Q(task_snapshot__status__istartswith='RESOLVED') \
+                                                                | Q(task_snapshot__status__istartswith='CLOSED') \
+                                                                | Q(task_snapshot__status__istartswith='VERIFIED')) \
+                                                        .order_by('-date') \
+                                                        .select_related()
+                if cached_snaps.count() == 0:
+                    log('       - User closed no bugs this iteration or was assigned no tasks.  Aborting.')
+                    continue
 
-            print "About to send to %s" % user
-            print subject
-            print body
-            print
+                t = loader.get_template('email/estimation-accuracy-subject.txt')
+                c = Context({
+                    'user': user, 'sprint': sprint, 'project': project,
+                    'completed': [c.task_snapshot for c in cached_snaps]
+                })
 
-            #email = EmailMessage (subject, body, settings.EMAIL_FROM,
-            #                      to=[user.email], bcc=["%s <%s>" % i for i in settings.MANAGERS])
-            #email.send(fail_silently=False)
+                # Make sure to strip out any trailing newlines as they will cause sendmail
+                # to reject the email
+                subject = t.render(c).rstrip()
+
+                t = loader.get_template('email/estimation-accuracy.txt')
+                body = t.render(c)
+
+                email = EmailMessage (subject, body, settings.EMAIL_FROM,
+                                      to=[user.email], bcc=["%s <%s>" % i for i in settings.MANAGERS])
+                email.send(fail_silently=False)

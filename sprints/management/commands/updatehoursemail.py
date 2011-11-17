@@ -43,56 +43,59 @@ class Command(NoArgsCommand):
 
         log('Starting up')
 
-        sprint = Sprint.objects.current()
-        if sprint == None:
-            log('   No active sprints found.  Exiting.')
-            return
+        for project in Project.objects.all():
+            log('   Examining %s...' % project)
 
-        for user in User.objects.all():
-            log('   Examining user %s...' % user)
-
-            if user.email == "":
-                log('   - User has no email address.  Aborting.')
+            sprint = Sprint.objects.current(project)
+            if sprint == None:
+                log('       No active sprints found.  Exiting.')
                 continue
 
-            if TaskSnapshot.objects.filter(task__sprints=sprint,
-                                           assigned_to=user) \
-                                   .exclude(Q(status__istartswith='RESOLVED') | Q(status__istartswith='CLOSED') \
-                                            | Q(status__istartswith='VERIFIED')) \
-                                   .count() == 0:
-                log('   - User has no tasks assigned this sprint.')
-                continue
+            for user in User.objects.all():
+                log('       Examining user %s...' % user)
 
-            sprint_tasks = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
-                                                            task_snapshot__assigned_to=user)
+                if user.email == "":
+                    log('       - User has no email address.  Aborting.')
+                    continue
 
-            past_tasks = sprint_tasks.filter(date=date.today() - timedelta(settings.UPDATE_HOURS_REMINDER_DAYS))
-            todays_tasks = sprint_tasks.filter(date=date.today())
+                if TaskSnapshot.objects.filter(task__sprints=sprint,
+                                               assigned_to=user) \
+                                       .exclude(Q(status__istartswith='RESOLVED') | Q(status__istartswith='CLOSED') \
+                                                | Q(status__istartswith='VERIFIED')) \
+                                       .count() == 0:
+                    log('       - User has no tasks assigned this sprint.')
+                    continue
 
-            if past_tasks.aggregate(Count('id')) != todays_tasks.aggregate(Count('id')):
-                log('   - User has a different number of tasks than in the past.')
-                continue
+                sprint_tasks = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
+                                                                task_snapshot__assigned_to=user)
 
-            if past_tasks.aggregate(Sum('task_snapshot__remaining_hours')) != todays_tasks.aggregate(Sum('task_snapshot__remaining_hours')):
-                log('   - User has updated their hours in the last %s days.' % settings.UPDATE_HOURS_REMINDER_DAYS)
-                continue
+                past_tasks = sprint_tasks.filter(date=date.today() - timedelta(settings.UPDATE_HOURS_REMINDER_DAYS))
+                todays_tasks = sprint_tasks.filter(date=date.today())
 
-            log('   - User has not updated their hours!')
+                if past_tasks.aggregate(Count('id')) != todays_tasks.aggregate(Count('id')):
+                    log('       - User has a different number of tasks than in the past.')
+                    continue
 
-            t = loader.get_template('email/update-hours-reminder-subject.txt')
-            c = Context({
-                'date': date.today(), 'remind_days': settings.UPDATE_HOURS_REMINDER_DAYS,
-                'user': user, 'sprint': sprint,
-                'task_snapshot_cache': todays_tasks
-            })
+                if past_tasks.aggregate(Sum('task_snapshot__remaining_hours')) != todays_tasks.aggregate(Sum('task_snapshot__remaining_hours')):
+                    log('       - User has updated their hours in the last %s days.' % settings.UPDATE_HOURS_REMINDER_DAYS)
+                    continue
 
-            # Make sure to strip out any trailing newlines as they will cause sendmail
-            # to reject the email
-            subject = t.render(c).rstrip()
+                log('       - User has not updated their hours!')
 
-            t = loader.get_template('email/update-hours-reminder.txt')
-            body = t.render(c)
+                t = loader.get_template('email/update-hours-reminder-subject.txt')
+                c = Context({
+                    'date': date.today(), 'remind_days': settings.UPDATE_HOURS_REMINDER_DAYS,
+                    'user': user, 'sprint': sprint, 'project': project,
+                    'task_snapshot_cache': todays_tasks
+                })
 
-            email = EmailMessage (subject, body, settings.EMAIL_FROM,
-                                  to=[user.email], bcc=["%s <%s>" % i for i in settings.MANAGERS])
-            email.send(fail_silently=False)
+                # Make sure to strip out any trailing newlines as they will cause sendmail
+                # to reject the email
+                subject = t.render(c).rstrip()
+
+                t = loader.get_template('email/update-hours-reminder.txt')
+                body = t.render(c)
+
+                email = EmailMessage (subject, body, settings.EMAIL_FROM,
+                                      to=[user.email], bcc=["%s <%s>" % i for i in settings.MANAGERS])
+                email.send(fail_silently=False)

@@ -1,1 +1,1 @@
-{% load i18n %}{% blocktrans with sprint.id as s %}Sprint {{ s }}: Estimation accuracy report{% endblocktrans %}
+{% load i18n %}{% blocktrans with s=sprint.id p=project.name %}[{{ p }}] Sprint {{ s }}: Estimation accuracy report{% endblocktrans %}

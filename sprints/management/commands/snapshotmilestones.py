@@ -24,7 +24,7 @@
 #
 
 from datetime import datetime
-from berserk2.sprints.models import Sprint, Task
+from berserk2.sprints.models import Sprint, Task, Project
 
 from django.core.management.base import NoArgsCommand
 
@@ -37,13 +37,16 @@ class Command(NoArgsCommand):
 
         log('Starting up')
 
-        sprint = Sprint.objects.current()
-        if sprint == None:
-            log('   No active sprints found.  Exiting.')
-            sys.exit()
+        for project in Project.objects.all():
+            log('   Examining %s...' % project)
 
-        if sprint.milestone:
-            log('   Fetching statistics for milestone %s' % sprint.milestone.name)
-            sprint.milestone.snapshot_statistics()
-        else:
-            log('   Current sprint has no milestone set.  Exiting.')
+            sprint = Sprint.objects.current(project)
+            if sprint == None:
+                log('       No active sprints found.  Exiting.')
+                continue
+
+            if sprint.milestone:
+                log('       Fetching statistics for milestone %s' % sprint.milestone.name)
+                sprint.milestone.snapshot_statistics()
+            else:
+                log('       Current sprint has no milestone set.  Exiting.')
