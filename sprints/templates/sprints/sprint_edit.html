@@ -40,7 +40,7 @@
     <div class="bookmarklet">
         <a href="{{ bookmarklet_url }}" id="bookmark-link"
            title="{% trans "Add this task to your Sprint" %}">
-            {% trans "Add Task Bookmarklet" %}
+            {% blocktrans with p=sprint.project.name %}Add Task to {{ p }}{% endblocktrans %}
         </a>
 {% blocktrans %}
         <small>Drag this link to your bookmarks bar.  Clicking on this bookmark

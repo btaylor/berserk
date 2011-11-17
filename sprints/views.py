@@ -94,7 +94,7 @@ def sprint_edit(request, sprint_id, project_slug,
     project = get_object_or_404(Project, slug=project_slug, users=request.user)
     sprint = get_object_or_404(Sprint, pk=int(sprint_id), project=project)
     bookmarklet_url = settings.NEW_TASK_BOOKMARKLET_URL \
-                          % reverse_full_url('sprint_current_bookmarklet')
+                          % reverse_full_url('sprint_current_bookmarklet', kwargs={'project_slug': project.slug})
     return render_to_response(template_name,
                               {'sprint': sprint,
                                'bookmarklet_url': bookmarklet_url,
@@ -104,16 +104,21 @@ def sprint_edit(request, sprint_id, project_slug,
 import urllib
 
 @login_required
-def sprint_current_bookmarklet(request):
+def sprint_current_bookmarklet(request, project_slug):
     def redirect(error=None, notice=None):
         if error is not None:
             request.flash['error'] = error
         if notice is not None:
             request.flash['notice'] = notice
         return HttpResponseRedirect(reverse('sprint_edit',
-                                            kwargs={'sprint_id': sprint.id}))
+                                            kwargs={'sprint_id': sprint.id,
+                                                    'project_slug': project_slug}))
 
-    sprint = Sprint.objects.current()
+    projects = Project.objects.filter(slug=project_slug, users=request.user)
+    if projects.count() == 0:
+        return HttpResponseRedirect(reverse('sprint_index'))
+
+    sprint = Sprint.objects.current(project=projects[0])
     if sprint == None or request.method != 'GET':
         return HttpResponseRedirect(reverse('sprint_index'))
 
