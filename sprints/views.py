@@ -85,7 +85,7 @@ def sprint_detail(request, sprint_id, project_slug,
     return render_to_response(template_name,
                               {'sprint': sprint,
                                'iteration_days': iteration_days,
-                               'projects': Project.objects.all() },
+                               'projects': Project.objects.filter(is_active=True) },
                               context_instance=RequestContext(request))
 
 @login_required
@@ -98,7 +98,7 @@ def sprint_edit(request, sprint_id, project_slug,
     return render_to_response(template_name,
                               {'sprint': sprint,
                                'bookmarklet_url': bookmarklet_url,
-                               'projects': Project.objects.all()},
+                               'projects': Project.objects.filter(is_active=True) },
                               context_instance=RequestContext(request))
 
 import urllib

@@ -69,6 +69,7 @@ class Project(models.Model):
     """
     name = models.CharField(max_length=128)
     slug = models.SlugField(max_length=50)
+    is_active = models.BooleanField("Active", default=True)
     bug_tracker = models.ForeignKey(BugTracker, null=True, blank=False, default=None)
     users = models.ManyToManyField(User)
 
@@ -168,7 +169,7 @@ class Sprint(models.Model):
         Returns true if the current date is between the start and end dates of
         the Sprint.
         """
-        return date.today() >= self.start_date \
+        return self.project.is_active and date.today() >= self.start_date \
                and date.today() <= self.end_date
 
     def iteration_days(self):

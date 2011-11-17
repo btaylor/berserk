@@ -120,7 +120,7 @@ class MilestoneAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'bug_tracker')
+    list_display = ('name', 'bug_tracker', 'is_active')
     prepopulated_fields = {'slug': ('name', )}
 
 admin.site.register(BugTracker, BugTrackerAdmin)
