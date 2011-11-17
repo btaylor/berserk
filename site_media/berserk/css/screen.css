@@ -74,7 +74,7 @@ img a {
 }
 
 .project:first-child {
-    margin-left: 8px;
+    margin-left: 10px;
 }
 
 .project {
@@ -103,7 +103,7 @@ img a {
 }
 
 .navigation-item:first-child {
-    margin-left: 8px;
+    margin-left: 10px;
 }
 
 .navigation-item {
