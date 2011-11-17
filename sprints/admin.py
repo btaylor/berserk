@@ -104,7 +104,7 @@ class SprintAdminForm(forms.ModelForm):
         return self.cleaned_data
 
 class SprintAdmin(admin.ModelAdmin):
-    list_display = ('id', 'start_date', 'end_date', 'velocity')
+    list_display = ('id', 'project', 'start_date', 'end_date', 'velocity')
     form = SprintAdminForm
 
 class TaskAdmin(admin.ModelAdmin):
