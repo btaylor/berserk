@@ -42,9 +42,9 @@
     <tr>
 {% with sprint.get_previous_or_none as s %}
 {% if s %}
-        <td id="sprint-nav-prev"><a href="{{ s.get_absolute_url }}" title="{{ s }}">&lt;</a></td>
+        <td id="sprint-nav-prev"><a href="{{ s.get_absolute_url }}" title="{{ s }}">&#9664;</a></td>
 {% else %}
-        <td id="sprint-nav-prev" class="sprint-nav-inactive">&lt;</td>
+        <td id="sprint-nav-prev" class="sprint-nav-inactive">&#9664;</td>
 {% endif %}
 {% endwith %}
         <td>
@@ -70,9 +70,9 @@
         </td>
 {% with sprint.get_next_or_none as s %}
 {% if s %}
-        <td id="sprint-nav-next"><a href="{{ s.get_absolute_url }}" title="{{ s }}">&gt;</a></td>
+        <td id="sprint-nav-next"><a href="{{ s.get_absolute_url }}" title="{{ s }}">&#9654;</a></td>
 {% else %}
-        <td id="sprint-nav-next" class="sprint-nav-inactive">&gt;</td>
+        <td id="sprint-nav-next" class="sprint-nav-inactive">&#9654;</td>
 {% endif %}
 {% endwith %}
     </tr>
