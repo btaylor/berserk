@@ -26,7 +26,7 @@ from django.db.models import Q
 from django.contrib import admin
 from django.forms.util import ErrorList
 from berserk2.bugtracker import BugTrackerFactory
-from berserk2.sprints.models import BugTracker, Sprint, Task, Milestone, Project
+from berserk2.sprints.models import *
 
 from django.utils.translation import ugettext as _
 
@@ -123,8 +123,12 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'bug_tracker', 'is_active')
     prepopulated_fields = {'slug': ('name', )}
 
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'last_accessed_sprint')
+
 admin.site.register(BugTracker, BugTrackerAdmin)
 admin.site.register(Sprint, SprintAdmin)
 admin.site.register(Task, TaskAdmin)
 admin.site.register(Milestone, MilestoneAdmin)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)

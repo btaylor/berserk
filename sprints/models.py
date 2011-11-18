@@ -249,6 +249,17 @@ class Sprint(models.Model):
             pass
         return None
 
+
+class UserProfile(models.Model):
+    """
+    A class to track preference data for users.
+    """
+    user = models.ForeignKey(User, unique=True)
+    last_accessed_sprint = models.ForeignKey(Sprint, null=True, blank=True, default=None)
+
+User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
+
+
 class Task(models.Model):
     """
     A work task associated with zero or more sprints.

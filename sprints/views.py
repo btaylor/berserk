@@ -48,9 +48,14 @@ from berserk2.sprints.models import _workday_diff, _calc_load
 @login_required
 def sprint_index(request):
     """
-    Redirect the user to the first project they're a member of.  If they have
-    no projects, 404.
+    If the user has it, redirect to the last sprint they were viewing.  If
+    not, redirect the user to the first project they're a member of.  If they
+    have no projects, 404.
     """
+    profile = request.user.profile
+    if profile.last_accessed_sprint:
+        return HttpResponseRedirect(profile.last_accessed_sprint.get_absolute_url())
+
     projects = Project.objects.filter(users=request.user)
     if projects.count() == 0:
         raise Http404(_('You are not a member of any project.  Ask your administrator to add you.'))
@@ -82,6 +87,12 @@ def sprint_detail(request, sprint_id, project_slug,
     sprint = get_object_or_404(Sprint, pk=int(sprint_id), project=project)
     iteration_days = xrange(1, sprint.iteration_days()+2)
 
+    # Remember that we accessed this sprint for later
+    profile = request.user.profile
+    if profile.last_accessed_sprint != sprint:
+        profile.last_accessed_sprint = sprint
+        profile.save()
+
     return render_to_response(template_name,
                               {'sprint': sprint,
                                'iteration_days': iteration_days,
@@ -95,6 +106,13 @@ def sprint_edit(request, sprint_id, project_slug,
     sprint = get_object_or_404(Sprint, pk=int(sprint_id), project=project)
     bookmarklet_url = settings.NEW_TASK_BOOKMARKLET_URL \
                           % reverse_full_url('sprint_current_bookmarklet', kwargs={'project_slug': project.slug})
+
+    # Remember that we accessed this sprint for later
+    profile = request.user.profile
+    if profile.last_accessed_sprint != sprint:
+        profile.last_accessed_sprint = sprint
+        profile.save()
+
     return render_to_response(template_name,
                               {'sprint': sprint,
                                'bookmarklet_url': bookmarklet_url,

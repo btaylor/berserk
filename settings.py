@@ -14,6 +14,8 @@ MANAGERS = ADMINS
 
 DATABSES = {}
 
+AUTH_PROFILE_MODULE = 'sprints.UserProfile'
+
 # How far to look back when notifying users about not updating their hours.
 # Set this to a number > 2 if you don't want users going crazy, or worse yet,
 # simply ignoring the emails.
