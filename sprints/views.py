@@ -260,9 +260,9 @@ def sprint_burndown_json(request, sprint_id):
         data = cache.aggregate(rem=Sum('task_snapshot__remaining_hours'))
         remaining_hours.append([day, data['rem'] if data['rem'] else 'null'])
 
-        data = cache.exclude(Q(task_snapshot__status='RESOLVED') \
-                             | Q(task_snapshot__status='CLOSED') \
-                             | Q(task_snapshot__status='VERIFIED')) \
+        data = cache.exclude(Q(task_snapshot__status__istartswith='RESOLVED') \
+                             | Q(task_snapshot__status__istartswith='CLOSED') \
+                             | Q(task_snapshot__status__istartswith='VERIFIED')) \
                     .aggregate(count=Count('task_snapshot'))
         if data['count']:
             open_tasks.append([day, data['count']])
