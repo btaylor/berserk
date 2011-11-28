@@ -300,6 +300,48 @@ img a {
     text-decoration: none;
 }
 
+#setup {
+    width: 700px;
+    margin: 0 auto;
+}
+
+#steps {
+    margin-top: 30px;
+}
+
+.step-number {
+    width: 1.1em;
+    padding: 5px;
+    margin: 0 10px;
+
+    float: left;
+    text-align: center;
+
+    background-color: #ffffff;
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+
+    font: 3em Helvetica, Arial, Verdana, sans-serif;
+    font-weight: bold;
+    color: #4D593C;
+    color: #9eb183;
+}
+
+.step-description {
+    float: left;
+    padding: 15px;
+    margin: 0 0 10px 0;
+    width: 80%;
+    background-color: #76895b;
+    background-color: #9eb183;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+}
+
+.step-description h2 {
+    margin: 0 0 0.3em 0;
+}
+
 #timeline-content-container {
     width: 960px;
     margin: 0 auto;

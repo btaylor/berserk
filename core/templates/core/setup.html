@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}setting up berserk{% endblock %}
+
+{% block banner-container %}
+{% endblock %}
+
+{% block navigation-container %}
+{% endblock %}
+
+{% block body %}
+<div id="setup">
+<h1>Setting up Berserk</h1>
+<p>Berserk is a Scrum tracking tool developed to track sprint backlog,
+integrating with Bugzilla or FogBugz to track these tasks.</p>
+
+<p>Looks like this is your first time setting up Berserk.  In order to get
+started, please follow the handy guide below.</p>
+
+<div id="steps">
+
+<div class="step-number"><a name="step1">1</a></div>
+<div class="step-description">
+<h2>local_settings.py</h2>
+<p>In order to see this page, you've probably already created
+<tt>local_settings.py</tt> based upon the template
+<tt>local_settings.py.in</tt>. If you haven't, do that now &emdash; I'll wait.
+Make sure to point berserk at your MySQL database with the <tt>NAME</tt>,
+<tt>USER</tt> and <tt>PASSWORD</tt> fields.</p>
+
+<p>Next, specify your <tt>BUG_TRACKER_TYPE</tt> (either
+<tt>fogbugz.FogBugzClient</tt> or the namespace of your custom Bugzilla bug
+tracker).<p>
+
+<p>Finally, configure the Timeline by setting your desired
+<tt>TIMELINE_SOURCES</tt>.</p>
+
+<p>If you want to use the FogBugz Email source, fill in the IMAP credentials
+(<tt>FB_EMAIL_SOURCE_HOST</tt>, <tt>FB_EMAIL_SOURCE_USER</tt>,
+<tt>FB_EMAIL_SOURCE_PASSWORD</tt>) of a FogBugz user which is configured to
+watch all of your projects for the FogBugz email source.</p>
+</div>
+
+<div class="step-number"><a name="step2">2</a></div>
+<div class="step-description">
+<h2>Sites</h2>
+<p>Berserk needs to know the externally-accessable domain name (sometimes
+called the FQDN) of the server that it is running on.  Berserk uses this to
+generate external links like the Add Task Bookmarklet.  Please go to the <a
+href="/admin/sites/site/" target="_blank">Sites admin</a> to set your external
+domain.</p>
+</div>
+
+<div class="step-number"><a name="step3">3</a></div>
+<div class="step-description">
+<h2>Bug Tracker</h2>
+<p>Create a Bug Tracker in the <a href="/admin/sprints/bugtracker/"
+target="_blank">Admin</a> for every bug tracker you wish to monitor.  Berserk
+supports FogBugz as well as Bugzilla trackers.</p>
+<p>Remember, the type of bug tracker
+was specified in <tt>local_settings.py</tt> in <a href="#step1">Step 1</a>.
+Berserk will only support one type of bug tracker per site.</p>
+</div>
+
+<div class="step-number"><a name="step4">4</a></div>
+<div class="step-description">
+<h2>Projects, Users, Sprints</h2>
+<p>You're almost there!</p>
+<p>Now, just add your <a href="/admin/auth/user/" target="_blank">users</a>,
+your first <a href="/admin/sprints/project" target="_blank">project</a>, and
+your first <a href="/admin/sprints/sprint" target="_blank">sprint</a>!</p>
+</div>
+
+<div style="clear: both;"></div>
+
+</div>
+
+</div>
+{% endblock %}

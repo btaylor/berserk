@@ -28,6 +28,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^core/', include('berserk2.core.urls')),
     (r'^sprints/', include('berserk2.sprints.urls')),
     (r'^timeline/', include('berserk2.timeline.urls')),
     (r'^reports/', include('berserk2.reports.urls')),

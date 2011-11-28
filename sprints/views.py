@@ -58,6 +58,9 @@ def sprint_index(request):
 
     projects = Project.objects.filter(users=request.user)
     if projects.count() == 0:
+        if Project.objects.all().count() == 0:
+            return HttpResponseRedirect(reverse('core_setup'))
+
         raise Http404(_('You are not a member of any project.  Ask your administrator to add you.'))
     return HttpResponseRedirect(projects[0].get_absolute_url())
 
@@ -76,7 +79,7 @@ def sprint_project_index(request, project_slug):
             pass
 
     if sprint == None:
-        raise Http404(_('No sprints have been defined yet.  Visit the Admin page to get started.'))
+        return HttpResponseRedirect(reverse('core_setup'))
 
     return HttpResponseRedirect(sprint.get_absolute_url())
 
