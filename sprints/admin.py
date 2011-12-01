@@ -81,6 +81,7 @@ class SprintAdminForm(forms.ModelForm):
     def clean(self):
         start_date = self.cleaned_data['start_date']
         end_date = self.cleaned_data['end_date']
+        project = self.cleaned_data['project']
 
         if start_date >= end_date:
             self.errors['start_date'] = ErrorList([
@@ -90,7 +91,8 @@ class SprintAdminForm(forms.ModelForm):
 
         sprints = Sprint.objects.filter(
             (Q(start_date__lte=start_date) & Q(end_date__gte=start_date))
-            | (Q(start_date__gte=start_date) & Q(start_date__lte=end_date))
+            | (Q(start_date__gte=start_date) & Q(start_date__lte=end_date)),
+            project=project
         )
 
         if self.initial.has_key('id'):
