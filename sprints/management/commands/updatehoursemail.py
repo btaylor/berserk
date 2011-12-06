@@ -68,6 +68,9 @@ class Command(NoArgsCommand):
 
                 sprint_tasks = TaskSnapshotCache.objects.filter(task_snapshot__task__sprints=sprint,
                                                                 task_snapshot__assigned_to=user)
+                                                        .exclude(Q(status__istartswith='RESOLVED')
+                                                                 | Q(status__istartswith='CLOSED') \
+                                                                 | Q(status__istartswith='VERIFIED')) \
 
                 past_tasks = sprint_tasks.filter(date=date.today() - timedelta(settings.UPDATE_HOURS_REMINDER_DAYS))
                 todays_tasks = sprint_tasks.filter(date=date.today())
