@@ -148,10 +148,10 @@ class FogBugzClient:
 
         estimated_hours = remaining_hours = 0
         for c in xml.findAll('case'):
-            estimated_hours += int(c.findChild('hrscurrest').text)
-            remaining_hours += max(int(c.findChild('hrscurrest').text) - int(c.findChild('hrselapsed').text), 0)
+            estimated_hours += float(c.findChild('hrscurrest').text)
+            remaining_hours += max(float(c.findChild('hrscurrest').text) - float(c.findChild('hrselapsed').text), 0)
 
-        return (int(xml.find('cases')['count']), estimated_hours, remaining_hours)
+        return (int(xml.find('cases')['count']), int(ceil(estimated_hours)), int(ceil(remaining_hours)))
 
     def __get_project_id(self, project_name):
         # TODO: great opportunity for some caching
